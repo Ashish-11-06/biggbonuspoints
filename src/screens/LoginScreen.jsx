@@ -12,15 +12,22 @@ const LoginScreen = ({ navigation }) => {
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [dialogVisible, setDialogVisible] = useState(false);
 
+    const showSnackbar = (message) => {
+        setSnackbarMessage(message);
+        setSnackbarVisible(true);
+    };
+
     const handleLogin = async () => {
         if (!mobile || !pin) {
-            setSnackbarMessage("Please enter both mobile number and PIN.");
-            setSnackbarVisible(true);
+            // setSnackbarMessage("Please enter both mobile number and PIN.");
+            showSnackbar("Please enter both mobile number and PIN.");
+            // setSnackbarVisible(true);
             return;
-        }
-
-        if (pin.length !== 4) {
-            setSnackbarMessage("PIN must be exactly 4 digits.");
+        } else if(mobile.length !== 10) {
+            showSnackbar("Enter a valid 10-digit mobile number.");
+            return;
+         } else if (pin.length !== 4) {
+            setSnackbarMessage("PIN must be 4 digits.");
             setSnackbarVisible(true);
             return;
         }
@@ -134,8 +141,8 @@ const styles = StyleSheet.create({
     },
     snackbar: {
         position: "absolute",
-        top: 80,
-        left: 10,
+        bottom:450,
+        left: 20,
         right: 10,
     },
 });
