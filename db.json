@@ -1,0 +1,8 @@
+{
+    "register" :{
+    "first_name":"abc",
+    "last_name":"xyz",
+    "mobile_number":"1234567890",
+    "pin":"1234"
+}
+}

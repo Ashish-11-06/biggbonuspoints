@@ -3,6 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { Text, TextInput, Button, Snackbar, Provider } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ForgotPinDialog from "../Dialog/ForgotPinDialog";
+import { Picker } from "@react-native-picker/picker";
 
 const LoginScreen = ({ navigation }) => {
     const [mobile, setMobile] = useState("");
@@ -11,7 +12,7 @@ const LoginScreen = ({ navigation }) => {
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [dialogVisible, setDialogVisible] = useState(false);
-
+    const [selectedUserType, setSelectedUserType] = useState("");
     const showSnackbar = (message) => {
         setSnackbarMessage(message);
         setSnackbarVisible(true);
@@ -23,10 +24,10 @@ const LoginScreen = ({ navigation }) => {
             showSnackbar("Please enter both mobile number and PIN.");
             // setSnackbarVisible(true);
             return;
-        } else if(mobile.length !== 10) {
+        } else if (mobile.length !== 10) {
             showSnackbar("Enter a valid 10-digit mobile number.");
             return;
-         } else if (pin.length !== 4) {
+        } else if (pin.length !== 4) {
             setSnackbarMessage("PIN must be 4 digits.");
             setSnackbarVisible(true);
             return;
@@ -44,6 +45,7 @@ const LoginScreen = ({ navigation }) => {
                 setSnackbarVisible(true);
             }
         }, 1500);
+       navigation.navigate("Home"); 
     };
 
     const handleForgotPinSubmit = () => {
@@ -80,6 +82,18 @@ const LoginScreen = ({ navigation }) => {
                     style={styles.input}
                 />
 
+                <Picker
+                    selectedValue={selectedUserType}
+                    onValueChange={(itemValue) => setSelectedUserType(itemValue)}
+                    style={styles.picker}
+
+                >
+                    <Picker.Item label="Select a user type" value="" />
+                    <Picker.Item label="Customer" value="customer" />
+                    <Picker.Item label="Merchant" value="merchant" />
+                    <Picker.Item label="Corporate Merchant" value="corporate" />
+                </Picker>
+
                 <Button mode="contained" onPress={handleLogin} loading={loading} style={styles.button}>
                     Login
                 </Button>
@@ -89,7 +103,7 @@ const LoginScreen = ({ navigation }) => {
                         Forgot PIN?
                     </Button>
                     <Button onPress={() => navigation.navigate("Register")} textColor="#007BFF">
-                    New user? Register.
+                        New user? Register.
                     </Button>
                 </View>
 
@@ -141,10 +155,13 @@ const styles = StyleSheet.create({
     },
     snackbar: {
         position: "absolute",
-        bottom:450,
+        bottom: 450,
         left: 20,
         right: 10,
     },
+    picker: {
+        backgroundColor: "#fff",
+      },
 });
 
 export default LoginScreen;

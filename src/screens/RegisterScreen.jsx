@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { Text, TextInput, Button, Snackbar, Provider, Portal } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import HelpDialog from "../Dialog/HelpDialog";
-
+import { registerUser } from "../Redux/slices/userSlice";
+import useDispatch from "react-redux";
 const RegisterScreen = ({ navigation }) => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -18,7 +19,8 @@ const RegisterScreen = ({ navigation }) => {
     const [selectedQuestion, setSelectedQuestion] = useState("");
     const [securityAnswer, setSecurityAnswer] = useState("");
     const [helpDialog, setHelpDialog] = useState(false);
-
+    const [selectedUserType, setSelectedUserType] = useState("");
+    const dispatch = useDispatch();
     const showSnackbar = (message) => {
         setSnackbarMessage(message);
         setSnackbarVisible(true);
@@ -61,6 +63,20 @@ const RegisterScreen = ({ navigation }) => {
             return;
         }
 
+        const userData ={
+            firstName: firstName,
+            lastName: lastName,
+            mobile: mobile,
+            pin: pin,
+            securityQuestion: selectedQuestion,
+            securityAnswer: securityAnswer,
+            userType: selectedUserType
+        }
+        console.log(userData);
+        
+       const res= dispatch(registerUser(userData));
+       console.log(res);
+       
         setLoading(true);
 
         setTimeout(() => {
@@ -73,130 +89,145 @@ const RegisterScreen = ({ navigation }) => {
     return (
         <Provider>
             <Portal>
-                <View style={styles.container}>
-                    <Text variant="headlineMedium" style={styles.title}>
-                        Register
-                    </Text>
+                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                    <View style={styles.container}>
+                        <Text variant="headlineMedium" style={styles.title}>
+                            Register
+                        </Text>
+                        <Picker
+                                selectedValue={selectedUserType}
+                                onValueChange={(itemValue) => setSelectedUserType(itemValue)}
+                                style={styles.picker}
+                            >
+                                <Picker.Item label="Select a user type" value="" />
+                                <Picker.Item label="Customer" value="customer" />
+                                <Picker.Item label="Merchant" value="merchant" />
+                                <Picker.Item label="Corporate Merchant" value="corporate" />
+                            </Picker>
+                        <View style={styles.nameContainer}>
+                            <TextInput
+                                label="First Name"
+                                mode="outlined"
+                                value={firstName}
+                                onChangeText={setFirstName}
+                                style={[styles.input, styles.halfInput]}
+                            />
+                            <TextInput
+                                label="Last Name"
+                                mode="outlined"
+                                value={lastName}
+                                onChangeText={setLastName}
+                                style={[styles.input, styles.halfInput]}
+                            />
+                        </View>
 
-                    <View style={styles.nameContainer}>
                         <TextInput
-                            label="First Name"
+                            label="Mobile Number"
                             mode="outlined"
-                            value={firstName}
-                            onChangeText={setFirstName}
-                            style={[styles.input, styles.halfInput]}
-                        />
-                        <TextInput
-                            label="Last Name"
-                            mode="outlined"
-                            value={lastName}
-                            onChangeText={setLastName}
-                            style={[styles.input, styles.halfInput]}
-                        />
-                    </View>
-
-                    <TextInput
-                        label="Mobile Number"
-                        mode="outlined"
-                        keyboardType="phone-pad"
-                        value={mobile}
-                        onChangeText={setMobile}
-                        maxLength={10}
-                        style={styles.input}
-                    />
-
-                    <View style={styles.nameContainer}>
-                        <TextInput
-                            label="Enter PIN"
-                            keyboardType="numeric"
-                            secureTextEntry
-                            mode="outlined"
-                            value={pin}
-                            onChangeText={setPin}
-                            style={[styles.input, styles.halfInput]}
-                        />
-                        <TextInput
-                            label="Confirm PIN"
-                            keyboardType="numeric"
-                            secureTextEntry
-                            mode="outlined"
-                            value={confirmPin}
-                            onChangeText={setConfirmPin}
-                            style={[styles.input, styles.halfInput]}
-                        />
-                    </View>
-
-                     {/* <View style={styles.container}> */}
-                     <Picker
-                            selectedValue={selectedQuestion}
-                            onValueChange={(itemValue) => setSelectedQuestion(itemValue)}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Select a security question" value="" />
-                            <Picker.Item label="What is your pet's name?" value="pet_name" />
-                            <Picker.Item label="What is your mother's maiden name?" value="mother_maiden" />
-                            <Picker.Item label="What was your first school?" value="first_school" />
-                        </Picker>
-                        <TextInput
-                            label="Answer"
-                            mode="outlined"
+                            keyboardType="phone-pad"
+                            value={mobile}
+                            onChangeText={setMobile}
+                            maxLength={10}
                             style={styles.input}
-                            value={securityAnswer}
-                            onChangeText={setSecurityAnswer}
                         />
-                       
-                    {/* </View>  */}
 
-                    <Button mode="outlined" onPress={sendOtp} disabled={otpSent} style={styles.otpButton}>
-                        {otpSent ? "OTP Sent" : "Send OTP"}
-                    </Button>
+                        <View style={styles.nameContainer}>
+                            <TextInput
+                                label="Enter PIN"
+                                keyboardType="numeric"
+                                secureTextEntry
+                                mode="outlined"
+                                value={pin}
+                                onChangeText={setPin}
+                                style={[styles.input, styles.halfInput]}
+                            />
+                            <TextInput
+                                label="Confirm PIN"
+                                keyboardType="numeric"
+                                secureTextEntry
+                                mode="outlined"
+                                value={confirmPin}
+                                onChangeText={setConfirmPin}
+                                style={[styles.input, styles.halfInput]}
+                            />
+                        </View>
 
-                    <TextInput
-                        label="Enter OTP"
-                        mode="outlined"
-                        keyboardType="numeric"
-                        value={otp}
-                        onChangeText={(text) => {
-                            if (text.length <= 6) setOtp(text);
-                        }}
-                        maxLength={6}
-                        style={styles.input}
+                         {/* <View style={styles.container}> */}
+                         <Picker
+                                selectedValue={selectedQuestion}
+                                onValueChange={(itemValue) => setSelectedQuestion(itemValue)}
+                                style={styles.picker}
+                            >
+                                <Picker.Item label="Select a security question" value="" />
+                                <Picker.Item label="What is your pet's name?" value="pet_name" />
+                                <Picker.Item label="What is your mother's maiden name?" value="mother_maiden" />
+                                <Picker.Item label="What was your first school?" value="first_school" />
+                            </Picker>
+                            <TextInput
+                                label="Answer"
+                                mode="outlined"
+                                style={styles.input}
+                                value={securityAnswer}
+                                onChangeText={setSecurityAnswer}
+                            />
+                           
+                        {/* </View>  */}
+
+                        <Button mode="outlined" onPress={sendOtp} disabled={otpSent} style={styles.otpButton}>
+                            {otpSent ? "OTP Sent" : "Send OTP"}
+                        </Button>
+
+                        <TextInput
+                            label="Enter OTP"
+                            mode="outlined"
+                            keyboardType="numeric"
+                            value={otp}
+                            onChangeText={(text) => {
+                                if (text.length <= 6) setOtp(text);
+                            }}
+                            maxLength={6}
+                            style={styles.input}
+                        />
+
+                        <Button mode="contained" onPress={handleRegister} loading={loading} style={styles.button}>
+                            Register
+                        </Button>
+
+                        <Button onPress={() => navigation.navigate("Login")} textColor="#007BFF">
+                            Already have an account? Login
+                        </Button>
+
+                        <Button onPress={handleClickHelp} textColor="#007BFF">
+                          Need Help?
+                        </Button>
+
+                        {/* Help Dialog */}
+                        <HelpDialog
+                        visible={helpDialog}
+                        onDismiss={handleDismissHelp}
                     />
 
-                    <Button mode="contained" onPress={handleRegister} loading={loading} style={styles.button}>
-                        Register
-                    </Button>
-
-                    <Button onPress={() => navigation.navigate("Login")} textColor="#007BFF">
-                        Already have an account? Login
-                    </Button>
-
-                    <Button onPress={handleClickHelp} textColor="#007BFF">
-                      Need Help?
-                    </Button>
-
-                    {/* Help Dialog */}
-                    <HelpDialog
-                    visible={helpDialog}
-                    onDismiss={handleDismissHelp}
-                />
-
-                    {/* Snackbar inside Portal */}
-                    <Snackbar
-                        visible={snackbarVisible}
-                        onDismiss={() => setSnackbarVisible(false)}
-                        duration={3000}
-                        style={styles.snackbar}
-                    >
-                        {snackbarMessage}
-                    </Snackbar>
-                </View>
+                        {/* Snackbar inside Portal */}
+                        <Snackbar
+                            visible={snackbarVisible}
+                            onDismiss={() => setSnackbarVisible(false)}
+                            duration={3000}
+                            style={styles.snackbar}
+                        >
+                            {snackbarMessage}
+                        </Snackbar>
+                    </View>
+                </ScrollView>
             </Portal>
         </Provider>
     );
 };
 
 const styles = StyleSheet.create({
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: "center",
+    },
     container: {
         flex: 1,
         justifyContent: "center",
