@@ -4,7 +4,8 @@ import { Text, TextInput, Button, Snackbar, Provider, Portal } from "react-nativ
 import { Picker } from "@react-native-picker/picker";
 import HelpDialog from "../Dialog/HelpDialog";
 import { registerUser } from "../Redux/slices/userSlice";
-import useDispatch from "react-redux";
+import { useDispatch } from "react-redux";
+
 const RegisterScreen = ({ navigation }) => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -63,7 +64,7 @@ const RegisterScreen = ({ navigation }) => {
             return;
         }
 
-        const userData ={
+        const userData = {
             firstName: firstName,
             lastName: lastName,
             mobile: mobile,
@@ -73,10 +74,10 @@ const RegisterScreen = ({ navigation }) => {
             userType: selectedUserType
         }
         console.log(userData);
-        
-       const res= dispatch(registerUser(userData));
-       console.log(res);
-       
+
+        const res = dispatch(registerUser(userData));
+        console.log(res);
+
         setLoading(true);
 
         setTimeout(() => {
@@ -95,15 +96,15 @@ const RegisterScreen = ({ navigation }) => {
                             Register
                         </Text>
                         <Picker
-                                selectedValue={selectedUserType}
-                                onValueChange={(itemValue) => setSelectedUserType(itemValue)}
-                                style={styles.picker}
-                            >
-                                <Picker.Item label="Select a user type" value="" />
-                                <Picker.Item label="Customer" value="customer" />
-                                <Picker.Item label="Merchant" value="merchant" />
-                                <Picker.Item label="Corporate Merchant" value="corporate" />
-                            </Picker>
+                            selectedValue={selectedUserType}
+                            onValueChange={(itemValue) => setSelectedUserType(itemValue)}
+                            style={styles.picker}
+                        >
+                            <Picker.Item label="Select a user type" value="" />
+                            <Picker.Item label="Customer" value="customer" />
+                            <Picker.Item label="Merchant" value="merchant" />
+                            <Picker.Item label="Corporate Merchant" value="corporate" />
+                        </Picker>
                         <View style={styles.nameContainer}>
                             <TextInput
                                 label="First Name"
@@ -152,25 +153,25 @@ const RegisterScreen = ({ navigation }) => {
                             />
                         </View>
 
-                         {/* <View style={styles.container}> */}
-                         <Picker
-                                selectedValue={selectedQuestion}
-                                onValueChange={(itemValue) => setSelectedQuestion(itemValue)}
-                                style={styles.picker}
-                            >
-                                <Picker.Item label="Select a security question" value="" />
-                                <Picker.Item label="What is your pet's name?" value="pet_name" />
-                                <Picker.Item label="What is your mother's maiden name?" value="mother_maiden" />
-                                <Picker.Item label="What was your first school?" value="first_school" />
-                            </Picker>
-                            <TextInput
-                                label="Answer"
-                                mode="outlined"
-                                style={styles.input}
-                                value={securityAnswer}
-                                onChangeText={setSecurityAnswer}
-                            />
-                           
+                        {/* <View style={styles.container}> */}
+                        <Picker
+                            selectedValue={selectedQuestion}
+                            onValueChange={(itemValue) => setSelectedQuestion(itemValue)}
+                            style={styles.picker}
+                        >
+                            <Picker.Item label="Select a security question" value="" />
+                            <Picker.Item label="What is your pet's name?" value="pet_name" />
+                            <Picker.Item label="What is your mother's maiden name?" value="mother_maiden" />
+                            <Picker.Item label="What was your first school?" value="first_school" />
+                        </Picker>
+                        <TextInput
+                            label="Answer"
+                            mode="outlined"
+                            style={styles.input}
+                            value={securityAnswer}
+                            onChangeText={setSecurityAnswer}
+                        />
+
                         {/* </View>  */}
 
                         <Button mode="outlined" onPress={sendOtp} disabled={otpSent} style={styles.otpButton}>
@@ -198,14 +199,14 @@ const RegisterScreen = ({ navigation }) => {
                         </Button>
 
                         <Button onPress={handleClickHelp} textColor="#007BFF">
-                          Need Help?
+                            Need Help?
                         </Button>
 
                         {/* Help Dialog */}
                         <HelpDialog
-                        visible={helpDialog}
-                        onDismiss={handleDismissHelp}
-                    />
+                            visible={helpDialog}
+                            onDismiss={handleDismissHelp}
+                        />
 
                         {/* Snackbar inside Portal */}
                         <Snackbar
@@ -264,7 +265,7 @@ const styles = StyleSheet.create({
     },
     picker: {
         backgroundColor: "#fff",
-      },
+    },
 });
 
 export default RegisterScreen;

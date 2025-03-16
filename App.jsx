@@ -9,6 +9,8 @@ import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import DetailsScreen from './src/screens/DetailsScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
+import { Provider } from 'react-redux';
+import store from './src/Redux/store';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +22,7 @@ function App() {
   };
 
   return (
+    <Provider store={store}>
     <NavigationContainer>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
@@ -32,6 +35,7 @@ function App() {
         <Stack.Screen name="Details" component={DetailsScreen} options={{ title: 'Details' }} />
       </Stack.Navigator>
     </NavigationContainer>
+    </Provider>
   );
 }
 
