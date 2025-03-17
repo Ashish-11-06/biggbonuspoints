@@ -1,88 +1,151 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { Text, TextInput, Button, Snackbar, Provider, Portal } from "react-native-paper";
+import { Text, TextInput, Button, Provider, Portal } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import HelpDialog from "../Dialog/HelpDialog";
 import { registerUser } from "../Redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 
 const RegisterScreen = ({ navigation }) => {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [mobile, setMobile] = useState("");
-    const [otp, setOtp] = useState("");
-    const [snackbarVisible, setSnackbarVisible] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const firstNameRef = useRef("");
+    const lastNameRef = useRef("");
+    const mobileRef = useRef("");
+    const otpRef = useRef("");
+    const pinRef = useRef("");
+    const confirmPinRef = useRef("");
+    const securityQuestionRef = useRef("");
+    const securityAnswerRef = useRef("");
+    const userTypeRef = useRef("");
+
     const [otpSent, setOtpSent] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [pin, setPin] = useState("");
-    const [confirmPin, setConfirmPin] = useState("");
-    const [selectedQuestion, setSelectedQuestion] = useState("");
-    const [securityAnswer, setSecurityAnswer] = useState("");
     const [helpDialog, setHelpDialog] = useState(false);
-    const [selectedUserType, setSelectedUserType] = useState("");
+    const [isRegistering, setIsRegistering] = useState(false); // Track registration process
+
+    // State for error messages
+    const [firstNameError, setFirstNameError] = useState("");
+    const [lastNameError, setLastNameError] = useState("");
+    const [mobileError, setMobileError] = useState("");
+    const [otpError, setOtpError] = useState("");
+    const [pinError, setPinError] = useState("");
+    const [confirmPinError, setConfirmPinError] = useState("");
+    const [securityQuestionError, setSecurityQuestionError] = useState("");
+    const [securityAnswerError, setSecurityAnswerError] = useState("");
+    const [userTypeError, setUserTypeError] = useState("");
+
     const dispatch = useDispatch();
-    const showSnackbar = (message) => {
-        setSnackbarMessage(message);
-        setSnackbarVisible(true);
+
+    const validateFields = () => {
+        let isValid = true;
+
+        // Reset errors
+        setFirstNameError("");
+        setLastNameError("");
+        setMobileError("");
+        setOtpError("");
+        setPinError("");
+        setConfirmPinError("");
+        setSecurityQuestionError("");
+        setSecurityAnswerError("");
+        setUserTypeError("");
+
+        // Validate First Name
+        if (!firstNameRef.current) {
+            setFirstNameError("First Name is required.");
+            isValid = false;
+        }
+
+        // Validate Last Name
+        if (!lastNameRef.current) {
+            setLastNameError("Last Name is required.");
+            isValid = false;
+        }
+
+        // Validate Mobile Number
+        if (!mobileRef.current) {
+            setMobileError("Mobile Number is required.");
+            isValid = false;
+        } else if (mobileRef.current.length !== 10) {
+            setMobileError("Enter a valid 10-digit mobile number.");
+            isValid = false;
+        }
+
+        // Validate PIN
+        if (!pinRef.current) {
+            setPinError("PIN is required.");
+            isValid = false;
+        } else if (pinRef.current.length < 4) {
+            setPinError("PIN must be at least 4 digits.");
+            isValid = false;
+        }
+
+        // Validate Confirm PIN
+        if (!confirmPinRef.current) {
+            setConfirmPinError("Confirm PIN is required.");
+            isValid = false;
+        } else if (confirmPinRef.current !== pinRef.current) {
+            setConfirmPinError("PIN and Confirm PIN must match.");
+            isValid = false;
+        }
+
+        // Validate Security Question
+        if (!securityQuestionRef.current) {
+            setSecurityQuestionError("Security Question is required.");
+            isValid = false;
+        }
+
+        // Validate Security Answer
+        if (!securityAnswerRef.current) {
+            setSecurityAnswerError("Security Answer is required.");
+            isValid = false;
+        }
+
+        // Validate User Type
+        if (!userTypeRef.current) {
+            setUserTypeError("User Type is required.");
+            isValid = false;
+        }
+
+        // Validate OTP only during registration
+        if (isRegistering) {
+            if (!otpRef.current) {
+                setOtpError("OTP is required.");
+                isValid = false;
+            } else if (otpRef.current.length !== 6) {
+                setOtpError("OTP must be 6 digits.");
+                isValid = false;
+            }
+        }
+
+        return isValid;
     };
 
     const sendOtp = () => {
-        if (!firstName || !lastName || !mobile) {
-            showSnackbar("Please fill all fields.");
-        }
-        if (mobile.length !== 10) {
-            showSnackbar("Enter a valid 10-digit mobile number.");
-            return;
-        }
+        if (!validateFields()) return;
 
         setOtpSent(true);
-        showSnackbar("OTP sent to your mobile number.");
-    };
-
-    const handleClickHelp = () => {
-        setHelpDialog(true);
-    };
-
-    const handleDismissHelp = () => {
-        setHelpDialog(false);
     };
 
     const handleRegister = () => {
-        if (!firstName || !lastName || !mobile || !otp) {
-            showSnackbar("Please fill all fields.");
-            return;
-        }
+        setIsRegistering(true); // Start registration process
+        if (!validateFields()) return;
 
-        if (otp.length !== 6) {
-            showSnackbar("OTP must be 6 digits.");
-            return;
-        }
+        const formData = {
+            firstName: firstNameRef.current,
+            lastName: lastNameRef.current,
+            mobile: mobileRef.current,
+            otp: otpRef.current,
+            pin: pinRef.current,
+            confirmPin: confirmPinRef.current,
+            securityQuestion: securityQuestionRef.current,
+            securityAnswer: securityAnswerRef.current,
+            userType: userTypeRef.current,
+        };
 
-        if (pin !== confirmPin) {
-            showSnackbar("PIN and Confirm PIN must match.");
-            return;
-        }
-
-        const userData = {
-            firstName: firstName,
-            lastName: lastName,
-            mobile: mobile,
-            pin: pin,
-            securityQuestion: selectedQuestion,
-            securityAnswer: securityAnswer,
-            userType: selectedUserType
-        }
-        console.log(userData);
-
-        const res = dispatch(registerUser(userData));
-        console.log(res);
-
+        dispatch(registerUser(formData));
         setLoading(true);
-
         setTimeout(() => {
             setLoading(false);
-            showSnackbar("Registration Successful! Please login.");
             navigation.replace("Login");
         }, 1500);
     };
@@ -92,12 +155,10 @@ const RegisterScreen = ({ navigation }) => {
             <Portal>
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.container}>
-                        <Text variant="headlineMedium" style={styles.title}>
-                            Register
-                        </Text>
+                        <Text variant="headlineMedium" style={styles.title}>Register</Text>
                         <Picker
-                            selectedValue={selectedUserType}
-                            onValueChange={(itemValue) => setSelectedUserType(itemValue)}
+                            selectedValue={userTypeRef.current}
+                            onValueChange={(value) => (userTypeRef.current = value)}
                             style={styles.picker}
                         >
                             <Picker.Item label="Select a user type" value="" />
@@ -105,58 +166,67 @@ const RegisterScreen = ({ navigation }) => {
                             <Picker.Item label="Merchant" value="merchant" />
                             <Picker.Item label="Corporate Merchant" value="corporate" />
                         </Picker>
+                        {userTypeError ? <Text style={styles.errorText}>{userTypeError}</Text> : null}
+
                         <View style={styles.nameContainer}>
-                            <TextInput
-                                label="First Name"
-                                mode="outlined"
-                                value={firstName}
-                                onChangeText={setFirstName}
-                                style={[styles.input, styles.halfInput]}
-                            />
-                            <TextInput
-                                label="Last Name"
-                                mode="outlined"
-                                value={lastName}
-                                onChangeText={setLastName}
-                                style={[styles.input, styles.halfInput]}
-                            />
+                            <View style={styles.halfInput}>
+                                <TextInput
+                                    label="First Name"
+                                    mode="outlined"
+                                    onChangeText={(text) => (firstNameRef.current = text)}
+                                    style={styles.input}
+                                />
+                                {firstNameError ? <Text style={styles.errorText}>{firstNameError}</Text> : null}
+                            </View>
+                            <View style={styles.halfInput}>
+                                <TextInput
+                                    label="Last Name"
+                                    mode="outlined"
+                                    onChangeText={(text) => (lastNameRef.current = text)}
+                                    style={styles.input}
+                                />
+                                {lastNameError ? <Text style={styles.errorText}>{lastNameError}</Text> : null}
+                            </View>
                         </View>
 
                         <TextInput
                             label="Mobile Number"
                             mode="outlined"
                             keyboardType="phone-pad"
-                            value={mobile}
-                            onChangeText={setMobile}
+                            onChangeText={(text) => (mobileRef.current = text)}
                             maxLength={10}
                             style={styles.input}
                         />
+                        {mobileError ? <Text style={styles.errorText}>{mobileError}</Text> : null}
 
                         <View style={styles.nameContainer}>
-                            <TextInput
-                                label="Enter PIN"
-                                keyboardType="numeric"
-                                secureTextEntry
-                                mode="outlined"
-                                value={pin}
-                                onChangeText={setPin}
-                                style={[styles.input, styles.halfInput]}
-                            />
-                            <TextInput
-                                label="Confirm PIN"
-                                keyboardType="numeric"
-                                secureTextEntry
-                                mode="outlined"
-                                value={confirmPin}
-                                onChangeText={setConfirmPin}
-                                style={[styles.input, styles.halfInput]}
-                            />
+                            <View style={styles.halfInput}>
+                                <TextInput
+                                    label="Enter PIN"
+                                    keyboardType="numeric"
+                                    secureTextEntry
+                                    mode="outlined"
+                                    onChangeText={(text) => (pinRef.current = text)}
+                                    style={styles.input}
+                                />
+                                {pinError ? <Text style={styles.errorText}>{pinError}</Text> : null}
+                            </View>
+                            <View style={styles.halfInput}>
+                                <TextInput
+                                    label="Confirm PIN"
+                                    keyboardType="numeric"
+                                    secureTextEntry
+                                    mode="outlined"
+                                    onChangeText={(text) => (confirmPinRef.current = text)}
+                                    style={styles.input}
+                                />
+                                {confirmPinError ? <Text style={styles.errorText}>{confirmPinError}</Text> : null}
+                            </View>
                         </View>
 
-                        {/* <View style={styles.container}> */}
                         <Picker
-                            selectedValue={selectedQuestion}
-                            onValueChange={(itemValue) => setSelectedQuestion(itemValue)}
+                            selectedValue={securityQuestionRef.current}
+                            onValueChange={(value) => (securityQuestionRef.current = value)}
                             style={styles.picker}
                         >
                             <Picker.Item label="Select a security question" value="" />
@@ -164,15 +234,15 @@ const RegisterScreen = ({ navigation }) => {
                             <Picker.Item label="What is your mother's maiden name?" value="mother_maiden" />
                             <Picker.Item label="What was your first school?" value="first_school" />
                         </Picker>
+                        {securityQuestionError ? <Text style={styles.errorText}>{securityQuestionError}</Text> : null}
+
                         <TextInput
                             label="Answer"
                             mode="outlined"
+                            onChangeText={(text) => (securityAnswerRef.current = text)}
                             style={styles.input}
-                            value={securityAnswer}
-                            onChangeText={setSecurityAnswer}
                         />
-
-                        {/* </View>  */}
+                        {securityAnswerError ? <Text style={styles.errorText}>{securityAnswerError}</Text> : null}
 
                         <Button mode="outlined" onPress={sendOtp} disabled={otpSent} style={styles.otpButton}>
                             {otpSent ? "OTP Sent" : "Send OTP"}
@@ -182,41 +252,22 @@ const RegisterScreen = ({ navigation }) => {
                             label="Enter OTP"
                             mode="outlined"
                             keyboardType="numeric"
-                            value={otp}
-                            onChangeText={(text) => {
-                                if (text.length <= 6) setOtp(text);
-                            }}
+                            onChangeText={(text) => (otpRef.current = text)}
                             maxLength={6}
                             style={styles.input}
                         />
+                        {otpError ? <Text style={styles.errorText}>{otpError}</Text> : null}
 
                         <Button mode="contained" onPress={handleRegister} loading={loading} style={styles.button}>
                             Register
                         </Button>
-
                         <Button onPress={() => navigation.navigate("Login")} textColor="#007BFF">
                             Already have an account? Login
                         </Button>
-
-                        <Button onPress={handleClickHelp} textColor="#007BFF">
+                        <Button onPress={() => setHelpDialog(true)} textColor="#007BFF">
                             Need Help?
                         </Button>
-
-                        {/* Help Dialog */}
-                        <HelpDialog
-                            visible={helpDialog}
-                            onDismiss={handleDismissHelp}
-                        />
-
-                        {/* Snackbar inside Portal */}
-                        <Snackbar
-                            visible={snackbarVisible}
-                            onDismiss={() => setSnackbarVisible(false)}
-                            duration={3000}
-                            style={styles.snackbar}
-                        >
-                            {snackbarMessage}
-                        </Snackbar>
+                        <HelpDialog visible={helpDialog} onDismiss={() => setHelpDialog(false)} />
                     </View>
                 </ScrollView>
             </Portal>
@@ -245,7 +296,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
     },
     input: {
-        marginBottom: 15,
+        marginBottom: 5,
     },
     halfInput: {
         flex: 1,
@@ -257,11 +308,10 @@ const styles = StyleSheet.create({
     button: {
         marginTop: 10,
     },
-    snackbar: {
-        position: "absolute",
-        bottom: 20,
-        left: 20,
-        // right: 20,
+    errorText: {
+        color: "red",
+        fontSize: 12,
+        marginBottom: 10,
     },
     picker: {
         backgroundColor: "#fff",

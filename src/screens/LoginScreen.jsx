@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
         position: "absolute",
         bottom: 450,
         left: 20,
-        right: 10,
+        // right: 10,
     },
     picker: {
         backgroundColor: "#fff",

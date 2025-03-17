@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Dialog, Portal, Button, Text, TextInput, Snackbar } from "react-native-paper";
 import { StyleSheet } from "react-native";
+import ResetPinDialog from "./ResetPinDialog"; // Import the new component
 
-const ForgotPinDialog = ({ visible, onDismiss, mobile, setMobile, onSubmit }) => {
+const ForgotPinDialog = ({ visible, onDismiss, onSubmit }) => {
+    const mobileRef = useRef(""); // Use ref for mobile number
+    const otpRef = useRef(""); // Use ref for OTP
     const [otpRequested, setOtpRequested] = useState(false);
-    const [otp, setOtp] = useState("");
- const [snackbarVisible, setSnackbarVisible] = useState(false);
+    const [showResetPinDialog, setShowResetPinDialog] = useState(false); // State to control ResetPinDialog visibility
+    const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
 
     const showSnackbar = (message) => {
@@ -13,8 +16,8 @@ const ForgotPinDialog = ({ visible, onDismiss, mobile, setMobile, onSubmit }) =>
         setSnackbarVisible(true);
     };
 
-    const onRequestOTP = () => {  
-        if (mobile.length !== 10) {
+    const onRequestOTP = () => {
+        if (mobileRef.current.length !== 10) {
             showSnackbar("Enter a valid 10-digit mobile number.");
             setOtpRequested(false);
         } else {
@@ -23,13 +26,14 @@ const ForgotPinDialog = ({ visible, onDismiss, mobile, setMobile, onSubmit }) =>
     };
 
     const onOk = () => {
-        if(!otp) {
-             showSnackbar("Please enter OTP.");
-        } else if (otp.length !== 6) {
+        if (!otpRef.current) {
+            showSnackbar("Please enter OTP.");
+        } else if (otpRef.current.length !== 6) {
             showSnackbar("OTP must be 6 digits.");
-        } else { 
+        } else {
             console.log("Submitting OTP...");
-            onSubmit();
+            // Simulate OTP verification success
+            setShowResetPinDialog(true); // Show the ResetPinDialog
             setOtpRequested(false);
         }
     };
@@ -37,7 +41,16 @@ const ForgotPinDialog = ({ visible, onDismiss, mobile, setMobile, onSubmit }) =>
     const onCancel = () => {
         setOtpRequested(false);
         onDismiss();
-    }
+    };
+
+    const handleResetPin = (newPin) => {
+        console.log("New PIN:", newPin);
+        // Call the onSubmit callback with the new PIN
+        onSubmit({ mobile: mobileRef.current, otp: otpRef.current, newPin });
+        setShowResetPinDialog(false); // Close the ResetPinDialog
+        onDismiss(); // Close the ForgotPinDialog
+    };
+
     return (
         <Portal>
             <Dialog visible={visible} onDismiss={onDismiss}>
@@ -48,8 +61,8 @@ const ForgotPinDialog = ({ visible, onDismiss, mobile, setMobile, onSubmit }) =>
                         label="Mobile Number"
                         mode="outlined"
                         keyboardType="phone-pad"
-                        value={mobile}
-                        onChangeText={setMobile}
+                        defaultValue={mobileRef.current}
+                        onChangeText={(text) => (mobileRef.current = text)}
                         maxLength={10}
                         style={{ marginTop: 10 }}
                     />
@@ -57,8 +70,8 @@ const ForgotPinDialog = ({ visible, onDismiss, mobile, setMobile, onSubmit }) =>
                         <TextInput
                             label="OTP"
                             mode="outlined"
-                            value={otp}
-                            onChangeText={setOtp}
+                            defaultValue={otpRef.current}
+                            onChangeText={(text) => (otpRef.current = text)}
                             keyboardType="numeric"
                             maxLength={6}
                             style={{ marginTop: 10 }}
@@ -74,25 +87,28 @@ const ForgotPinDialog = ({ visible, onDismiss, mobile, setMobile, onSubmit }) =>
                     )}
                 </Dialog.Actions>
                 <Snackbar
-                        visible={snackbarVisible}
-                        onDismiss={() => setSnackbarVisible(false)}
-                        duration={3000}
-                        style={styles.snackbar}
-                    >
-                        {snackbarMessage}
-                    </Snackbar>
+                    visible={snackbarVisible}
+                    onDismiss={() => setSnackbarVisible(false)}
+                    duration={500}
+                    style={styles.snackbar}
+                >
+                    {snackbarMessage}
+                </Snackbar>
             </Dialog>
+
+            {/* Render the ResetPinDialog */}
+            <ResetPinDialog
+                visible={showResetPinDialog}
+                onDismiss={() => setShowResetPinDialog(false)}
+                onSubmit={handleResetPin}
+            />
         </Portal>
     );
 };
 
-
 const styles = StyleSheet.create({
     snackbar: {
-        position: "absolute",
-        bottom:400,
-        left: 20,
-        right: 10,
+        // Custom styles for Snackbar
     },
 });
 
