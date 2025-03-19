@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView } from "react-native";
 import { Text, TextInput, Button, Provider, Portal } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import HelpDialog from "../Dialog/HelpDialog";
-import { registerUser } from "../Redux/slices/userSlice";
+import { registerUser, verifyOtp } from "../Redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 
 const RegisterScreen = ({ navigation }) => {
@@ -125,8 +125,9 @@ const RegisterScreen = ({ navigation }) => {
 
         setOtpSent(true);
     };
+// console.log(userTypeRef.current);
 
-    const handleRegister = () => {
+    const handleRegister = () => {        
         setIsRegistering(true); // Start registration process
         if (!validateFields()) return;
 
@@ -141,8 +142,11 @@ const RegisterScreen = ({ navigation }) => {
             securityAnswer: securityAnswerRef.current,
             userType: userTypeRef.current,
         };
+// console.log(formData);
 
-        dispatch(registerUser(formData));
+        const res=dispatch(registerUser(formData));
+        console.log(res);
+        
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
@@ -166,6 +170,7 @@ const RegisterScreen = ({ navigation }) => {
                             <Picker.Item label="Merchant" value="merchant" />
                             <Picker.Item label="Corporate Merchant" value="corporate" />
                         </Picker>
+                        
                         {userTypeError ? <Text style={styles.errorText}>{userTypeError}</Text> : null}
 
                         <View style={styles.nameContainer}>

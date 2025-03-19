@@ -6,8 +6,14 @@ const userApi = {
         return axiosInstance.post(`/`, credentials);
     },
     RegisterUser: (userData) => {
-        return axiosInstance.post('/register-merchant', userData);
+        console.log('userData', userData);
+        const requestR = axiosInstance.post('register-user', userData);
+        console.log('requestR', requestR);
+        return requestR;
     },  
+    verifyOtp: (data) => {
+        return axiosInstance.post('verify-otp', data);
+    }
 };
 
 export default userApi;

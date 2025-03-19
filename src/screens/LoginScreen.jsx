@@ -19,6 +19,8 @@ const LoginScreen = ({ navigation }) => {
     };
 
     const handleLogin = async () => {
+        console.log('pressed');
+        
         if (!mobile || !pin) {
             // setSnackbarMessage("Please enter both mobile number and PIN.");
             showSnackbar("Please enter both mobile number and PIN.");
