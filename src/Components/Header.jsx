@@ -1,19 +1,34 @@
+
 import React from 'react';
-import { View } from 'react-native';
-import { Avatar, Text, IconButton } from 'react-native-paper';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { MaterialIcons, FontAwesome } from '@expo/vector-icons'; // Example icon libraries
 
 const Header = ({ username = "User Name", location = "Location", avatarUrl, onNotificationsPress, onSettingsPress }) => {
   return (
-    <View style={{ backgroundColor: '#9F86C0', padding: 10, flexDirection: 'row', alignItems: 'center' }}>
-      <Avatar.Image size={50} source={{ uri: avatarUrl || 'https://via.placeholder.com/50' }} />
-      <View style={{ marginLeft: 10 }}>
-        <Text style={{ color: 'white', fontSize: 18 }}>{username}</Text>
-        <Text style={{ color: 'white', fontSize: 14 }}>{location}</Text>
+    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: '#9F86C0' }}>
+      {/* Avatar */}
+      <Image
+        source={{ uri: avatarUrl || 'https://via.placeholder.com/50' }}
+        style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }}
+      />
+      
+      {/* User Info */}
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}>{username}</Text>
+        <Text style={{ fontSize: 14, color: 'white' }}>{location}</Text>
       </View>
-      <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
-        <IconButton icon="bell" color="white" size={24} onPress={onNotificationsPress} />
-        <IconButton icon="settings" color="white" size={24} onPress={onSettingsPress} />
-      </View>
+      
+      {/* Notification Icon */}
+      <TouchableOpacity onPress={onNotificationsPress} style={{ marginHorizontal: 10 }}>
+      {/* <Image source={require('../../assets/notification.png')} style={{ width: 24, height: 24 }} /> */}
+      {/* <MaterialIcons name="../../assets/notification.png" size={24} color="white" /> Change icon here */}
+      </TouchableOpacity>
+      
+      {/* Settings Icon */}
+      <TouchableOpacity onPress={onSettingsPress}>
+        
+        <FontAwesome name="cog" size={24} color="white" /> {/* Change icon here */}
+      </TouchableOpacity>
     </View>
   );
 };

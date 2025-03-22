@@ -12,6 +12,7 @@ import DetailsScreen from './src/screens/DetailsScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import { Provider } from 'react-redux';
 import store from './src/Redux/store';
+import ChooseMerchantScreen from './src/screens/ChooseMerchantScreen';
 
 const Stack = createStackNavigator();
 
@@ -35,6 +36,7 @@ function App() {
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Details" component={DetailsScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Choose Merchant" component={ChooseMerchantScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
     </PaperProvider>
