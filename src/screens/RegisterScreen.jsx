@@ -121,16 +121,11 @@ const RegisterScreen = ({ navigation }) => {
     };
 
     const sendOtp = () => {
+        console.log("sendOtp called"); // Add this line
         if (!validateFields()) return;
-
-        setOtpSent(true);
-    };
-// console.log(userTypeRef.current);
-
-    const handleRegister = () => {        
         setIsRegistering(true); // Start registration process
         if (!validateFields()) return;
-
+    
         const formData = {
             firstName: firstNameRef.current,
             lastName: lastNameRef.current,
@@ -142,16 +137,22 @@ const RegisterScreen = ({ navigation }) => {
             securityAnswer: securityAnswerRef.current,
             userType: userTypeRef.current,
         };
-// console.log(formData);
-
-        const res=dispatch(registerUser(formData));
-        console.log(res);
-        
+    
+        console.log("Form Data:", formData); // Log form data
+    
+        const res = dispatch(registerUser(formData));
+        console.log("Dispatch Response:", res); // Log dispatch response
+    
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            navigation.replace("Login");
+            // navigation.replace("Login");
         }, 1500);
+        setOtpSent(true);
+    };// console.log(userTypeRef.current);
+
+    const handleVerifyOtp = () => {
+
     };
 
     return (
@@ -170,7 +171,7 @@ const RegisterScreen = ({ navigation }) => {
                             <Picker.Item label="Merchant" value="merchant" />
                             <Picker.Item label="Corporate Merchant" value="corporate" />
                         </Picker>
-                        
+
                         {userTypeError ? <Text style={styles.errorText}>{userTypeError}</Text> : null}
 
                         <View style={styles.nameContainer}>
@@ -250,7 +251,7 @@ const RegisterScreen = ({ navigation }) => {
                         {securityAnswerError ? <Text style={styles.errorText}>{securityAnswerError}</Text> : null}
 
                         <Button mode="outlined" onPress={sendOtp} disabled={otpSent} style={styles.otpButton}>
-                            {otpSent ? "OTP Sent" : "Send OTP"}
+                            {otpSent ? "OTP Sent" : "Register"}
                         </Button>
 
                         <TextInput
@@ -263,8 +264,8 @@ const RegisterScreen = ({ navigation }) => {
                         />
                         {otpError ? <Text style={styles.errorText}>{otpError}</Text> : null}
 
-                        <Button mode="contained" onPress={handleRegister} loading={loading} style={styles.button}>
-                            Register
+                        <Button mode="contained" onPress={handleVerifyOtp} loading={loading} style={styles.button}>
+                            Verify OTP
                         </Button>
                         <Button onPress={() => navigation.navigate("Login")} textColor="#007BFF">
                             Already have an account? Login

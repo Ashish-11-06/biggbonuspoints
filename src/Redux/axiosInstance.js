@@ -1,10 +1,15 @@
-import axios from 'axios';
+// api.js (or userApi.js)
+import { create } from 'apisauce';
+import Reactotron from 'reactotron-react-native';
 
-const axiosInstance = axios.create({
-    baseURL: '192.168.1.49:8000/api/',
-    headers: {
-        'Content-Type': 'application/json',
-    },
+const axiosInstance = create({
+  baseURL: 'http://192.168.1.49:8000/api/',
+  headers: {
+    'Content-Type': 'application/json',
+},
 });
+
+// Add Reactotron monitor
+axiosInstance.addMonitor(Reactotron.apisauce);
 
 export default axiosInstance;

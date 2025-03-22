@@ -7,7 +7,7 @@ const userApi = {
     },
     RegisterUser: (userData) => {
         console.log('userData', userData);
-        const requestR = axiosInstance.post('register-user', userData);
+        const requestR = axiosInstance.post('register-user/', userData);
         console.log('requestR', requestR);
         return requestR;
     },  

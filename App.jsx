@@ -1,9 +1,14 @@
 import React from 'react';
+import './ReactotronConfig'; 
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar, useColorScheme } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+if (__DEV__) {
+  require("./ReactotronConfig");
+}
+
 
 // Import your screens
 import LoginScreen from './src/screens/LoginScreen';

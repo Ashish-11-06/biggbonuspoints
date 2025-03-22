@@ -4,6 +4,8 @@ import { Text, TextInput, Button, Snackbar, Provider } from "react-native-paper"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ForgotPinDialog from "../Dialog/ForgotPinDialog";
 import { Picker } from "@react-native-picker/picker";
+// Import Reactotron configuration
+import Reactotron from 'reactotron-react-native';
 
 const LoginScreen = ({ navigation }) => {
     const [mobile, setMobile] = useState("");
@@ -19,7 +21,14 @@ const LoginScreen = ({ navigation }) => {
     };
 
     const handleLogin = async () => {
-        console.log('pressed');
+        console.log('hiii sam');
+
+        try {
+            
+        Reactotron.log('Hello from Reactotron!');
+        } catch (error) {
+            console.log(error);
+        }
         
         if (!mobile || !pin) {
             // setSnackbarMessage("Please enter both mobile number and PIN.");
