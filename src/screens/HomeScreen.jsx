@@ -21,7 +21,7 @@ const HomeScreen = () => (
     
     {/* Reedem points */}
       <Card style={{ margin: 10, marginBottom:2, padding: 10, marginTop: 90 }}>
-      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Reedem Points</Text>
+      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Award Points</Text>
         <View style={{ padding: 10 }}>
       {/* First Row */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -31,7 +31,7 @@ const HomeScreen = () => (
         </View>
         <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
           <Image source={require('../../assets/neha.jpg')} style={{ width: 100, height: 50, borderRadius: 25 }} />
-          <Text style={{ width: 120, height: 50, borderRadius: 25 }} >Choose Merchant</Text>
+          <Text style={{ width: 120, height: 50, borderRadius: 25 }} >Choose Customer</Text>
         </View>
         <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
           <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
@@ -45,7 +45,7 @@ const HomeScreen = () => (
       </Card>
 
       <Card style={{ margin: 10, marginBottom:2, padding: 10, paddingBottom: 0 }}>
-      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Reedem Points</Text>
+      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Trasfer Points</Text>
         <View style={{ padding: 10, paddingBottom: 0 }}>
       {/* Second Row */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -70,14 +70,14 @@ const HomeScreen = () => (
 
 
     {/* Wallet & Rewards */}
-    <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginVertical: 10 }}>
+    {/* <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginVertical: 10 }}>
       <Button mode="contained-tonal" style={{ flex: 1, marginHorizontal: 5 }}>PhonePe Wallet</Button>
       <Button mode="contained-tonal" style={{ flex: 1, marginHorizontal: 5 }}>Rewards</Button>
       <Button mode="contained-tonal" style={{ flex: 1, marginHorizontal: 5 }}>Refer & Get ₹100</Button>
-    </View>
+    </View> */}
 
     {/* Recharge & Pay Bills */}
-    <Card style={{ margin: 10, padding: 10 }}>
+    {/* <Card style={{ margin: 10, padding: 10 }}>
       <Text variant="titleMedium">Recharge & Pay Bills</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 10 }}>
         <Button icon="cellphone" mode="contained-tonal" style={{ width: width / 3 - 20, marginBottom: 10 }}>Mobile</Button>
@@ -89,7 +89,7 @@ const HomeScreen = () => (
         <Button icon="school" mode="contained-tonal" style={{ width: width / 3 - 20, marginBottom: 10 }}>Education</Button>
         <Button mode="contained-tonal" style={{ width : width / 3 - 20, marginBottom: 10 }}>See All</Button>
       </View>
-    </Card>
+    </Card> */}
   </ScrollView>
 );
 
