@@ -40,7 +40,7 @@ function App() {
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Details" component={DetailsScreen} options={{ headerShown: false }} />
         <Stack.Screen name="CustomerSelection" component={CustomerSelection} options={{ headerShown: false }} />
-        <Stack.Screen name="Scan QR" component={ScanQR} options={{ headerShown: false }} />
+        <Stack.Screen name="ScanQR" component={ScanQR} options={{ headerShown: false }} />
         <Stack.Screen name="PointsScreen" component={PointsScreen} options={{ headerShown: false }} />
         <Stack.Screen name="ShowPoints" component={ShowPoints} options={{ headerShown: false }} />
       </Stack.Navigator>

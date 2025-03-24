@@ -30,11 +30,12 @@ const HomeScreen = () => {
       {/* First Row */}
       
       <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+        <TouchableOpacity onPress={() => navigation.navigate('ScanQR')}>
         <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
           <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
           <Text>Scan QR</Text>
         </View>
-        
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('CustomerSelection')}>
             <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
               <Image source={require('../../assets/neha.jpg')} style={{ width: 100, height: 50, borderRadius: 25 }} />
