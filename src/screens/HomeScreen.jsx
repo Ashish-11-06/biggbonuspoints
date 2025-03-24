@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Image, Dimensions } from 'react-native';
+import { View, ScrollView, Image, Dimensions,TouchableOpacity } from 'react-native';
 import { Avatar, Text, Button, Card, IconButton, BottomNavigation } from 'react-native-paper';
 import Header from '../Components/Header';
-
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { useNavigation } from "@react-navigation/native";
 const { width } = Dimensions.get('window');
 
-const HomeScreen = () => (
+
+const HomeScreen = () => {
+  const navigation = useNavigation();
+  return(
   <ScrollView style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
     {/* Header */}
     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
@@ -17,26 +22,31 @@ const HomeScreen = () => (
         onSettingsPress={() => console.log("Settings Pressed")}
       />
     </View>
-
     
     {/* Reedem points */}
       <Card style={{ margin: 10, marginBottom:2, padding: 10, marginTop: 90 }}>
-      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Reedem Points</Text>
+      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Award Points</Text>
         <View style={{ padding: 10 }}>
       {/* First Row */}
+      
       <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
         <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
           <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
           <Text>Scan QR</Text>
         </View>
-        <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-          <Image source={require('../../assets/neha.jpg')} style={{ width: 100, height: 50, borderRadius: 25 }} />
-          <Text style={{ width: 120, height: 50, borderRadius: 25 }} >Choose Merchant</Text>
-        </View>
+        
+        <TouchableOpacity onPress={() => navigation.navigate('CustomerSelection')}>
+            <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
+              <Image source={require('../../assets/neha.jpg')} style={{ width: 100, height: 50, borderRadius: 25 }} />
+              <Text style={{ width: 120, height: 50, borderRadius: 25 }}>Choose Customer</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('PointsScreen')}>
         <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
           <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
           <Text style={{ alignItems: 'center', width:40}}>points</Text>
         </View>
+        </TouchableOpacity>
       </View>
     </View>
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -20 }}>
@@ -45,7 +55,7 @@ const HomeScreen = () => (
       </Card>
 
       <Card style={{ margin: 10, marginBottom:2, padding: 10, paddingBottom: 0 }}>
-      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Reedem Points</Text>
+      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text>
         <View style={{ padding: 10, paddingBottom: 0 }}>
       {/* Second Row */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -91,7 +101,8 @@ const HomeScreen = () => (
       </View>
     </Card>
   </ScrollView>
-);
+  );
+};
 
 // Scan QR Screen (Placeholder)
 const ScanQRScreen = () => (
