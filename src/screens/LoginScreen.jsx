@@ -47,7 +47,7 @@ const LoginScreen = ({ navigation }) => {
                 setSnackbarVisible(true);
             }
         }, 1500);
-       navigation.navigate("Home"); 
+       navigation.navigate("MerchantForm"); 
     };
 
     const handleForgotPinSubmit = () => {

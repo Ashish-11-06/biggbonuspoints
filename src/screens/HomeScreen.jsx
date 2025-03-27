@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useNavigation } from "@react-navigation/native";
 const { width } = Dimensions.get('window');
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 const HomeScreen = () => {
@@ -91,7 +92,9 @@ const HomeScreen = () => {
     <Card style={{ margin: 10, padding: 10 }}>
       <Text variant="titleMedium">Recharge & Pay Bills</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 10 }}>
-        <Button icon="cellphone" mode="contained-tonal" style={{ width: width / 3 - 20, marginBottom: 10 }}>Mobile</Button>
+        <Button icon={() => <MaterialCommunityIcons name="cellphone" size={24} color="black" />} mode="contained-tonal">
+  Mobile
+</Button>
         <Button icon="satellite-uplink" mode="contained-tonal" style={{ width: width / 3 - 20, marginBottom: 10 }}>DTH</Button>
         <Button icon="flash" mode="contained-tonal" style={{ width: width / 3 - 20, marginBottom: 10 }}>Electricity</Button>
         <Button icon="credit-card" mode="contained-tonal" style={{ width: width / 3 - 20, marginBottom: 10 }}>Credit Card</Button>

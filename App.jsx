@@ -17,6 +17,7 @@ import ScanQR from './src/screens/ScanQR';
 import PointsScreen from './src/screens/PointsScreen';
 import ShowPoints from './src/screens/ShowPoints';
 import Awards from './src/screens/Awards';
+import MerchantForm from './src/screens/MerchantForm';
 
 const Stack = createStackNavigator();
 
@@ -45,6 +46,7 @@ function App() {
         <Stack.Screen name="PointsScreen" component={PointsScreen} options={{ headerShown: false }} />
         <Stack.Screen name="ShowPoints" component={ShowPoints} options={{ headerShown: false }} />
         <Stack.Screen name="Awards" component={Awards} options={{ headerShown: false }} />
+        <Stack.Screen name="MerchantForm" component={MerchantForm} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
     </PaperProvider>
