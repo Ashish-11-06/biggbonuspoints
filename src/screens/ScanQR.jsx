@@ -9,10 +9,11 @@ import {
 } from "react-native";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
 import { useNavigation } from "@react-navigation/native";
+
 const ScanQR = () => {
   const navigation = useNavigation();
   const [scannedData, setScannedData] = useState(null);
-  const [isScannerOpen, setIsScannerOpen] = useState(true); // Set to true by default
+  const [isScannerOpen, setIsScannerOpen] = useState(true); // Scanner opens by default
 
   const devices = useCameraDevices();
   const device = devices?.back || devices[0];
@@ -20,10 +21,11 @@ const ScanQR = () => {
   useEffect(() => {
     (async () => {
       const cameraPermission = await Camera.requestCameraPermission();
-      const microphonePermission = await Camera.requestMicrophonePermission();
-
-      if (cameraPermission !== "granted" || microphonePermission !== "granted") {
-        Alert.alert("Permission Required", "Camera & Microphone permissions are required to scan QR codes.");
+      if (cameraPermission !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Camera permission is required to scan QR codes."
+        );
       }
     })();
   }, []);
@@ -31,7 +33,20 @@ const ScanQR = () => {
   const onScanSuccess = (qrData) => {
     setScannedData(qrData);
     setIsScannerOpen(false);
-    Alert.alert("Scanned QR Code", qrData);
+
+    Alert.alert("Scanned QR Code", qrData, [
+      {
+        text: "OK",
+        onPress: () => {
+          if (
+            qrData ===
+            "https://upload.wikimedia.org/wikipedia/commons/4/41/QR_Code_Example.svg"
+          ) {
+            navigation.navigate("RedeemPoints"); // Navigate to the next screen
+          }
+        },
+      },
+    ]);
   };
 
   return (
@@ -57,13 +72,19 @@ const ScanQR = () => {
 
           {/* QR Code Scan Message */}
           <Text style={styles.scanMessage}>Scan any QR code</Text>
-          <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.navigate("Home")}>
+
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => navigation.navigate("Home")}
+          >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
 
           {/* Powered By Text at the Bottom */}
           <View style={styles.footerContainer}>
-            <Text style={styles.poweredBy}>Powered by Miraasiv Onpay Technologies Pvt Ltd.</Text>
+            <Text style={styles.poweredBy}>
+              Powered by Miraasiv Onpay Technologies Pvt Ltd.
+            </Text>
           </View>
         </View>
       </Modal>
@@ -96,8 +117,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cameraPreview: {
-    width: "260%",
-    height: "140%",
+    width: "100%",
+    height: "100%",
   },
   cancelButton: {
     marginTop: 20,
