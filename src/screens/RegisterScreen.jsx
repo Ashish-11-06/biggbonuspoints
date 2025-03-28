@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ToastAndroid, ScrollView } from "react-native";
 import { Text, TextInput, Button, Provider, Portal } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import HelpDialog from "../Dialog/HelpDialog";
@@ -32,6 +32,18 @@ const RegisterScreen = ({ navigation }) => {
     const [securityQuestionError, setSecurityQuestionError] = useState("");
     const [securityAnswerError, setSecurityAnswerError] = useState("");
     const [userTypeError, setUserTypeError] = useState("");
+
+    const showToast = (message) => {
+        if (Platform.OS === "android") {
+            ToastAndroid.showWithGravity(
+                message,
+                ToastAndroid.SHORT,
+                ToastAndroid.CENTER
+            );
+        } else {
+            console.log("Toast not supported on this platform");
+        }
+    };
 
     const dispatch = useDispatch();
 
@@ -119,37 +131,49 @@ const RegisterScreen = ({ navigation }) => {
 
         return isValid;
     };
-
-    const sendOtp = () => {
-        console.log("sendOtp called"); // Add this line
-        if (!validateFields()) return;
-        setIsRegistering(true); // Start registration process
-        if (!validateFields()) return;
     
+    const sendOtp = async () => {
+        console.log("sendOtp called");
+
+        if (!validateFields()) return;
+
+        setIsRegistering(true);
+
+        userCategory = userTypeRef.current === "customer" ? "customer" : "merchant";
+
         const formData = {
-            firstName: firstNameRef.current,
-            lastName: lastNameRef.current,
+            first_name: firstNameRef.current,
+            last_name: lastNameRef.current,
             mobile: mobileRef.current,
             otp: otpRef.current,
             pin: pinRef.current,
             confirmPin: confirmPinRef.current,
-            securityQuestion: securityQuestionRef.current,
-            securityAnswer: securityAnswerRef.current,
-            userType: userTypeRef.current,
+            security_question: securityQuestionRef.current,
+            answer: securityAnswerRef.current,
+            user_category: userCategory,
+            ...(userCategory === "merchant" && { user_type: userTypeRef.current }),
         };
-    
-        console.log("Form Data:", formData); // Log form data
-    
-        const res = dispatch(registerUser(formData));
-        console.log("Dispatch Response:", res); // Log dispatch response
-    
-        setLoading(true);
-        setTimeout(() => {
+
+        try {
+            setLoading(true);
+
+            const res = await dispatch(registerUser(formData)); // Await the dispatch
+            console.log("Dispatch Response:", res);
+
+            if (res?.success) {
+                showToast("User registered successfully! 🎉");
+            } else {
+                showToast(res?.message || "Registration failed!");
+            }
+
+            setOtpSent(true);
+        } catch (error) {
+            console.error("Error dispatching registerUser:", error);
+            showToast(error.message || "Something went wrong!");
+        } finally {
             setLoading(false);
-            // navigation.replace("Login");
-        }, 1500);
-        setOtpSent(true);
-    };// console.log(userTypeRef.current);
+        }
+    };
 
     const handleVerifyOtp = () => {
 
@@ -168,7 +192,7 @@ const RegisterScreen = ({ navigation }) => {
                         >
                             <Picker.Item label="Select a user type" value="" />
                             <Picker.Item label="Customer" value="customer" />
-                            <Picker.Item label="Merchant" value="merchant" />
+                            <Picker.Item label="Merchant" value="individual" />
                             <Picker.Item label="Corporate Merchant" value="corporate" />
                         </Picker>
 
