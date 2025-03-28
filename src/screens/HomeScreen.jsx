@@ -1,64 +1,65 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
-import { View, ScrollView, Image, Dimensions, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Image, Dimensions,TouchableOpacity } from 'react-native';
 import { Avatar, Text, Button, Card, IconButton, BottomNavigation } from 'react-native-paper';
 import Header from '../Components/Header';
-import { useNavigation } from '@react-navigation/native';
-
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { useNavigation } from "@react-navigation/native";
 const { width } = Dimensions.get('window');
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-
-  return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
-      {/* Header */}
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
-        <Header 
-          username="John Doe"
-          location="New York, USA"
-          avatarUrl="https://randomuser.me/api/portraits/men/1.jpg"
-          onNotificationsPress={() => console.log("Notifications Pressed")}
-          onSettingsPress={() => console.log("Settings Pressed")}
-          // icon="../../assets/chooseMerchant.png"
-        />
-      </View>
-
-      {/* Reedem points */}
-      <Card style={{ margin: 10, marginBottom: 2, padding: 10, marginTop: 90 }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Reedem Points</Text>
+  return(
+  <ScrollView style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
+    {/* Header */}
+    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
+      <Header 
+        username="John Doe"
+        location="New York, USA"
+        avatarUrl="https://randomuser.me/api/portraits/men/1.jpg"
+        onNotificationsPress={() => console.log("Notifications Pressed")}
+        onSettingsPress={() => console.log("Settings Pressed")}
+      />
+    </View>
+    
+    {/* Reedem points */}
+      <Card style={{ margin: 10, marginBottom:2, padding: 10, marginTop: 90 }}>
+      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Award Points</Text>
         <View style={{ padding: 10 }}>
-          {/* First Row */}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-              <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
-              <Text>Scan QR</Text>
-            </View>
-            <TouchableOpacity onPress={() => navigation.navigate('Choose Merchant')}>
-              <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-                <Image 
-                  // source={require('../../assets/chooseMerchant.png')} 
-                  style={{ width: 35, height: 50, borderRadius: 10 }} 
-                />
-                <Text style={{ width: 120, height: 50, borderRadius: 25 }}>
-                  Choose Merchant
-                </Text>
-              </View>
-            </TouchableOpacity>
-            <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-              <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
-              <Text style={{ alignItems: 'center', width: 40 }}>points</Text>
-            </View>
-          </View>
+      {/* First Row */}
+      
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+        <TouchableOpacity onPress={() => navigation.navigate('ScanQR')}>
+        <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
+          <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
+          <Text>Scan QR</Text>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -20 }}>
-          <Text style={{ textAlign: 'center', flex: 1 }}>My ID: ABC008790</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('CustomerSelection')}>
+            <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
+              <Image source={require('../../assets/neha.jpg')} style={{ width: 100, height: 50, borderRadius: 25 }} />
+              <Text style={{ width: 120, height: 50, borderRadius: 25 }}>Choose Customer</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('PointsScreen')}>
+        <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
+          <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
+          <Text style={{ alignItems: 'center', width:40}}>points</Text>
         </View>
+        </TouchableOpacity>
+      </View>
+    </View>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -20 }}>
+        <Text style={{ textAlign: 'center', flex: 1 }}>My ID: ABC008790</Text>
+      </View>
       </Card>
 
       <Card style={{ margin: 10, marginBottom:2, padding: 10, paddingBottom: 0 }}>
-      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Trasfer Points</Text>
+      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text>
         <View style={{ padding: 10, paddingBottom: 0 }}>
       {/* Second Row */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -93,7 +94,9 @@ const HomeScreen = () => {
     {/* <Card style={{ margin: 10, padding: 10 }}>
       <Text variant="titleMedium">Recharge & Pay Bills</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 10 }}>
-        <Button icon="cellphone" mode="contained-tonal" style={{ width: width / 3 - 20, marginBottom: 10 }}>Mobile</Button>
+        <Button icon={() => <MaterialCommunityIcons name="cellphone" size={24} color="black" />} mode="contained-tonal">
+  Mobile
+</Button>
         <Button icon="satellite-uplink" mode="contained-tonal" style={{ width: width / 3 - 20, marginBottom: 10 }}>DTH</Button>
         <Button icon="flash" mode="contained-tonal" style={{ width: width / 3 - 20, marginBottom: 10 }}>Electricity</Button>
         <Button icon="credit-card" mode="contained-tonal" style={{ width: width / 3 - 20, marginBottom: 10 }}>Credit Card</Button>

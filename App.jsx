@@ -15,9 +15,15 @@ import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import DetailsScreen from './src/screens/DetailsScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
+import CustomerSelection from './src/screens/CustomerSelection'
 import { Provider } from 'react-redux';
 import store from './src/Redux/store';
-import ChooseMerchantScreen from './src/screens/ChooseMerchantScreen';
+import ScanQR from './src/screens/ScanQR';
+import PointsScreen from './src/screens/PointsScreen';
+import ShowPoints from './src/screens/ShowPoints';
+import Awards from './src/screens/Awards';
+import MerchantForm from './src/screens/MerchantForm';
+import RedeemPoints from './src/screens/RedeemPoints';
 
 const Stack = createStackNavigator();
 
@@ -41,7 +47,13 @@ function App() {
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Details" component={DetailsScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Choose Merchant" component={ChooseMerchantScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="CustomerSelection" component={CustomerSelection} options={{ headerShown: false }} />
+        <Stack.Screen name="ScanQR" component={ScanQR} options={{ headerShown: false }} />
+        <Stack.Screen name="PointsScreen" component={PointsScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ShowPoints" component={ShowPoints} options={{ headerShown: false }} />
+        <Stack.Screen name="Awards" component={Awards} options={{ headerShown: false }} />
+        <Stack.Screen name="MerchantForm" component={MerchantForm} options={{ headerShown: false }} />
+        <Stack.Screen name="RedeemPoints" component={RedeemPoints} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
     </PaperProvider>
