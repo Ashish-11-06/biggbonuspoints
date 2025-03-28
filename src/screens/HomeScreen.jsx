@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
 import { View, ScrollView, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { Avatar, Text, Button, Card, IconButton, BottomNavigation } from 'react-native-paper';
@@ -33,7 +35,7 @@ const HomeScreen = () => {
               <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
               <Text>Scan QR</Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('ChooseMerchant')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Choose Merchant')}>
               <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
                 <Image 
                   // source={require('../../assets/chooseMerchant.png')} 

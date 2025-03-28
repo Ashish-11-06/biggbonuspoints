@@ -1,7 +1,9 @@
 
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { MaterialIcons, FontAwesome } from '@expo/vector-icons'; // Example icon libraries
+import { MaterialIcons } from '@expo/vector-icons'; // Example icon libraries
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+
 
 const Header = ({ username = "User Name", location = "Location", avatarUrl, onNotificationsPress, onSettingsPress }) => {
   return (
