@@ -35,9 +35,11 @@ const PointsScreen = () => {
                     </Text>
                 ))}
             </View>
+            <View>
             <Text style={styles.infoText}>
                 UPI PIN will keep your account secure from unauthorized access. Do not share this PIN with anyone.
             </Text>
+            </View>
             <View style={styles.keypad}>
                 {[...Array(9)].map((_, index) => (
                     <TouchableOpacity key={index} style={styles.key} onPress={() => handlePress((index + 1).toString())}>

@@ -3,7 +3,7 @@ import axiosInstance from "../axiosInstance";
 
 const userApi = {
     loginUser: (credentials) => {
-        return axiosInstance.post(`/`, credentials);
+        return axiosInstance.post(`login-user/`, credentials);
     },
     RegisterUser: (userData) => {
         console.log('userData', userData);
@@ -12,8 +12,9 @@ const userApi = {
         return requestR;
     },  
     verifyOtp: (data) => {
-        return axiosInstance.post('verify-otp', data);
-    }
+        return axiosInstance.post('verify-otp/', data);
+    },
+
 };
 
 export default userApi;

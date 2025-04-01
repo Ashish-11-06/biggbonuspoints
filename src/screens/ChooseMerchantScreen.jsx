@@ -49,9 +49,12 @@ const ChooseMerchantScreen = () => {
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
+            <View>
             <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{item.name}</Text>
             <Text style={{ fontSize: 14, color: '#555' }}>{item.phone}</Text>
+            </View>
           </TouchableOpacity>
+          
         )}
         style={{ margin: 10 }}
       />

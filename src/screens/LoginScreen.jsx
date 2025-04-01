@@ -6,6 +6,8 @@ import ForgotPinDialog from "../Dialog/ForgotPinDialog";
 import { Picker } from "@react-native-picker/picker";
 // Import Reactotron configuration
 import Reactotron from 'reactotron-react-native';
+import { loginUser } from "../Redux/slices/userSlice";
+import { useDispatch } from "react-redux";
 
 const LoginScreen = ({ navigation }) => {
     const [mobile, setMobile] = useState("");
@@ -15,48 +17,61 @@ const LoginScreen = ({ navigation }) => {
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [dialogVisible, setDialogVisible] = useState(false);
     const [selectedUserType, setSelectedUserType] = useState("");
+    const dispatch = useDispatch();
     const showSnackbar = (message) => {
         setSnackbarMessage(message);
         setSnackbarVisible(true);
     };
 
     const handleLogin = async () => {
-        console.log('hiii sam');
+        const userData = {
+            mobile: mobile,
+            pin: pin,
+            user_category: selectedUserType,
+        };
+        console.log("userdata", userData);
 
-        try {
-            
-        Reactotron.log('Hello from Reactotron!');
-        } catch (error) {
-            console.log(error);
-        }
-        
         if (!mobile || !pin) {
-            // setSnackbarMessage("Please enter both mobile number and PIN.");
             showSnackbar("Please enter both mobile number and PIN.");
-            // setSnackbarVisible(true);
             return;
         } else if (mobile.length !== 10) {
             showSnackbar("Enter a valid 10-digit mobile number.");
             return;
         } else if (pin.length !== 4) {
-            setSnackbarMessage("PIN must be 4 digits.");
-            setSnackbarVisible(true);
+            showSnackbar("PIN must be 4 digits.");
             return;
         }
 
         setLoading(true);
 
-        setTimeout(async () => {
-            setLoading(false);
-            if (mobile === "9876543210" && pin === "1234") {
-                await AsyncStorage.setItem("userToken", "dummy-token");
-                navigation.replace("Home");
-            } else {
-                setSnackbarMessage("Invalid credentials!");
-                setSnackbarVisible(true);
+        try {
+            const res = await dispatch(loginUser(userData)).unwrap();
+            console.log("login res", res);
+
+            if (res && res.message === "Login successful") {
+                console.log(res);
+                console.log(res.message);
+
+                // Store data in AsyncStorage based on user_category
+                const storageData = {
+                    user_category: res.user_category,
+                };
+                if (res.user_category === "customer") {
+                    storageData.customer_id = res.customer_id;
+                } else if (res.user_category === "merchant") {
+                    storageData.merchant_id = res.merchant_id;
+                }
+                await AsyncStorage.setItem("user", JSON.stringify(storageData));
+
+                showSnackbar(res.message); // Display success message
+                navigation.navigate("Home");
             }
-        }, 1500);
-       navigation.navigate("MerchantForm"); 
+        } catch (error) {
+            console.log(error);
+            showSnackbar("Login failed. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleForgotPinSubmit = () => {
@@ -134,7 +149,9 @@ const LoginScreen = ({ navigation }) => {
                     duration={3000}
                     style={styles.snackbar}
                 >
-                    {snackbarMessage}
+                <View>
+                    <Text>{snackbarMessage}</Text> {/* Wrap message in <Text> */}
+                    </View>
                 </Snackbar>
             </View>
         </Provider>
@@ -166,7 +183,7 @@ const styles = StyleSheet.create({
     },
     snackbar: {
         position: "absolute",
-        bottom: 450,
+        bottom: 200,
         left: 20,
         // right: 10,
     },

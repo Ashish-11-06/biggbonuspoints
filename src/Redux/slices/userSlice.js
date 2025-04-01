@@ -24,6 +24,7 @@ export const verifyOtp = createAsyncThunk(
     try {
       const response = await userApi.verifyOtp(data);
       if (response.status === 200 && response.data) {
+        console.log(response)
         return response.data; // Ensure response contains valid data
       }
       throw new Error("Invalid response from server");
@@ -38,6 +39,7 @@ export const loginUser = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await userApi.loginUser(data);
+      console.log(response);
       if (response.status === 200 && response.data) {
         return response.data; // Ensure response contains valid data
       }

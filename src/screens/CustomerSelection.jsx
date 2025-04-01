@@ -331,8 +331,10 @@ const CustomerSelection = ({ navigation }) => {
                 })
               }
             >
+              <View>
               <Text>{item.name}</Text>
               <Text>{item.phone}</Text>
+              </View>
             </TouchableOpacity>
           )}
         />

@@ -71,8 +71,9 @@ const ScanQR = () => {
           </View>
 
           {/* QR Code Scan Message */}
+          <View>
           <Text style={styles.scanMessage}>Scan any QR code</Text>
-
+          </View>
           <TouchableOpacity
             style={styles.cancelButton}
             onPress={() => navigation.navigate("Home")}

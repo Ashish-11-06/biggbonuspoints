@@ -7,9 +7,11 @@ function DetailsScreen() {
     <View style={styles.container}>
       <Card style={styles.card}>
         <Card.Content>
+          <View>
           <Text variant="titleLarge" style={styles.title}>
             Details Screen
           </Text>
+          </View>
         </Card.Content>
       </Card>
     </View>

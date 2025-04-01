@@ -1,10 +1,12 @@
 import React, { useRef, useState } from "react";
-import { View, StyleSheet, ToastAndroid, ScrollView } from "react-native";
+import { View, StyleSheet, ToastAndroid, ScrollView, Platform } from "react-native";
 import { Text, TextInput, Button, Provider, Portal } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import HelpDialog from "../Dialog/HelpDialog";
 import { registerUser, verifyOtp } from "../Redux/slices/userSlice";
 import { useDispatch } from "react-redux";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const RegisterScreen = ({ navigation }) => {
     const firstNameRef = useRef("");
@@ -139,7 +141,7 @@ const RegisterScreen = ({ navigation }) => {
 
         setIsRegistering(true);
 
-        userCategory = userTypeRef.current === "customer" ? "customer" : "merchant";
+        const userCategory = userTypeRef.current === "customer" ? "customer" : "merchant"; // Declare userCategory properly
 
         const formData = {
             first_name: firstNameRef.current,
@@ -160,10 +162,16 @@ const RegisterScreen = ({ navigation }) => {
             const res = await dispatch(registerUser(formData)); // Await the dispatch
             console.log("Dispatch Response:", res);
 
-            if (res?.success) {
+            if (res?.type === "user/registerUser/fulfilled") {
+                const { customer_id, user_type } = res.payload;
+
+                // Store customer_id and user_category in AsyncStorage
+                await AsyncStorage.setItem("customer_id", customer_id);
+                await AsyncStorage.setItem("user_category", user_type);
+
                 showToast("User registered successfully! 🎉");
             } else {
-                showToast(res?.message || "Registration failed!");
+                showToast(res?.payload?.message || "Registration failed!");
             }
 
             setOtpSent(true);
@@ -175,8 +183,43 @@ const RegisterScreen = ({ navigation }) => {
         }
     };
 
-    const handleVerifyOtp = () => {
+    const handleVerifyOtp = async () => {
+        try {
+            // Retrieve customer_id and user_category from AsyncStorage
+            const customer_id = await AsyncStorage.getItem("customer_id");
+            const user_category = await AsyncStorage.getItem("user_category");
 
+            if (!customer_id || !user_category) {
+                showToast("Missing customer details. Please register again.");
+                return;
+            }
+
+            const otp = otpRef.current;
+
+            if (!otp || otp.length !== 6) {
+                setOtpError("OTP must be 6 digits.");
+                return;
+            }
+
+            const formData = {
+                customer_id,
+                user_category,
+                otp:Number(otp)
+            };
+            console.log('payload of verify otp',formData);
+            const res = await dispatch(verifyOtp(formData)); // Dispatch OTP verification
+            console.log("OTP Verification Response:", res);
+
+            if (res?.type === "user/verifyOtp/fulfilled") {
+                showToast("OTP verified successfully! 🎉");
+                navigation.navigate("Home"); // Navigate to the home screen
+            } else {
+                showToast(res?.payload?.message || "OTP verification failed!");
+            }
+        } catch (error) {
+            console.error("Error verifying OTP:", error);
+            showToast(error.message || "Something went wrong!");
+        }
     };
 
     return (
