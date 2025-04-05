@@ -59,9 +59,11 @@ const TransferPoints = ({ route, navigation }) => {
     };
   }, [merchantId, dispatch]);
 
+  const navigateToHome = () => {
+    navigation.navigate('Home'); // Replace 'Home' with your actual home screen name
+  };
 
-
-const handleTransfer = async () => {
+  const handleTransfer = async () => {
     if (!customerId) {
       Alert.alert("Error", "Customer ID not found");
       return;
@@ -78,27 +80,27 @@ const handleTransfer = async () => {
         throw new Error("Authentication required");
       }
       
-      // Use .unwrap() to get the actual promise that can be caught
       const response = await dispatch(customerToMerchantPoints({
         customer_id: customerId,
         merchant_id: merchantId,
         points: parseInt(points)
       })).unwrap();
   
-    //   console.log("Transfer successful:", response);
-      Alert.alert("Success", "Points transferred successfully!");
+      Alert.alert(
+        "Success", 
+        "Points transferred successfully!",
+        [
+          { text: "OK", onPress: navigateToHome }
+        ]
+      );
       
     } catch (error) {
       console.error("Transfer failed:", error);
-      // The error will now include the rejected value from your thunk
       Alert.alert("Error", error || "Transfer failed");
     }
   };
 
-
-
-
-   return (
+  return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
@@ -132,14 +134,13 @@ const handleTransfer = async () => {
             disabled={!customerId}
           >
             <Text style={styles.transferButtonText}>
-              {/* {status === 'loading' ? "Processing..." : "Transfer Points"} */}
               transfer points
             </Text>
           </TouchableOpacity>
           
           <TouchableOpacity
             style={styles.cancelButton}
-            onPress={() => navigation.goBack()}
+            onPress={navigateToHome}
           >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
