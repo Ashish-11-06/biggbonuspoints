@@ -4,29 +4,26 @@ import React, { useEffect, useState } from 'react';
 import { View, ScrollView, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { Avatar, Text, Button, Card, IconButton, BottomNavigation } from 'react-native-paper';
 import Header from '../Components/Header';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { fetchCustomerPointsById } from '../Redux/slices/customerPointsSlice';
 import { useDispatch } from 'react-redux';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
-const dispatch=useDispatch();
+  const dispatch = useDispatch();
+
   React.useEffect(() => {
     const fetchUserDetails = async () => {
       try {
         const user = await AsyncStorage.getItem('user');
-        console.log('user',user)
+        console.log('user', user);
         if (user) {
           const parsedUser = JSON.parse(user);
           setUserDetails({
-            user_category: parsedUser.user_category || '',
-            id: parsedUser.customer_id || parsedUser.merchant_id || '',
+            user_category: parsedUser.user_category || 'User',
+            id: parsedUser.customer_id || parsedUser.merchant_id || 'N/A',
           });
         }
       } catch (error) {
@@ -36,20 +33,6 @@ const dispatch=useDispatch();
 
     fetchUserDetails();
   }, []);
-
-console.log('user details',userDetails);
-
-useEffect (() => {
-  const fetchCustomerPoints = async () => {
-    try {
-      const response = await dispatch(fetchCustomerPointsById(userDetails.id));
-      console.log('response',response)
-      } catch (error) {
-        console.error('Error fetching customer points:', error);
-        }
-        }
-        }, [userDetails.id, dispatch]);
-      
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
@@ -64,54 +47,81 @@ useEffect (() => {
         />
       </View>
       
-      {/* Reedem points */}
+      {/* Award Points Section */}
       <Card style={{ margin: 10, marginBottom: 2, padding: 10, marginTop: 90 }}>
         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Award Points</Text>
         <View style={{ padding: 10 }}>
-          {/* First Row */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <TouchableOpacity onPress={() => navigation.navigate('ScanQR')}>
               <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-                <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
+                <Image 
+                  source={require('../../assets/neha.jpg')} 
+                  style={{ width: 50, height: 50, borderRadius: 25 }} 
+                />
                 <Text>Scan QR</Text>
               </View>
             </TouchableOpacity>
+            
             <TouchableOpacity onPress={() => navigation.navigate('CustomerSelection')}>
               <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-                <Image source={require('../../assets/neha.jpg')} style={{ width: 100, height: 50, borderRadius: 25 }} />
-                <Text style={{ width: 120, height: 50, borderRadius: 25 }}>Choose Customer</Text>
+                <Image 
+                  source={require('../../assets/neha.jpg')} 
+                  style={{ width: 50, height: 50, borderRadius: 25 }} 
+                />
+                <Text>Choose Customer</Text>
               </View>
             </TouchableOpacity>
+            
             <TouchableOpacity onPress={() => navigation.navigate('PointsScreen')}>
               <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-                <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
-                <Text style={{ alignItems: 'center', width: 40 }}>points</Text>
+                <Image 
+                  source={require('../../assets/neha.jpg')} 
+                  style={{ width: 50, height: 50, borderRadius: 25 }} 
+                />
+                <Text>Points</Text>
               </View>
             </TouchableOpacity>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -20 }}>
-          <Text style={{ textAlign: 'center', flex: 1 }}>My ID: ABC008790</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
+          <Text style={{ textAlign: 'center' }}>My ID: {userDetails.id}</Text>
         </View>
       </Card>
 
-      <Card style={{ margin: 10, marginBottom: 2, padding: 10, paddingBottom: 0 }}>
-       <View> <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text></View>
-        <View style={{ padding: 10, paddingBottom: 0 }}>
-          {/* Second Row */}
+      {/* Transfer Points Section */}
+      <Card style={{ margin: 10, marginBottom: 20, padding: 10 }}>
+        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text>
+        <View style={{ padding: 10 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-              <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
-              <Text>Transfer</Text>
-            </View>
-            <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-              <Image source={require('../../assets/neha.jpg')} style={{ width: 100, height: 50, borderRadius: 25 }} />
-              <Text style={{ width: 70, height: 50, borderRadius: 25 }}>select user</Text>
-            </View>
-            <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-              <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
-              <Text style={{ alignItems: 'center', width: 50 }}>Recieve</Text>
-            </View>
+            <TouchableOpacity>
+              <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
+                <Image 
+                  source={require('../../assets/neha.jpg')} 
+                  style={{ width: 50, height: 50, borderRadius: 25 }} 
+                />
+                <Text>Transfer</Text>
+              </View>
+            </TouchableOpacity>
+            
+            <TouchableOpacity>
+              <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
+                <Image 
+                  source={require('../../assets/neha.jpg')} 
+                  style={{ width: 50, height: 50, borderRadius: 25 }} 
+                />
+                <Text>Select User</Text>
+              </View>
+            </TouchableOpacity>
+            
+            <TouchableOpacity>
+              <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
+                <Image 
+                  source={require('../../assets/neha.jpg')} 
+                  style={{ width: 50, height: 50, borderRadius: 25 }} 
+                />
+                <Text>Receive</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
       </Card>
@@ -119,15 +129,18 @@ useEffect (() => {
   );
 };
 
-// Scan QR Screen (Placeholder)
+// Scan QR Screen
 const ScanQRScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f3f3' }}>
-    <Image source={require('../../assets/neha.jpg')} style={{ width: 200, height: 200 }} />
+    <Image 
+      source={require('../../assets/neha.jpg')} 
+      style={{ width: 200, height: 200 }} 
+    />
     <Text style={{ marginTop: 20 }}>Scan QR Code</Text>
   </View>
 );
 
-// History Screen (Placeholder)
+// History Screen
 const HistoryScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f3f3' }}>
     <Text>Transaction History</Text>
@@ -138,9 +151,24 @@ const HistoryScreen = () => (
 const MainNavigator = () => {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    { key: 'home', title: 'Home', icon: 'home' },
-    { key: 'scanQR', title: 'Scan', icon: 'qrcode' },
-    { key: 'history', title: 'History', icon: 'history' },
+    { 
+      key: 'home', 
+      title: 'Home', 
+      focusedIcon: 'home', 
+      unfocusedIcon: 'home-outline' 
+    },
+    { 
+      key: 'scanQR', 
+      title: 'Scan', 
+      focusedIcon: 'qrcode-scan', 
+      unfocusedIcon: 'qrcode' 
+    },
+    { 
+      key: 'history', 
+      title: 'History', 
+      focusedIcon: 'history', 
+      unfocusedIcon: 'history' 
+    },
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
@@ -155,7 +183,6 @@ const MainNavigator = () => {
       onIndexChange={setIndex}
       renderScene={renderScene}
       barStyle={{ backgroundColor: 'white' }}
-      shifting={false}
       activeColor="#6A1B9A"
       inactiveColor="#888"
     />

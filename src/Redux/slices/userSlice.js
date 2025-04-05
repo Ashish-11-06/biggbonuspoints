@@ -10,10 +10,11 @@ export const registerUser = createAsyncThunk(
       const response = await userApi.RegisterUser(data);
       if (response.status === 200 && response.data) {
         return response.data; // Ensure response contains valid data
+      } else if (response.status === 400) {
+        return rejectWithValue(response.data.message || "Registration failed!"); 
       }
-      throw new Error("Invalid response from server");
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error);
+      return rejectWithValue(error.response?.data || error);
     }
   }
 );
@@ -40,15 +41,18 @@ export const loginUser = createAsyncThunk(
     try {
       const response = await userApi.loginUser(data);
       console.log(response);
+      
       if (response.status === 200 && response.data) {
-        return response.data; // Ensure response contains valid data
+        return response.data; // Successful login
+      } else if (response.status === 400) {
+        return rejectWithValue(response.data.error || "Invalid credentials!"); 
       }
-      throw new Error("Invalid response from server");
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error);
+      return rejectWithValue(error.response?.data || error.message || "An error occurred");
     }
   }
 );
+
 
 
 

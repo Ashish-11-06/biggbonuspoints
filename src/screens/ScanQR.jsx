@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -6,85 +6,182 @@ import {
   StyleSheet,
   Alert,
   Modal,
+  ActivityIndicator,
+  Linking,
+  PermissionsAndroid,
+  Platform
 } from "react-native";
-import { Camera, useCameraDevices } from "react-native-vision-camera";
+import { Camera, CameraType } from 'react-native-camera-kit';
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ScanQR = () => {
   const navigation = useNavigation();
   const [scannedData, setScannedData] = useState(null);
-  const [isScannerOpen, setIsScannerOpen] = useState(true); // Scanner opens by default
-
-  const devices = useCameraDevices();
-  const device = devices?.back || devices[0];
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
+  const cameraRef = useRef(null);
 
   useEffect(() => {
-    (async () => {
-      const cameraPermission = await Camera.requestCameraPermission();
-      if (cameraPermission !== "granted") {
-        Alert.alert(
-          "Permission Required",
-          "Camera permission is required to scan QR codes."
-        );
+    const loadUserDetails = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('userDetails');
+        if (userData) {
+          setUserDetails(JSON.parse(userData));
+        }
+      } catch (error) {
+        console.error('Error loading user details:', error);
       }
-    })();
+    };
+    
+    loadUserDetails();
+    requestCameraPermission();
   }, []);
 
-  const onScanSuccess = (qrData) => {
-    setScannedData(qrData);
-    setIsScannerOpen(false);
-
-    Alert.alert("Scanned QR Code", qrData, [
-      {
-        text: "OK",
-        onPress: () => {
-          if (
-            qrData ===
-            "https://upload.wikimedia.org/wikipedia/commons/4/41/QR_Code_Example.svg"
-          ) {
-            navigation.navigate("RedeemPoints"); // Navigate to the next screen
-          }
-        },
-      },
-    ]);
+  const fetchDataFromQR = async (qrData) => {
+    try {
+      setIsFetching(true);
+      return {
+        type: 'raw',
+        data: qrData,
+        raw: qrData
+      };
+    } catch (error) {
+      console.error("Error handling QR data:", error);
+      throw error;
+    } finally {
+      setIsFetching(false);
+    }
   };
+
+  const handleScanSuccess = async (qrData) => {
+    try {
+      const result = await fetchDataFromQR(qrData);
+      
+      navigation.navigate("TransferPoints", {
+        merchantId: result.raw,
+        customerId: userDetails.id
+      });
+      
+      setScannedData(null);
+      setIsScannerOpen(false);
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "Could not read QR code data.",
+        [{
+          text: "OK",
+          onPress: () => {
+            setScannedData(null);
+            setIsScannerOpen(true);
+          }
+        }]
+      );
+    }
+  };
+
+  const onBarcodeScan = (event) => {
+    if (event.nativeEvent.codeStringValue !== scannedData && !isFetching) {
+      setScannedData(event.nativeEvent.codeStringValue);
+      setIsScannerOpen(false);
+      handleScanSuccess(event.nativeEvent.codeStringValue);
+    }
+  };
+
+  const requestCameraPermission = async () => {
+    try {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: "Camera Permission",
+            message: "App needs access to your camera to scan QR codes",
+            buttonNeutral: "Ask Me Later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK"
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          setHasPermission(true);
+          setIsScannerOpen(true);
+        } else {
+          setHasPermission(false);
+        }
+      } else {
+        setHasPermission(true);
+        setIsScannerOpen(true);
+      }
+    } catch (err) {
+      console.warn(err);
+      setHasPermission(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading || isFetching) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6A1B9A" />
+        {isFetching && <Text style={styles.loadingText}>Processing QR data...</Text>}
+      </View>
+    );
+  }
+
+  if (hasPermission === false) {
+    return (
+      <View style={styles.permissionContainer}>
+        <Text style={styles.permissionText}>
+          Camera permission is required to scan QR codes.
+        </Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => Linking.openSettings()}
+        >
+          <Text style={styles.settingsButtonText}>Open Settings</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      {/* Camera Modal - Always Visible Initially */}
-      <Modal animationType="slide" transparent={true} visible={isScannerOpen}>
+      <Modal 
+        animationType="slide" 
+        transparent={true} 
+        visible={isScannerOpen}
+        onRequestClose={() => setIsScannerOpen(false)}
+      >
         <View style={styles.modalContainer}>
           <View style={styles.cameraContainer}>
-            {device && (
-              <Camera
-                style={styles.cameraPreview}
-                device={device}
-                isActive={true}
-                onError={(error) => console.error("Camera Error:", error)}
-              />
-            )}
-            {/* Yellow Corner Indicators */}
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
+            <Camera
+              ref={cameraRef}
+              style={styles.cameraPreview}
+              cameraType={CameraType.Back}
+              scanBarcode={true}
+              onReadCode={onBarcodeScan}
+              showFrame={true}
+              frameColor="#6A1B9A"
+              laserColor="#6A1B9A"
+              surfaceColor="rgba(0,0,0,0.5)"
+            />
           </View>
 
-          {/* QR Code Scan Message */}
-          <View>
-          <Text style={styles.scanMessage}>Scan any QR code</Text>
-          </View>
+          <Text style={styles.scanMessage}>Align QR code within frame</Text>
+          
           <TouchableOpacity
             style={styles.cancelButton}
-            onPress={() => navigation.navigate("Home")}
+            onPress={() => navigation.goBack()}
           >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
 
-          {/* Powered By Text at the Bottom */}
           <View style={styles.footerContainer}>
             <Text style={styles.poweredBy}>
-              Powered by Miraasiv Onpay Technologies Pvt Ltd.
+              Powered by biggbonuspoints
             </Text>
           </View>
         </View>
@@ -93,28 +190,56 @@ const ScanQR = () => {
   );
 };
 
-export default ScanQR;
-
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6A1B9A',
+  },
+  permissionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  permissionText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333',
+  },
+  settingsButton: {
+    backgroundColor: '#6A1B9A',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  settingsButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "#fff",
-    padding: 16,
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
     alignItems: "center",
   },
   cameraContainer: {
-    width: 300,
-    height: 300,
+    width: '80%',
+    aspectRatio: 1,
     borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
     overflow: "hidden",
   },
   cameraPreview: {
@@ -122,66 +247,38 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   cancelButton: {
-    marginTop: 20,
+    marginTop: 30,
     backgroundColor: "#6A1B9A",
     paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    paddingHorizontal: 30,
+    borderRadius: 25,
   },
   cancelButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
   },
-  corner: {
-    position: "absolute",
-    width: 60,
-    height: 50,
-    borderColor: "#C0392B",
-  },
-  topLeft: {
-    top: 0,
-    left: 0,
-    borderLeftWidth: 7,
-    borderTopWidth: 7,
-  },
-  topRight: {
-    top: 0,
-    right: 0,
-    borderRightWidth: 7,
-    borderTopWidth: 7,
-  },
-  bottomLeft: {
-    bottom: 0,
-    left: 0,
-    borderLeftWidth: 7,
-    borderBottomWidth: 7,
-  },
-  bottomRight: {
-    bottom: 0,
-    right: 0,
-    borderRightWidth: 7,
-    borderBottomWidth: 7,
-  },
   scanMessage: {
-    position: "absolute",
-    bottom: 80,
-    fontSize: 18,
-    fontWeight: "bold",
+    marginTop: 20,
+    fontSize: 16,
     color: "white",
     textAlign: "center",
+    backgroundColor: 'rgba(106, 27, 154, 0.7)',
+    padding: 10,
+    borderRadius: 20,
   },
   footerContainer: {
     position: "absolute",
-    bottom: 20,
+    bottom: 30,
     width: "100%",
     alignItems: "center",
   },
   poweredBy: {
-    fontSize: 14,
-    fontWeight: "bold",
+    fontSize: 12,
     color: "white",
     textAlign: "center",
-    opacity: 0.8,
+    opacity: 0.7,
   },
 });
+
+export default ScanQR;

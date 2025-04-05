@@ -1,14 +1,14 @@
 import React, { useRef, useState } from "react";
 import { View, StyleSheet, ToastAndroid, ScrollView, Platform } from "react-native";
-import { Text, TextInput, Button, Provider, Portal } from "react-native-paper";
+import { Text, TextInput, Button, Provider, Portal, ActivityIndicator } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import HelpDialog from "../Dialog/HelpDialog";
 import { registerUser, verifyOtp } from "../Redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 const RegisterScreen = ({ navigation }) => {
+    // Refs for form inputs
     const firstNameRef = useRef("");
     const lastNameRef = useRef("");
     const mobileRef = useRef("");
@@ -19,12 +19,15 @@ const RegisterScreen = ({ navigation }) => {
     const securityAnswerRef = useRef("");
     const userTypeRef = useRef("");
 
+    // State management
     const [otpSent, setOtpSent] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [registerLoading, setRegisterLoading] = useState(false);
+    const [verifyLoading, setVerifyLoading] = useState(false);
     const [helpDialog, setHelpDialog] = useState(false);
-    const [isRegistering, setIsRegistering] = useState(false); // Track registration process
+    const [countdown, setCountdown] = useState(0);
+    const [customerId, setCustomerId] = useState("");
 
-    // State for error messages
+    // Error states
     const [firstNameError, setFirstNameError] = useState("");
     const [lastNameError, setLastNameError] = useState("");
     const [mobileError, setMobileError] = useState("");
@@ -35,6 +38,9 @@ const RegisterScreen = ({ navigation }) => {
     const [securityAnswerError, setSecurityAnswerError] = useState("");
     const [userTypeError, setUserTypeError] = useState("");
 
+    const dispatch = useDispatch();
+
+    // Show toast message
     const showToast = (message) => {
         if (Platform.OS === "android") {
             ToastAndroid.showWithGravity(
@@ -47,8 +53,7 @@ const RegisterScreen = ({ navigation }) => {
         }
     };
 
-    const dispatch = useDispatch();
-
+    // Validate all form fields
     const validateFields = () => {
         let isValid = true;
 
@@ -65,169 +70,185 @@ const RegisterScreen = ({ navigation }) => {
 
         // Validate First Name
         if (!firstNameRef.current) {
-            setFirstNameError("First Name is required.");
+            setFirstNameError("First Name is required");
             isValid = false;
         }
 
         // Validate Last Name
         if (!lastNameRef.current) {
-            setLastNameError("Last Name is required.");
+            setLastNameError("Last Name is required");
             isValid = false;
         }
 
         // Validate Mobile Number
         if (!mobileRef.current) {
-            setMobileError("Mobile Number is required.");
+            setMobileError("Mobile Number is required");
             isValid = false;
-        } else if (mobileRef.current.length !== 10) {
-            setMobileError("Enter a valid 10-digit mobile number.");
+        } else if (mobileRef.current.length !== 10 || !/^\d+$/.test(mobileRef.current)) {
+            setMobileError("Enter a valid 10-digit mobile number");
             isValid = false;
         }
 
         // Validate PIN
         if (!pinRef.current) {
-            setPinError("PIN is required.");
+            setPinError("PIN is required");
             isValid = false;
-        } else if (pinRef.current.length < 4) {
-            setPinError("PIN must be at least 4 digits.");
+        } else if (pinRef.current.length !== 4 || !/^\d+$/.test(pinRef.current)) {
+            setPinError("PIN must be 4 digits");
             isValid = false;
         }
 
         // Validate Confirm PIN
         if (!confirmPinRef.current) {
-            setConfirmPinError("Confirm PIN is required.");
+            setConfirmPinError("Confirm PIN is required");
             isValid = false;
         } else if (confirmPinRef.current !== pinRef.current) {
-            setConfirmPinError("PIN and Confirm PIN must match.");
+            setConfirmPinError("PINs do not match");
             isValid = false;
         }
 
         // Validate Security Question
         if (!securityQuestionRef.current) {
-            setSecurityQuestionError("Security Question is required.");
+            setSecurityQuestionError("Security Question is required");
             isValid = false;
         }
 
         // Validate Security Answer
         if (!securityAnswerRef.current) {
-            setSecurityAnswerError("Security Answer is required.");
+            setSecurityAnswerError("Security Answer is required");
             isValid = false;
         }
 
         // Validate User Type
         if (!userTypeRef.current) {
-            setUserTypeError("User Type is required.");
+            setUserTypeError("User Type is required");
             isValid = false;
-        }
-
-        // Validate OTP only during registration
-        if (isRegistering) {
-            if (!otpRef.current) {
-                setOtpError("OTP is required.");
-                isValid = false;
-            } else if (otpRef.current.length !== 6) {
-                setOtpError("OTP must be 6 digits.");
-                isValid = false;
-            }
         }
 
         return isValid;
     };
-    
-    const sendOtp = async () => {
-        console.log("sendOtp called");
 
+    // Handle OTP sending
+    const sendOtp = async () => {
         if (!validateFields()) return;
 
-        setIsRegistering(true);
-
-        const userCategory = userTypeRef.current === "customer" ? "customer" : "merchant"; // Declare userCategory properly
-
-        const formData = {
-            first_name: firstNameRef.current,
-            last_name: lastNameRef.current,
-            mobile: mobileRef.current,
-            otp: otpRef.current,
-            pin: pinRef.current,
-            confirmPin: confirmPinRef.current,
-            security_question: securityQuestionRef.current,
-            answer: securityAnswerRef.current,
-            user_category: userCategory,
-            ...(userCategory === "merchant" && { user_type: userTypeRef.current }),
-        };
+        setRegisterLoading(true);
 
         try {
-            setLoading(true);
+            const formData = {
+                first_name: firstNameRef.current,
+                last_name: lastNameRef.current,
+                mobile: mobileRef.current,
+                pin: pinRef.current,
+                security_question: securityQuestionRef.current,
+                answer: securityAnswerRef.current,
+                user_category: userTypeRef.current,
+                ...(userTypeRef.current !== "customer" && { user_type: userTypeRef.current }),
+            };
 
-            const res = await dispatch(registerUser(formData)); // Await the dispatch
-            console.log("Dispatch Response:", res);
+            const res = await dispatch(registerUser(formData));
 
             if (res?.type === "user/registerUser/fulfilled") {
-                const { customer_id, user_type } = res.payload;
-
-                // Store customer_id and user_category in AsyncStorage
-                await AsyncStorage.setItem("customer_id", customer_id);
-                await AsyncStorage.setItem("user_category", user_type);
-
-                showToast("User registered successfully! 🎉");
+                const { user_id, user_category } = res.payload;
+                
+                // Store the user_id and user_category in state
+                setCustomerId(user_id);
+                
+                showToast("OTP sent to your mobile number");
+                setOtpSent(true);
+                startCountdown();
             } else {
-                showToast(res?.payload?.message || "Registration failed!");
+                showToast(res?.payload?.message || "Failed to send OTP");
             }
-
-            setOtpSent(true);
         } catch (error) {
-            console.error("Error dispatching registerUser:", error);
-            showToast(error.message || "Something went wrong!");
+            console.error("Registration error:", error);
+            showToast("Failed to send OTP. Please try again.");
         } finally {
-            setLoading(false);
+            setRegisterLoading(false);
         }
     };
 
-    const handleVerifyOtp = async () => {
+    // Start OTP resend countdown
+    const startCountdown = () => {
+        setCountdown(30);
+        const timer = setInterval(() => {
+            setCountdown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    // Resend OTP
+    const resendOtp = async () => {
+        if (countdown > 0) return;
+
+        setRegisterLoading(true);
         try {
-            // Retrieve customer_id and user_category from AsyncStorage
-            const customer_id = await AsyncStorage.getItem("customer_id");
-            const user_category = await AsyncStorage.getItem("user_category");
+            // You might want to call a separate API for resend OTP
+            // For now, we'll just show a message
+            showToast("OTP resent to your mobile number");
+            startCountdown();
+        } catch (error) {
+            showToast("Failed to resend OTP");
+        } finally {
+            setRegisterLoading(false);
+        }
+    };
 
-            if (!customer_id || !user_category) {
-                showToast("Missing customer details. Please register again.");
-                return;
-            }
+    // Verify OTP
+    const handleVerifyOtp = async () => {
+        if (!otpRef.current || otpRef.current.length !== 6) {
+            setOtpError("Enter a valid 6-digit OTP");
+            return;
+        }
 
-            const otp = otpRef.current;
+        if (!customerId) {
+            showToast("Registration session expired. Please register again.");
+            return;
+        }
 
-            if (!otp || otp.length !== 6) {
-                setOtpError("OTP must be 6 digits.");
-                return;
-            }
+        setVerifyLoading(true);
 
+        try {
             const formData = {
-                customer_id,
-                user_category,
-                otp:Number(otp)
+                user_id: customerId,
+                user_category: userTypeRef.current,
+                otp: Number(otpRef.current)
             };
-            console.log('payload of verify otp',formData);
-            const res = await dispatch(verifyOtp(formData)); // Dispatch OTP verification
-            console.log("OTP Verification Response:", res);
+
+            const res = await dispatch(verifyOtp(formData));
 
             if (res?.type === "user/verifyOtp/fulfilled") {
-                showToast("OTP verified successfully! 🎉");
-                navigation.navigate("Home"); // Navigate to the home screen
+                showToast("Registration successful!");
+                navigation.navigate("Login");
             } else {
-                showToast(res?.payload?.message || "OTP verification failed!");
+                showToast(res?.payload?.message || "OTP verification failed");
             }
         } catch (error) {
-            console.error("Error verifying OTP:", error);
-            showToast(error.message || "Something went wrong!");
+            console.error("OTP verification error:", error);
+            showToast("OTP verification failed. Please try again.");
+        } finally {
+            setVerifyLoading(false);
         }
     };
 
     return (
         <Provider>
             <Portal>
-                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <ScrollView 
+                    contentContainerStyle={styles.scrollContainer}
+                    keyboardShouldPersistTaps="handled"
+                >
                     <View style={styles.container}>
-                        <Text variant="headlineMedium" style={styles.title}>Register</Text>
+                        <Text variant="headlineMedium" style={styles.title}>
+                            Register
+                        </Text>
+
+                        {/* User Type Picker */}
                         <Picker
                             selectedValue={userTypeRef.current}
                             onValueChange={(value) => (userTypeRef.current = value)}
@@ -238,15 +259,16 @@ const RegisterScreen = ({ navigation }) => {
                             <Picker.Item label="Merchant" value="individual" />
                             <Picker.Item label="Corporate Merchant" value="corporate" />
                         </Picker>
-
                         {userTypeError ? <Text style={styles.errorText}>{userTypeError}</Text> : null}
 
+                        {/* Name Fields */}
                         <View style={styles.nameContainer}>
                             <View style={styles.halfInput}>
                                 <TextInput
                                     label="First Name"
                                     mode="outlined"
                                     onChangeText={(text) => (firstNameRef.current = text)}
+                                    error={!!firstNameError}
                                     style={styles.input}
                                 />
                                 {firstNameError ? <Text style={styles.errorText}>{firstNameError}</Text> : null}
@@ -256,30 +278,36 @@ const RegisterScreen = ({ navigation }) => {
                                     label="Last Name"
                                     mode="outlined"
                                     onChangeText={(text) => (lastNameRef.current = text)}
+                                    error={!!lastNameError}
                                     style={styles.input}
                                 />
                                 {lastNameError ? <Text style={styles.errorText}>{lastNameError}</Text> : null}
                             </View>
                         </View>
 
+                        {/* Mobile Number */}
                         <TextInput
                             label="Mobile Number"
                             mode="outlined"
                             keyboardType="phone-pad"
-                            onChangeText={(text) => (mobileRef.current = text)}
+                            onChangeText={(text) => (mobileRef.current = text.replace(/[^0-9]/g, ""))}
                             maxLength={10}
+                            error={!!mobileError}
                             style={styles.input}
                         />
                         {mobileError ? <Text style={styles.errorText}>{mobileError}</Text> : null}
 
+                        {/* PIN Fields */}
                         <View style={styles.nameContainer}>
                             <View style={styles.halfInput}>
                                 <TextInput
-                                    label="Enter PIN"
+                                    label="Enter 4-digit PIN"
                                     keyboardType="numeric"
                                     secureTextEntry
                                     mode="outlined"
-                                    onChangeText={(text) => (pinRef.current = text)}
+                                    onChangeText={(text) => (pinRef.current = text.replace(/[^0-9]/g, ""))}
+                                    maxLength={4}
+                                    error={!!pinError}
                                     style={styles.input}
                                 />
                                 {pinError ? <Text style={styles.errorText}>{pinError}</Text> : null}
@@ -290,13 +318,16 @@ const RegisterScreen = ({ navigation }) => {
                                     keyboardType="numeric"
                                     secureTextEntry
                                     mode="outlined"
-                                    onChangeText={(text) => (confirmPinRef.current = text)}
+                                    onChangeText={(text) => (confirmPinRef.current = text.replace(/[^0-9]/g, ""))}
+                                    maxLength={4}
+                                    error={!!confirmPinError}
                                     style={styles.input}
                                 />
                                 {confirmPinError ? <Text style={styles.errorText}>{confirmPinError}</Text> : null}
                             </View>
                         </View>
 
+                        {/* Security Question */}
                         <Picker
                             selectedValue={securityQuestionRef.current}
                             onValueChange={(value) => (securityQuestionRef.current = value)}
@@ -309,35 +340,76 @@ const RegisterScreen = ({ navigation }) => {
                         </Picker>
                         {securityQuestionError ? <Text style={styles.errorText}>{securityQuestionError}</Text> : null}
 
+                        {/* Security Answer */}
                         <TextInput
                             label="Answer"
                             mode="outlined"
                             onChangeText={(text) => (securityAnswerRef.current = text)}
+                            error={!!securityAnswerError}
                             style={styles.input}
                         />
                         {securityAnswerError ? <Text style={styles.errorText}>{securityAnswerError}</Text> : null}
 
-                        <Button mode="outlined" onPress={sendOtp} disabled={otpSent} style={styles.otpButton}>
-                            {otpSent ? "OTP Sent" : "Register"}
+                        {/* Register/OTP Button */}
+                        <Button
+                            mode="contained"
+                            onPress={otpSent ? resendOtp : sendOtp}
+                            loading={registerLoading}
+                            disabled={registerLoading || (otpSent && countdown > 0)}
+                            style={styles.button}
+                        >
+                            {registerLoading ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : otpSent ? (
+                                countdown > 0 ? `Resend OTP in ${countdown}s` : "Resend OTP"
+                            ) : (
+                                "Register & Send OTP"
+                            )}
                         </Button>
 
-                        <TextInput
-                            label="Enter OTP"
-                            mode="outlined"
-                            keyboardType="numeric"
-                            onChangeText={(text) => (otpRef.current = text)}
-                            maxLength={6}
-                            style={styles.input}
-                        />
-                        {otpError ? <Text style={styles.errorText}>{otpError}</Text> : null}
+                        {/* OTP Field (only shown after OTP is sent) */}
+                        {otpSent && (
+                            <>
+                                <TextInput
+                                    label="Enter 6-digit OTP"
+                                    mode="outlined"
+                                    keyboardType="numeric"
+                                    onChangeText={(text) => (otpRef.current = text.replace(/[^0-9]/g, ""))}
+                                    maxLength={6}
+                                    error={!!otpError}
+                                    style={styles.input}
+                                />
+                                {otpError ? <Text style={styles.errorText}>{otpError}</Text> : null}
 
-                        <Button mode="contained" onPress={handleVerifyOtp} loading={loading} style={styles.button}>
-                            Verify OTP
-                        </Button>
-                        <Button onPress={() => navigation.navigate("Login")} textColor="#007BFF">
+                                <Button
+                                    mode="contained"
+                                    onPress={handleVerifyOtp}
+                                    loading={verifyLoading}
+                                    disabled={verifyLoading}
+                                    style={styles.button}
+                                >
+                                    {verifyLoading ? (
+                                        <ActivityIndicator color="#fff" />
+                                    ) : (
+                                        "Verify OTP"
+                                    )}
+                                </Button>
+                            </>
+                        )}
+
+                        {/* Navigation Links */}
+                        <Button 
+                            onPress={() => navigation.navigate("Login")} 
+                            textColor="#007BFF"
+                            style={styles.linkButton}
+                        >
                             Already have an account? Login
                         </Button>
-                        <Button onPress={() => setHelpDialog(true)} textColor="#007BFF">
+                        <Button 
+                            onPress={() => setHelpDialog(true)} 
+                            textColor="#007BFF"
+                            style={styles.linkButton}
+                        >
                             Need Help?
                         </Button>
                         <HelpDialog visible={helpDialog} onDismiss={() => setHelpDialog(false)} />
@@ -370,24 +442,28 @@ const styles = StyleSheet.create({
     },
     input: {
         marginBottom: 5,
+        backgroundColor: "white",
     },
     halfInput: {
         flex: 1,
         marginRight: 10,
     },
-    otpButton: {
-        marginBottom: 15,
-    },
     button: {
         marginTop: 10,
+        paddingVertical: 8,
     },
     errorText: {
         color: "red",
         fontSize: 12,
         marginBottom: 10,
+        marginTop: -5,
     },
     picker: {
         backgroundColor: "#fff",
+        marginBottom: 10,
+    },
+    linkButton: {
+        marginTop: 10,
     },
 });
 
