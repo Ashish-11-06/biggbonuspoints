@@ -23,56 +23,56 @@ const LoginScreen = ({ navigation }) => {
         setSnackbarVisible(true);
     };
 
-    const handleLogin = async () => {
-        const userData = {
-            mobile: mobile,
-            pin: pin,
-            user_category: selectedUserType,
-        };
-        console.log("userdata", userData);
+    // const handleLogin = async () => {
+    //     const userData = {
+    //         mobile: mobile,
+    //         pin: pin,
+    //         user_category: selectedUserType,
+    //     };
+    //     console.log("userdata", userData);
 
-        if (!mobile || !pin) {
-            showSnackbar("Please enter both mobile number and PIN.");
-            return;
-        } else if (mobile.length !== 10) {
-            showSnackbar("Enter a valid 10-digit mobile number.");
-            return;
-        } else if (pin.length !== 4) {
-            showSnackbar("PIN must be 4 digits.");
-            return;
-        }
+    //     if (!mobile || !pin) {
+    //         showSnackbar("Please enter both mobile number and PIN.");
+    //         return;
+    //     } else if (mobile.length !== 10) {
+    //         showSnackbar("Enter a valid 10-digit mobile number.");
+    //         return;
+    //     } else if (pin.length !== 4) {
+    //         showSnackbar("PIN must be 4 digits.");
+    //         return;
+    //     }
 
-        setLoading(true);
+    //     setLoading(true);
 
-        try {
-            const res = await dispatch(loginUser(userData)).unwrap();
-            console.log("login res", res);
+    //     try {
+    //         const res = await dispatch(loginUser(userData)).unwrap();
+    //         console.log("login res", res);
 
-            if (res && res.message === "Login successful") {
-                console.log(res);
-                console.log(res.message);
+    //         if (res && res.message === "Login successful") {
+    //             console.log(res);
+    //             console.log(res.message);
 
-                // Store data in AsyncStorage based on user_category
-                const storageData = {
-                    user_category: res.user_category,
-                };
-                if (res.user_category === "customer") {
-                    storageData.customer_id = res.customer_id;
-                } else if (res.user_category === "merchant") {
-                    storageData.merchant_id = res.merchant_id;
-                }
-                await AsyncStorage.setItem("user", JSON.stringify(storageData));
+    //             // Store data in AsyncStorage based on user_category
+    //             const storageData = {
+    //                 user_category: res.user_category,
+    //             };
+    //             if (res.user_category === "customer") {
+    //                 storageData.customer_id = res.customer_id;
+    //             } else if (res.user_category === "merchant") {
+    //                 storageData.merchant_id = res.merchant_id;
+    //             }
+    //             await AsyncStorage.setItem("user", JSON.stringify(storageData));
 
-                showSnackbar(res.message); // Display success message
-                navigation.navigate("Home");
-            }
-        } catch (error) {
-            console.log(error);
-            showSnackbar("Login failed. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    //             showSnackbar(res.message); // Display success message
+    //             navigation.navigate("Home");
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         showSnackbar("Login failed. Please try again.");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     const handleForgotPinSubmit = () => {
         setSnackbarMessage("PIN reset instructions sent!");
@@ -111,16 +111,14 @@ const LoginScreen = ({ navigation }) => {
                 <Picker
                     selectedValue={selectedUserType}
                     onValueChange={(itemValue) => setSelectedUserType(itemValue)}
-                    style={styles.picker}
-
-                >
+                    style={styles.picker}>
                     <Picker.Item label="Select a user type" value="" />
                     <Picker.Item label="Customer" value="customer" />
                     <Picker.Item label="Merchant" value="merchant" />
                     <Picker.Item label="Corporate Merchant" value="corporate" />
                 </Picker>
 
-                <Button mode="contained" onPress={handleLogin} loading={loading} style={styles.button}>
+                <Button mode="contained" onPress={navigation.navigate("Home")} loading={loading} style={styles.button}>
                     Login
                 </Button>
 
@@ -144,15 +142,13 @@ const LoginScreen = ({ navigation }) => {
 
                 {/* Snackbar for notifications */}
                 <Snackbar
-                    visible={snackbarVisible}
-                    onDismiss={() => setSnackbarVisible(false)}
-                    duration={3000}
-                    style={styles.snackbar}
-                >
-                <View>
-                    <Text>{snackbarMessage}</Text> {/* Wrap message in <Text> */}
-                    </View>
-                </Snackbar>
+  visible={snackbarVisible}
+  onDismiss={() => setSnackbarVisible(false)}
+  duration={3000}
+  style={styles.snackbar}
+>
+  <Text>{snackbarMessage}</Text>
+</Snackbar>
             </View>
         </Provider>
     );

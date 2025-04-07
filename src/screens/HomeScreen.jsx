@@ -17,6 +17,7 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
 const dispatch=useDispatch();
+
   React.useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -96,14 +97,17 @@ useEffect (() => {
       </Card>
 
       <Card style={{ margin: 10, marginBottom: 2, padding: 10, paddingBottom: 0 }}>
+        
        <View> <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text></View>
         <View style={{ padding: 10, paddingBottom: 0 }}>
           {/* Second Row */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <TouchableOpacity onPress={() => navigation.navigate('transfer')}>
             <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
               <Image source={require('../../assets/neha.jpg')} style={{ width: 50, height: 50, borderRadius: 25 }} />
               <Text>Transfer</Text>
             </View>
+            </TouchableOpacity>
             <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
               <Image source={require('../../assets/neha.jpg')} style={{ width: 100, height: 50, borderRadius: 25 }} />
               <Text style={{ width: 70, height: 50, borderRadius: 25 }}>select user</Text>
@@ -146,7 +150,13 @@ const MainNavigator = () => {
   const renderScene = BottomNavigation.SceneMap({
     home: HomeScreen,
     scanQR: ScanQRScreen,
-    history: HistoryScreen,
+    history: () => {
+      // Instead of rendering history inline, navigate to the full screen
+      useEffect(() => {
+        navigation.navigate('HistoryPage');
+      }, []);
+      return null; // No content here, it's just redirecting
+    },
   });
 
   return (

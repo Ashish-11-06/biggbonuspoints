@@ -273,13 +273,13 @@ import React, { useState } from "react";
 import { View, TextInput, FlatList, Text, TouchableOpacity } from "react-native";
 
 const contacts = [
-  { id: "1", name: "Rutuja Kulkarni", phone: "8080252251" },
-  { id: "2", name: "Nihaa Gandhi", phone: "9764181163" },
-  { id: "3", name: "Suresh Sakhare", phone: "9822878861" },
-  { id: "4", name: "Prerna Mohagaonkar", phone: "9422204705" },
-  { id: "5", name: "Suraj Padekar", phone: "1234567890" },
-  { id: "6", name: "Sakshi Bhopale", phone: "7840910538" },
-  { id: "7", name: "Kiran Gaikwad", phone: "8999649495" },
+  { id: "1", name: "customer1", phone: "8080252251" },
+  { id: "2", name: "customer2", phone: "9764181163" },
+  { id: "3", name: "customer3", phone: "9822878861" },
+  { id: "4", name: "customer4", phone: "9422204705" },
+  { id: "5", name: "customer5", phone: "1234567890" },
+  { id: "6", name: "customer6", phone: "7840910538" },
+  { id: "7", name: "customer7", phone: "8999649495" },
 ];
 
 const CustomerSelection = ({ navigation }) => {

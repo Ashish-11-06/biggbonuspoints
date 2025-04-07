@@ -5,13 +5,13 @@ const ShowPoints = () => {
     const availablePoints = "50,535"; // Available points
 
     // Dummy transaction history data
-    const transactions = [
-        { id: '1', customer: 'Customer1', points: '100 BBP' },
-        { id: '2', customer: 'Customer2', points: '250 BBP' },
-        { id: '3', customer: 'Customer3', points: '300 BBP' },
-        { id: '4', customer: 'Customer4', points: '150 BBP' },
-        { id: '5', customer: 'Customer5', points: '500 BBP' },
-    ];
+    // const transactions = [
+    //     { id: '1', customer: 'Customer1', points: '100 BBP' },
+    //     { id: '2', customer: 'Customer2', points: '250 BBP' },
+    //     { id: '3', customer: 'Customer3', points: '300 BBP' },
+    //     { id: '4', customer: 'Customer4', points: '150 BBP' },
+    //     { id: '5', customer: 'Customer5', points: '500 BBP' },
+    // ];
 
     return (
         <View style={styles.container}>
@@ -19,7 +19,7 @@ const ShowPoints = () => {
             <Text style={styles.pointsText}>Available Points: {availablePoints}</Text>
 
             {/* Transaction History */}
-            <Text style={styles.historyTitle}>Transaction History</Text>
+            {/* <Text style={styles.historyTitle}>Transaction History</Text>
             <FlatList
                 data={transactions}
                 keyExtractor={(item) => item.id}
@@ -29,7 +29,7 @@ const ShowPoints = () => {
                         <Text style={styles.pointsText}>{item.points}</Text>
                     </View>
                 )}
-            />
+            /> */}
         </View>
     );
 };
