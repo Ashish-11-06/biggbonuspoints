@@ -14,6 +14,12 @@ const userApi = {
     verifyOtp: (data) => {
         return axiosInstance.post('verify-otp/', data);
     },
+    getAllMerchants: () => {
+        return axiosInstance.get('fetch-users/?user_type=merchant');
+    },
+    getAllCustomers: () => {
+        return axiosInstance.get('fetch-users/?user_type=customer');
+    },
 
 };
 

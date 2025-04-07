@@ -14,20 +14,38 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from "react-redux";
 import { customerToMerchantPoints, resetTransferState } from "../Redux/slices/TransferPointsSlice";
+import { useNavigation } from '@react-navigation/native';
 
 const TransferPoints = ({ route, navigation }) => {
-  const { merchantId } = route.params;
+  // Get both merchantId and merchantName from route params
+  const { merchantId, merchantName } = route.params;
   const [points, setPoints] = useState("");
   const [userDetails, setUserDetails] = useState({});
-  const [merchantDetails, setMerchantDetails] = useState({});
+  const [merchantDetails, setMerchantDetails] = useState({
+    name: merchantName || `Merchant ${merchantId}` // Use passed name or fallback
+  });
   const [customerId, setCustomerId] = useState(null);
   
   const dispatch = useDispatch();
+  const nav = useNavigation();
+
+  // Set header options
+  useEffect(() => {
+    nav.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity 
+          onPress={navigateToHome}
+          style={{ marginLeft: 15 }}
+        >
+          <Text style={{ fontSize: 16, color: '#6A1B9A' }}>Back</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [nav]);
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        // Fetch user details
         const userData = await AsyncStorage.getItem('user');
         if (userData) {
           const parsedData = JSON.parse(userData);
@@ -39,12 +57,7 @@ const TransferPoints = ({ route, navigation }) => {
           }
         }
         
-        // Fetch merchant details (you'll need to implement this API call)
-        // setMerchantDetails(response.data);
-        setMerchantDetails({
-          name: `Merchant ${merchantId}`
-        });
-        
+        // No need to set merchant name here as we're using the passed value
       } catch (error) {
         console.error("Error fetching details:", error);
         Alert.alert("Error", "Failed to load user data");
@@ -53,14 +66,13 @@ const TransferPoints = ({ route, navigation }) => {
     
     fetchDetails();
 
-    // Reset transfer state when component unmounts
     return () => {
       dispatch(resetTransferState());
     };
   }, [merchantId, dispatch]);
 
   const navigateToHome = () => {
-    navigation.navigate('Home'); // Replace 'Home' with your actual home screen name
+    navigation.navigate('Home');
   };
 
   const handleTransfer = async () => {
@@ -96,7 +108,7 @@ const TransferPoints = ({ route, navigation }) => {
       
     } catch (error) {
       console.error("Transfer failed:", error);
-      Alert.alert("Error", error || "Transfer failed");
+      Alert.alert("Error", error?.message || "Transfer failed");
     }
   };
 
@@ -116,7 +128,9 @@ const TransferPoints = ({ route, navigation }) => {
           
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>To:</Text>
-            <Text style={styles.detailValue}>{merchantDetails.name || `Merchant ${merchantId}`}</Text>
+            <Text style={styles.detailValue}>
+              {merchantDetails.name} {/* Now shows the actual merchant name */}
+            </Text>
           </View>
           
           <TextInput
@@ -134,7 +148,7 @@ const TransferPoints = ({ route, navigation }) => {
             disabled={!customerId}
           >
             <Text style={styles.transferButtonText}>
-              transfer points
+              Transfer Points
             </Text>
           </TouchableOpacity>
           
@@ -149,7 +163,6 @@ const TransferPoints = ({ route, navigation }) => {
     </KeyboardAvoidingView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {

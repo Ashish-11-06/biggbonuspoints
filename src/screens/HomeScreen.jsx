@@ -12,18 +12,29 @@ import { useDispatch } from 'react-redux';
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [userCategory, setUserCategory] = useState(null);
   const dispatch = useDispatch();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const user = await AsyncStorage.getItem('user');
-        console.log('user', user);
-        if (user) {
-          const parsedUser = JSON.parse(user);
+        const userString = await AsyncStorage.getItem('user');
+        if (userString) {
+          const user = JSON.parse(userString);
+          console.log("Parsed user data:", user);
+
+          // Set the loggedInUser state
+          setLoggedInUser(user);
+
+          // Extract and set the user_category
+          const category = user.user_category || 'User';
+          setUserCategory(category);
+
+          // Set user details
           setUserDetails({
-            user_category: parsedUser.user_category || 'User',
-            id: parsedUser.customer_id || parsedUser.merchant_id || 'N/A',
+            user_category: category,
+            id: user.customer_id || user.merchant_id || user.corporate_id || 'N/A',
           });
         }
       } catch (error) {
@@ -34,11 +45,26 @@ const HomeScreen = () => {
     fetchUserDetails();
   }, []);
 
+  const renderActionButton = (iconSource, label, onPress) => (
+    <TouchableOpacity onPress={onPress}>
+      <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
+        <Image
+          source={iconSource}
+          style={{ width: 50, height: 50, borderRadius: 25 }}
+        />
+        <Text style={{ marginTop: 5 }}>{label}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  console.log("User Details:", userDetails);
+  console.log("User Category:", userCategory);
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
       {/* Header */}
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
-        <Header 
+        <Header
           username={userDetails.user_category}
           location={`ID: ${userDetails.id}`}
           avatarUrl="https://randomuser.me/api/portraits/men/1.jpg"
@@ -46,41 +72,31 @@ const HomeScreen = () => {
           onSettingsPress={() => console.log("Settings Pressed")}
         />
       </View>
-      
+
       {/* Award Points Section */}
       <Card style={{ margin: 10, marginBottom: 2, padding: 10, marginTop: 90 }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Award Points</Text>
+        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
+          {userCategory === 'customer' ? 'Redeem Points' : 'Award Points'}
+        </Text>
         <View style={{ padding: 10 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity onPress={() => navigation.navigate('ScanQR')}>
-              <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-                <Image 
-                  source={require('../../assets/neha.jpg')} 
-                  style={{ width: 50, height: 50, borderRadius: 25 }} 
-                />
-                <Text>Scan QR</Text>
-              </View>
-            </TouchableOpacity>
-            
-            <TouchableOpacity onPress={() => navigation.navigate('CustomerSelection')}>
-              <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-                <Image 
-                  source={require('../../assets/neha.jpg')} 
-                  style={{ width: 50, height: 50, borderRadius: 25 }} 
-                />
-                <Text>Choose Customer</Text>
-              </View>
-            </TouchableOpacity>
-            
-            <TouchableOpacity onPress={() => navigation.navigate('PointsScreen')}>
-              <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-                <Image 
-                  source={require('../../assets/neha.jpg')} 
-                  style={{ width: 50, height: 50, borderRadius: 25 }} 
-                />
-                <Text>Points</Text>
-              </View>
-            </TouchableOpacity>
+            {renderActionButton(
+              require('../../assets/scanner.png'),
+              'Scan QR',
+              () => navigation.navigate('ScanQR')
+            )}
+
+            {renderActionButton(
+              require('../../assets/neha.jpg'),
+              userCategory === 'customer' ? 'Choose Merchant' : 'Choose Customer',
+              () => navigation.navigate('CustomerSelection')
+            )}
+
+            {renderActionButton(
+              require('../../assets/neha.jpg'),
+              'Points',
+              () => navigation.navigate('PointsScreen')
+            )}
           </View>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
@@ -93,35 +109,23 @@ const HomeScreen = () => {
         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text>
         <View style={{ padding: 10 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity>
-              <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-                <Image 
-                  source={require('../../assets/neha.jpg')} 
-                  style={{ width: 50, height: 50, borderRadius: 25 }} 
-                />
-                <Text>Transfer</Text>
-              </View>
-            </TouchableOpacity>
-            
-            <TouchableOpacity>
-              <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-                <Image 
-                  source={require('../../assets/neha.jpg')} 
-                  style={{ width: 50, height: 50, borderRadius: 25 }} 
-                />
-                <Text>Select User</Text>
-              </View>
-            </TouchableOpacity>
-            
-            <TouchableOpacity>
-              <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
-                <Image 
-                  source={require('../../assets/neha.jpg')} 
-                  style={{ width: 50, height: 50, borderRadius: 25 }} 
-                />
-                <Text>Receive</Text>
-              </View>
-            </TouchableOpacity>
+            {renderActionButton(
+              require('../../assets/scanner.png'),
+              'Transfer',
+              () => console.log("Transfer pressed")
+            )}
+
+            {renderActionButton(
+              require('../../assets/neha.jpg'),
+              'Select User',
+              () => console.log("Select User pressed")
+            )}
+
+            {renderActionButton(
+              require('../../assets/neha.jpg'),
+              'Receive',
+              () => navigation.navigate('ReceivePoints', { userId: userDetails.id })
+            )}
           </View>
         </View>
       </Card>
@@ -132,9 +136,9 @@ const HomeScreen = () => {
 // Scan QR Screen
 const ScanQRScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f3f3' }}>
-    <Image 
-      source={require('../../assets/neha.jpg')} 
-      style={{ width: 200, height: 200 }} 
+    <Image
+      source={require('../../assets/neha.jpg')}
+      style={{ width: 200, height: 200 }}
     />
     <Text style={{ marginTop: 20 }}>Scan QR Code</Text>
   </View>
@@ -151,23 +155,23 @@ const HistoryScreen = () => (
 const MainNavigator = () => {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    { 
-      key: 'home', 
-      title: 'Home', 
-      focusedIcon: 'home', 
-      unfocusedIcon: 'home-outline' 
+    {
+      key: 'home',
+      title: 'Home',
+      focusedIcon: 'home',
+      unfocusedIcon: 'home-outline'
     },
-    { 
-      key: 'scanQR', 
-      title: 'Scan', 
-      focusedIcon: 'qrcode-scan', 
-      unfocusedIcon: 'qrcode' 
+    {
+      key: 'scanQR',
+      title: 'Scan',
+      focusedIcon: 'qrcode-scan',
+      unfocusedIcon: 'qrcode'
     },
-    { 
-      key: 'history', 
-      title: 'History', 
-      focusedIcon: 'history', 
-      unfocusedIcon: 'history' 
+    {
+      key: 'history',
+      title: 'History',
+      focusedIcon: 'history',
+      unfocusedIcon: 'history'
     },
   ]);
 

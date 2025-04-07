@@ -18,7 +18,8 @@ const LoginScreen = ({ navigation }) => {
     const dispatch = useDispatch();
 
     const showSnackbar = (message) => {
-        setSnackbarMessage(message);
+        // Ensure message is always a string and not undefined
+        setSnackbarMessage(message ? String(message) : "");
         setSnackbarVisible(true);
     };
 
@@ -55,16 +56,17 @@ const LoginScreen = ({ navigation }) => {
             const res = await dispatch(loginUser(userData)).unwrap();
 
             if (res?.message === "Login successful") {
-                // Store data in AsyncStorage based on user_category
                 const storageData = {
                     user_category: res.user_category,
-                    token: res.token, // assuming your API returns a token
+                    token: res.token,
                 };
 
                 if (res.user_category === "customer") {
                     storageData.customer_id = res.customer_id;
                 } else if (res.user_category === "merchant") {
                     storageData.merchant_id = res.merchant_id;
+                } else if (res.user_category === "corporate") {
+                    storageData.corporate_id = res.corporate_id;
                 }
 
                 await AsyncStorage.setItem("user", JSON.stringify(storageData));
@@ -72,8 +74,7 @@ const LoginScreen = ({ navigation }) => {
                 navigation.navigate("Home");
             }
         } catch (error) {
-            // console.error("Login error:", error);
-            showSnackbar(error || "Login failed. Please try again.");
+            showSnackbar(error?.message || error?.toString() || "Login failed. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -81,12 +82,10 @@ const LoginScreen = ({ navigation }) => {
 
     const handleForgotPinSubmit = async (mobileNumber) => {
         try {
-            // Here you would typically call an API to handle forgot PIN
-            // For now, we'll just show a success message
             showSnackbar(`PIN reset instructions sent to ${mobileNumber}`);
             setDialogVisible(false);
         } catch (error) {
-            showSnackbar("Failed to process PIN reset. Please try again.");
+            showSnackbar(error?.message || "Failed to process PIN reset. Please try again.");
         }
     };
 
@@ -118,16 +117,18 @@ const LoginScreen = ({ navigation }) => {
                     style={styles.input}
                 />
 
-                <Picker
-                    selectedValue={selectedUserType}
-                    onValueChange={(itemValue) => setSelectedUserType(itemValue)}
-                    style={styles.picker}
-                >
-                    <Picker.Item label="Select a user type" value="" />
-                    <Picker.Item label="Customer" value="customer" />
-                    <Picker.Item label="Merchant" value="merchant" />
-                    <Picker.Item label="Corporate Merchant" value="corporate" />
-                </Picker>
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={selectedUserType}
+                        onValueChange={(itemValue) => setSelectedUserType(itemValue)}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="Select a user type" value="" />
+                        <Picker.Item label="Customer" value="customer" />
+                        <Picker.Item label="Merchant" value="merchant" />
+                        <Picker.Item label="Corporate Merchant" value="corporate" />
+                    </Picker>
+                </View>
 
                 <Button
                     mode="contained"
@@ -135,6 +136,7 @@ const LoginScreen = ({ navigation }) => {
                     loading={loading}
                     disabled={loading}
                     style={styles.button}
+                    labelStyle={styles.buttonLabel}
                 >
                     {loading ? "Logging in..." : "Login"}
                 </Button>
@@ -144,6 +146,7 @@ const LoginScreen = ({ navigation }) => {
                         onPress={() => setDialogVisible(true)}
                         textColor="#007BFF"
                         disabled={loading}
+                        style={styles.linkButton}
                     >
                         Forgot PIN?
                     </Button>
@@ -151,8 +154,9 @@ const LoginScreen = ({ navigation }) => {
                         onPress={() => navigation.navigate("Register")}
                         textColor="#007BFF"
                         disabled={loading}
+                        style={styles.linkButton}
                     >
-                        New user? Register.
+                        New user? Register
                     </Button>
                 </View>
 
@@ -175,7 +179,7 @@ const LoginScreen = ({ navigation }) => {
                     }}
                     style={styles.snackbar}
                 >
-                    {snackbarMessage}
+                    <Text style={styles.snackbarText}>{snackbarMessage}</Text>
                 </Snackbar>
             </View>
         </Provider>
@@ -193,32 +197,48 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginBottom: 20,
         fontWeight: "bold",
+        color: "#333",
     },
     input: {
         marginBottom: 15,
         backgroundColor: "white",
     },
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 4,
+        marginBottom: 15,
+        overflow: "hidden",
+    },
+    picker: {
+        backgroundColor: "white",
+        height: 50,
+    },
     button: {
         marginTop: 10,
         paddingVertical: 5,
+        borderRadius: 4,
+    },
+    buttonLabel: {
+        fontSize: 16,
     },
     linkContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
         marginTop: 15,
     },
+    linkButton: {
+        minWidth: 0,
+    },
     snackbar: {
         position: "absolute",
         bottom: 20,
         left: 20,
         right: 20,
+        backgroundColor: "#333",
     },
-    picker: {
-        backgroundColor: "white",
-        marginBottom: 15,
-        borderRadius: 4,
-        borderWidth: 1,
-        borderColor: "#ccc",
+    snackbarText: {
+        color: "white",
     },
 });
 
