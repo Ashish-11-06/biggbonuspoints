@@ -1,10 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCustomerPoints } from '../Redux/slices/pointsSlice';
 
 const PointsScreen = () => {
     const [pin, setPin] = useState('');
+    const [loggedInUserId, setLoggedInUserId] = useState(null);
     const navigation = useNavigation();
+    const dispatch = useDispatch();
+    const { customerPoints, status, error } = useSelector(state => state.customerPoints);
+
+    // Fetch user ID from AsyncStorage on component mount
+    useEffect(() => {
+        const fetchUserId = async () => {
+            try {
+                const storedUser = await AsyncStorage.getItem('user');
+                if (storedUser) {
+                    const parsedUser = JSON.parse(storedUser);
+                    setLoggedInUserId(parsedUser.customer_id);
+                    console.log("Parsed user data:", parsedUser);
+                } else {
+                    Alert.alert('Error', 'User not found');
+                }
+            } catch (err) {
+                Alert.alert('Error', 'Failed to get user data');
+            }
+        };
+
+        fetchUserId();
+    }, []);
 
     const handlePress = (value) => {
         if (pin.length < 4) {
@@ -16,13 +42,32 @@ const PointsScreen = () => {
         setPin(pin.slice(0, -1));
     };
 
-    const handleSubmit = () => {
-        if (pin.length === 4) {
-            navigation.navigate('ShowPoints'); // Navigate to Show Balance screen
+    const handleSubmit = async () => {
+        if (pin.length === 4 && loggedInUserId) {
+            const requestData = {
+                customer_id: loggedInUserId,
+                pin: pin
+            };
+
+            try {
+                const response = await dispatch(fetchCustomerPoints(requestData)).unwrap();
+                navigation.navigate('ShowPoints', {
+                    points: response.merchant_points,
+                });
+                console.log("Fetched points:", response.merchant_points);
+            } catch (err) {
+                Alert.alert('Error', err.message || 'Failed to fetch points');
+            }
         } else {
-            Alert.alert('Error', 'Enter all 4 PIN values'); // Show alert if PIN is incomplete
+            Alert.alert('Error', 'Enter all 4 PIN values');
         }
     };
+
+    useEffect(() => {
+        if (status === 'failed' && error) {
+            Alert.alert('Error', error);
+        }
+    }, [status, error]);
 
     return (
         <View style={styles.container}>
@@ -35,14 +80,16 @@ const PointsScreen = () => {
                     </Text>
                 ))}
             </View>
-            <View>
             <Text style={styles.infoText}>
                 UPI PIN will keep your account secure from unauthorized access. Do not share this PIN with anyone.
             </Text>
-            </View>
             <View style={styles.keypad}>
                 {[...Array(9)].map((_, index) => (
-                    <TouchableOpacity key={index} style={styles.key} onPress={() => handlePress((index + 1).toString())}>
+                    <TouchableOpacity
+                        key={index}
+                        style={styles.key}
+                        onPress={() => handlePress((index + 1).toString())}
+                    >
                         <Text style={styles.keyText}>{index + 1}</Text>
                     </TouchableOpacity>
                 ))}
