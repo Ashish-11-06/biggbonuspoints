@@ -13,7 +13,16 @@ const CustomerSelection = ({ navigation }) => {
 
   // Fetch merchants when component mounts
   useEffect(() => {
-    dispatch(getAllMerchants());
+    const fetchMerchants = async () => {
+      try {
+    const res=dispatch(getAllMerchants());
+    console.log(res);
+    
+      } catch (error) {
+        console.error("Error fetching merchants:", error);
+      }
+    };
+    fetchMerchants();
   }, [dispatch]);
 
   const handleSearch = (text) => {
@@ -83,7 +92,56 @@ const CustomerSelection = ({ navigation }) => {
       />
 
       {/* List of Filtered Contacts */}
-      {searchText.length > 0 && (
+      return (
+  <View style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}>
+    {/* <TextInput
+      placeholder="Search by name or number"
+      value={searchText}
+      onChangeText={handleSearch}
+      style={{
+        height: 50,
+        borderColor: "gray",
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        marginBottom: 10,
+      }}
+    /> */}
+
+    {/* List of Merchants */}
+    <FlatList
+      data={searchText.length > 0 ? filteredContacts : merchants} // Show filteredContacts if searching, otherwise show all merchants
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          style={{ padding: 15, borderBottomWidth: 1, borderColor: "#ccc" }}
+          onPress={() =>
+            navigation.navigate("TransferPoints", {
+              merchantId: item.user_id, // Pass the merchant's user_id
+              merchantName: `${item.first_name || ''} ${item.last_name || ''}`.trim(), // Pass merchant name for display
+            })
+          }
+        >
+          <View>
+            <Text style={{ fontWeight: 'bold' }}>
+              {`${item.first_name || ''} ${item.last_name || ''}`.trim() || 'No name'}
+            </Text>
+            <Text>{item.mobile || 'No phone'}</Text>
+            {item.shop_name && <Text>Shop: {item.shop_name}</Text>}
+          </View>
+        </TouchableOpacity>
+      )}
+      keyExtractor={(item, index) => item.user_id || item.mobile || `merchant-${index}`}
+      ListEmptyComponent={
+        <View style={{ padding: 15 }}>
+          <Text style={{ textAlign: 'center' }}>No merchants found</Text>
+        </View>
+      }
+      keyboardShouldPersistTaps="handled"
+      extraData={searchText}
+    />
+  </View>
+);
+      {/* {searchText.length > 0 && (
         <FlatList
           data={filteredContacts}
           keyExtractor={(item, index) => item.user_id || item.mobile || `merchant-${index}`}
@@ -114,7 +172,7 @@ const CustomerSelection = ({ navigation }) => {
             </View>
           }
         />
-      )}
+      )} */}
 
       {/* Add New Number button */}
       {searchText.length > 0 && filteredContacts.length === 0 && merchants.length > 0 && (

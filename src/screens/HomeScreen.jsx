@@ -118,7 +118,7 @@ const HomeScreen = () => {
             {renderActionButton(
               require('../../assets/neha.jpg'),
               'Select User',
-              () => console.log("Select User pressed")
+              () => navigation.navigate('SelectUser')
             )}
 
             {renderActionButton(

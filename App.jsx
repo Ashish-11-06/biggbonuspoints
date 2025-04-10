@@ -27,6 +27,7 @@ import MerchantForm from './src/screens/MerchantForm';
 import RedeemPoints from './src/screens/RedeemPoints';
 import TransferPoints from './src/Components/TransferPoints';
 import ReceivePointsScreen from './src/screens/ReceivePointsScreen';
+import selectuser from './src/screens/selectuser';
 
 const Stack = createStackNavigator();
 
@@ -85,6 +86,7 @@ function App() {
             <Stack.Screen name="RedeemPoints" component={RedeemPoints} options={{ headerShown: false }} />
             <Stack.Screen name="TransferPoints" component={TransferPoints} options={{ headerShown: false }} />
             <Stack.Screen name="ReceivePoints" component={ReceivePointsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="SelectUser" component={selectuser} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>
