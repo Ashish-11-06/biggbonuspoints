@@ -12,6 +12,7 @@ const { width } = Dimensions.get('window');
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { fetchCustomerPointsById } from '../Redux/slices/customerPointsSlice';
 import { useDispatch } from 'react-redux';
+import history from './history';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -132,11 +133,11 @@ const ScanQRScreen = () => (
 );
 
 // History Screen (Placeholder)
-const HistoryScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f3f3' }}>
-    <Text>Transaction History</Text>
-  </View>
-);
+// const HistoryScreen = () => (
+//   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f3f3' }}>
+//     <Text>Transaction History</Text>
+//   </View>
+// );
 
 // Bottom Navigation
 const MainNavigator = () => {
@@ -150,13 +151,7 @@ const MainNavigator = () => {
   const renderScene = BottomNavigation.SceneMap({
     home: HomeScreen,
     scanQR: ScanQRScreen,
-    history: () => {
-      // Instead of rendering history inline, navigate to the full screen
-      useEffect(() => {
-        navigation.navigate('HistoryPage');
-      }, []);
-      return null; // No content here, it's just redirecting
-    },
+    history: history,
   });
 
   return (

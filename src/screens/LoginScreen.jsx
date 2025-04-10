@@ -4,8 +4,6 @@ import { Text, TextInput, Button, Snackbar, Provider } from "react-native-paper"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ForgotPinDialog from "../Dialog/ForgotPinDialog";
 import { Picker } from "@react-native-picker/picker";
-// Import Reactotron configuration
-import Reactotron from 'reactotron-react-native';
 import { loginUser } from "../Redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 
@@ -18,26 +16,30 @@ const LoginScreen = ({ navigation }) => {
     const [dialogVisible, setDialogVisible] = useState(false);
     const [selectedUserType, setSelectedUserType] = useState("");
     const dispatch = useDispatch();
+
     const showSnackbar = (message) => {
-        setSnackbarMessage(message);
+        // Ensure message is always a string and not undefined
+        setSnackbarMessage(message ? String(message) : "");
         setSnackbarVisible(true);
     };
 
     // const handleLogin = async () => {
-    //     const userData = {
-    //         mobile: mobile,
-    //         pin: pin,
-    //         user_category: selectedUserType,
-    //     };
-    //     console.log("userdata", userData);
+    //     if (!selectedUserType) {
+    //         showSnackbar("Please select a user type.");
+    //         return;
+    //     }
 
     //     if (!mobile || !pin) {
     //         showSnackbar("Please enter both mobile number and PIN.");
     //         return;
-    //     } else if (mobile.length !== 10) {
+    //     }
+
+    //     if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
     //         showSnackbar("Enter a valid 10-digit mobile number.");
     //         return;
-    //     } else if (pin.length !== 4) {
+    //     }
+
+    //     if (pin.length !== 4 || !/^\d+$/.test(pin)) {
     //         showSnackbar("PIN must be 4 digits.");
     //         return;
     //     }
@@ -45,52 +47,61 @@ const LoginScreen = ({ navigation }) => {
     //     setLoading(true);
 
     //     try {
+    //         const userData = {
+    //             mobile: mobile,
+    //             pin: pin,
+    //             user_category: selectedUserType,
+    //         };
+
     //         const res = await dispatch(loginUser(userData)).unwrap();
-    //         console.log("login res", res);
 
-    //         if (res && res.message === "Login successful") {
-    //             console.log(res);
-    //             console.log(res.message);
-
-    //             // Store data in AsyncStorage based on user_category
+    //         if (res?.message === "Login successful") {
     //             const storageData = {
     //                 user_category: res.user_category,
+    //                 token: res.token,
     //             };
+
     //             if (res.user_category === "customer") {
     //                 storageData.customer_id = res.customer_id;
     //             } else if (res.user_category === "merchant") {
     //                 storageData.merchant_id = res.merchant_id;
+    //             } else if (res.user_category === "corporate") {
+    //                 storageData.corporate_id = res.corporate_id;
     //             }
-    //             await AsyncStorage.setItem("user", JSON.stringify(storageData));
 
-    //             showSnackbar(res.message); // Display success message
+    //             await AsyncStorage.setItem("user", JSON.stringify(storageData));
+    //             showSnackbar("Login successful");
     //             navigation.navigate("Home");
     //         }
     //     } catch (error) {
-    //         console.log(error);
-    //         showSnackbar("Login failed. Please try again.");
+    //         showSnackbar(error?.message || error?.toString() || "Login failed. Please try again.");
     //     } finally {
     //         setLoading(false);
     //     }
     // };
 
-    const handleForgotPinSubmit = () => {
-        setSnackbarMessage("PIN reset instructions sent!");
-        setSnackbarVisible(true);
-        setDialogVisible(false);
+    const handleForgotPinSubmit = async (mobileNumber) => {
+        try {
+            showSnackbar(`PIN reset instructions sent to ${mobileNumber}`);
+            setDialogVisible(false);
+        } catch (error) {
+            showSnackbar(error?.message || "Failed to process PIN reset. Please try again.");
+        }
     };
 
     return (
         <Provider>
             <View style={styles.container}>
-                <Text variant="headlineMedium" style={styles.title}>Login</Text>
+                <Text variant="headlineMedium" style={styles.title}>
+                    Login
+                </Text>
 
                 <TextInput
                     label="Mobile Number"
                     mode="outlined"
                     keyboardType="phone-pad"
                     value={mobile}
-                    onChangeText={setMobile}
+                    onChangeText={(text) => setMobile(text.replace(/[^0-9]/g, ""))}
                     maxLength={10}
                     style={styles.input}
                 />
@@ -101,54 +112,76 @@ const LoginScreen = ({ navigation }) => {
                     keyboardType="numeric"
                     secureTextEntry
                     value={pin}
-                    onChangeText={(text) => {
-                        if (text.length <= 4) setPin(text);
-                    }}
+                    onChangeText={(text) => setPin(text.replace(/[^0-9]/g, ""))}
                     maxLength={4}
                     style={styles.input}
                 />
 
-                <Picker
-                    selectedValue={selectedUserType}
-                    onValueChange={(itemValue) => setSelectedUserType(itemValue)}
-                    style={styles.picker}>
-                    <Picker.Item label="Select a user type" value="" />
-                    <Picker.Item label="Customer" value="customer" />
-                    <Picker.Item label="Merchant" value="merchant" />
-                    <Picker.Item label="Corporate Merchant" value="corporate" />
-                </Picker>
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={selectedUserType}
+                        onValueChange={(itemValue) => setSelectedUserType(itemValue)}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="Select a user type" value="" />
+                        <Picker.Item label="Customer" value="customer" />
+                        <Picker.Item label="Merchant" value="merchant" />
+                        <Picker.Item label="Corporate Merchant" value="corporate" />
+                    </Picker>
+                </View>
 
-                <Button mode="contained" onPress={navigation.navigate("Home")} loading={loading} style={styles.button}>
-                    Login
+                <Button
+                    mode="contained"
+                    // onPress={handleLogin}
+                    onPress={() =>navigation.navigate("MerchantForm")}
+                    loading={loading}
+                    disabled={loading}
+                    style={styles.button}
+                    labelStyle={styles.buttonLabel}
+                >
+                    {loading ? "Logging in..." : "Login"}
                 </Button>
 
                 <View style={styles.linkContainer}>
-                    <Button onPress={() => setDialogVisible(true)} textColor="#007BFF">
+                    <Button
+                        onPress={() => setDialogVisible(true)}
+                        textColor="#007BFF"
+                        disabled={loading}
+                        style={styles.linkButton}
+                    >
                         Forgot PIN?
                     </Button>
-                    <Button onPress={() => navigation.navigate("Register")} textColor="#007BFF">
-                        New user? Register.
+                    <Button
+                        onPress={() => navigation.navigate("Register")}
+                        textColor="#007BFF"
+                        disabled={loading}
+                        style={styles.linkButton}
+                    >
+                        New user? Register
                     </Button>
                 </View>
 
-                {/* Forgot PIN Dialog */}
                 <ForgotPinDialog
                     visible={dialogVisible}
                     onDismiss={() => setDialogVisible(false)}
                     mobile={mobile}
                     setMobile={setMobile}
                     onSubmit={handleForgotPinSubmit}
+                    loading={loading}
                 />
 
-                {/* Snackbar for notifications */}
                 <Snackbar
-  visible={snackbarVisible}
-  onDismiss={() => setSnackbarVisible(false)}
-  duration={3000}
-  style={styles.snackbar}
->
-  <Text>{snackbarMessage}</Text>
-</Snackbar>
+                    visible={snackbarVisible}
+                    onDismiss={() => setSnackbarVisible(false)}
+                    duration={3000}
+                    action={{
+                        label: "OK",
+                        onPress: () => setSnackbarVisible(false),
+                    }}
+                    style={styles.snackbar}
+                >
+                    <Text style={styles.snackbarText}>{snackbarMessage}</Text>
+                </Snackbar>
             </View>
         </Provider>
     );
@@ -165,27 +198,49 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginBottom: 20,
         fontWeight: "bold",
+        color: "#333",
     },
     input: {
         marginBottom: 15,
+        backgroundColor: "white",
+    },
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 4,
+        marginBottom: 15,
+        overflow: "hidden",
+    },
+    picker: {
+        backgroundColor: "white",
+        height: 50,
     },
     button: {
         marginTop: 10,
+        paddingVertical: 5,
+        borderRadius: 4,
+    },
+    buttonLabel: {
+        fontSize: 16,
     },
     linkContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginTop: 10,
+        marginTop: 15,
+    },
+    linkButton: {
+        minWidth: 0,
     },
     snackbar: {
         position: "absolute",
-        bottom: 200,
+        bottom: 20,
         left: 20,
-        // right: 10,
+        right: 20,
+        backgroundColor: "#333",
     },
-    picker: {
-        backgroundColor: "#fff",
-      },
+    snackbarText: {
+        color: "white",
+    },
 });
 
 export default LoginScreen;
