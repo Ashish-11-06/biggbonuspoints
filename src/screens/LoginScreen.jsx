@@ -17,7 +17,10 @@ const LoginScreen = ({ navigation }) => {
     const [selectedUserType, setSelectedUserType] = useState("");
     const dispatch = useDispatch();
 
+
     const showSnackbar = (message) => {
+        // Ensure message is always a string and not undefined
+        setSnackbarMessage(message ? String(message) : "");
         // Ensure message is always a string and not undefined
         setSnackbarMessage(message ? String(message) : "");
         setSnackbarVisible(true);
@@ -44,7 +47,7 @@ const LoginScreen = ({ navigation }) => {
             return;
         }
 
-        setLoading(true);
+    //     setLoading(true);
 
         try {
             const userData = {
@@ -95,12 +98,16 @@ const LoginScreen = ({ navigation }) => {
                 <Text variant="headlineMedium" style={styles.title}>
                     Login
                 </Text>
+                <Text variant="headlineMedium" style={styles.title}>
+                    Login
+                </Text>
 
                 <TextInput
                     label="Mobile Number"
                     mode="outlined"
                     keyboardType="phone-pad"
                     value={mobile}
+                    onChangeText={(text) => setMobile(text.replace(/[^0-9]/g, ""))}
                     onChangeText={(text) => setMobile(text.replace(/[^0-9]/g, ""))}
                     maxLength={10}
                     style={styles.input}
@@ -113,10 +120,23 @@ const LoginScreen = ({ navigation }) => {
                     secureTextEntry
                     value={pin}
                     onChangeText={(text) => setPin(text.replace(/[^0-9]/g, ""))}
+                    onChangeText={(text) => setPin(text.replace(/[^0-9]/g, ""))}
                     maxLength={4}
                     style={styles.input}
                 />
 
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={selectedUserType}
+                        onValueChange={(itemValue) => setSelectedUserType(itemValue)}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="Select a user type" value="" />
+                        <Picker.Item label="Customer" value="customer" />
+                        <Picker.Item label="Merchant" value="merchant" />
+                        <Picker.Item label="Corporate Merchant" value="corporate" />
+                    </Picker>
+                </View>
                 <View style={styles.pickerContainer}>
                     <Picker
                         selectedValue={selectedUserType}
@@ -148,8 +168,21 @@ const LoginScreen = ({ navigation }) => {
                         disabled={loading}
                         style={styles.linkButton}
                     >
+                    <Button
+                        onPress={() => setDialogVisible(true)}
+                        textColor="#007BFF"
+                        disabled={loading}
+                        style={styles.linkButton}
+                    >
                         Forgot PIN?
                     </Button>
+                    <Button
+                        onPress={() => navigation.navigate("Register")}
+                        textColor="#007BFF"
+                        disabled={loading}
+                        style={styles.linkButton}
+                    >
+                        New user? Register
                     <Button
                         onPress={() => navigation.navigate("Register")}
                         textColor="#007BFF"
@@ -167,6 +200,7 @@ const LoginScreen = ({ navigation }) => {
                     setMobile={setMobile}
                     onSubmit={handleForgotPinSubmit}
                     loading={loading}
+                    loading={loading}
                 />
 
                 <Snackbar
@@ -177,8 +211,13 @@ const LoginScreen = ({ navigation }) => {
                         label: "OK",
                         onPress: () => setSnackbarVisible(false),
                     }}
+                    action={{
+                        label: "OK",
+                        onPress: () => setSnackbarVisible(false),
+                    }}
                     style={styles.snackbar}
                 >
+                    <Text style={styles.snackbarText}>{snackbarMessage}</Text>
                     <Text style={styles.snackbarText}>{snackbarMessage}</Text>
                 </Snackbar>
             </View>
@@ -198,9 +237,22 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         fontWeight: "bold",
         color: "#333",
+        color: "#333",
     },
     input: {
         marginBottom: 15,
+        backgroundColor: "white",
+    },
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 4,
+        marginBottom: 15,
+        overflow: "hidden",
+    },
+    picker: {
+        backgroundColor: "white",
+        height: 50,
         backgroundColor: "white",
     },
     pickerContainer: {
@@ -221,6 +273,11 @@ const styles = StyleSheet.create({
     },
     buttonLabel: {
         fontSize: 16,
+        paddingVertical: 5,
+        borderRadius: 4,
+    },
+    buttonLabel: {
+        fontSize: 16,
     },
     linkContainer: {
         flexDirection: "row",
@@ -229,13 +286,23 @@ const styles = StyleSheet.create({
     },
     linkButton: {
         minWidth: 0,
+        marginTop: 15,
+    },
+    linkButton: {
+        minWidth: 0,
     },
     snackbar: {
         position: "absolute",
         bottom: 20,
+        bottom: 20,
         left: 20,
         right: 20,
         backgroundColor: "#333",
+        right: 20,
+        backgroundColor: "#333",
+    },
+    snackbarText: {
+        color: "white",
     },
     snackbarText: {
         color: "white",

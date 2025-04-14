@@ -8,6 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
 import { useDispatch } from 'react-redux';
+import history from './history';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -178,7 +179,7 @@ const MainNavigator = () => {
   const renderScene = BottomNavigation.SceneMap({
     home: HomeScreen,
     scanQR: ScanQRScreen,
-    history: HistoryScreen,
+    history: history,
   });
 
   return (

@@ -25,10 +25,9 @@ import ShowPoints from './src/screens/ShowPoints';
 import Awards from './src/screens/Awards';
 import MerchantForm from './src/screens/MerchantForm';
 import RedeemPoints from './src/screens/RedeemPoints';
-import TransferPoints from './src/Components/TransferPoints';
-import ReceivePointsScreen from './src/screens/ReceivePointsScreen';
-import SelectUser from './src/screens/SelectUser';
-
+import transfer from './src/screens/transfer';
+import Transferpointstomerchant from './src/screens/Transferpointstomerchant';
+import history from './src/screens/history';
 const Stack = createStackNavigator();
 
 function App() {
@@ -66,30 +65,31 @@ function App() {
 
   return (
     <Provider store={store}>
-      <PaperProvider>
-        <NavigationContainer>
-          <StatusBar
-            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-            backgroundColor={backgroundStyle.backgroundColor}
-          />
-          <Stack.Navigator initialRouteName={initialRoute}>
-            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Details" component={DetailsScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="CustomerSelection" component={CustomerSelection} options={{ headerShown: false }} />
-            <Stack.Screen name="ScanQR" component={ScanQR} options={{ headerShown: false }} />
-            <Stack.Screen name="PointsScreen" component={PointsScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="ShowPoints" component={ShowPoints} options={{ headerShown: false }} />
-            <Stack.Screen name="Awards" component={Awards} options={{ headerShown: false }} />
-            <Stack.Screen name="MerchantForm" component={MerchantForm} options={{ headerShown: false }} />
-            <Stack.Screen name="RedeemPoints" component={RedeemPoints} options={{ headerShown: false }} />
-            <Stack.Screen name="TransferPoints" component={TransferPoints} options={{ headerShown: false }} />
-            <Stack.Screen name="ReceivePoints" component={ReceivePointsScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="SelectUser" component={SelectUser} options={{ headerShown: false }} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </PaperProvider>
+       <PaperProvider>
+    <NavigationContainer>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={backgroundStyle.backgroundColor}
+      />
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Details" component={DetailsScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="CustomerSelection" component={CustomerSelection} options={{ headerShown: false }} />
+        <Stack.Screen name="ScanQR" component={ScanQR} options={{ headerShown: false }} />
+        <Stack.Screen name="PointsScreen" component={PointsScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ShowPoints" component={ShowPoints} options={{ headerShown: false }} />
+        <Stack.Screen name="Awards" component={Awards} options={{ headerShown: false }} />
+        <Stack.Screen name="MerchantForm" component={MerchantForm} options={{ headerShown: false }} />
+        <Stack.Screen name="RedeemPoints" component={RedeemPoints} options={{ headerShown: false }} />
+        <Stack.Screen name="transfer" component={transfer} options={{ headerShown: false }} />
+        <Stack.Screen name="Transferpointstomerchant" component={Transferpointstomerchant} options={{ headerShown: false }} />
+        <Stack.Screen name="history" component={history} options={{ headerShown: false }} />
+
+      </Stack.Navigator>
+    </NavigationContainer>
+    </PaperProvider>
     </Provider>
   );
 }

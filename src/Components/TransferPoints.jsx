@@ -97,7 +97,6 @@ const TransferPoints = ({ route, navigation }) => {
         merchant_id: merchantId,
         points: parseInt(points)
       })).unwrap();
-      console.log(response)
   
       Alert.alert(
         "Success", 
