@@ -3,7 +3,7 @@ import { View, TextInput, FlatList, Text, TouchableOpacity, ActivityIndicator } 
 import { useDispatch, useSelector } from "react-redux";
 import { getAllCustomers, getAllMerchants } from "../Redux/slices/userSlice";
 
-const selectuser = ({ navigation }) => {
+const SelectUser = ({ navigation }) => {
   const dispatch = useDispatch();
   const [searchText, setSearchText] = useState("");
   const [filteredContacts, setFilteredContacts] = useState([]);
@@ -199,4 +199,4 @@ const selectuser = ({ navigation }) => {
   );
 };
 
-export default selectuser;
+export default SelectUser;
