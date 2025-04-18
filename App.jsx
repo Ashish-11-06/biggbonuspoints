@@ -28,6 +28,8 @@ import RedeemPoints from './src/screens/RedeemPoints';
 import TransferPoints from './src/Components/TransferPoints';
 import ReceivePointsScreen from './src/screens/ReceivePointsScreen';
 import selectuser from './src/screens/selectuser';
+import paymentsHistory from './src/screens/paymentsHistory';
+import Payments from './src/screens/Payments';
 
 const Stack = createStackNavigator();
 
@@ -87,6 +89,8 @@ function App() {
             <Stack.Screen name="TransferPoints" component={TransferPoints} options={{ headerShown: false }} />
             <Stack.Screen name="ReceivePoints" component={ReceivePointsScreen} options={{ headerShown: false }} />
             <Stack.Screen name="SelectUser" component={selectuser} options={{ headerShown: false }} />
+            <Stack.Screen name="paymentsHistory" component={paymentsHistory} options={{ headerShown: false }} />
+            <Stack.Screen name="Payments" component={Payments} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>

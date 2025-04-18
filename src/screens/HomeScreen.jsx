@@ -129,6 +129,24 @@ const HomeScreen = () => {
           </View>
         </View>
       </Card>
+      
+      {/* payments section */}
+      <Card style={{ margin: 5, marginBottom: 10, padding: 10 }}>
+        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Payments</Text>
+        <View style={{ padding: 10 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            
+
+            {renderActionButton(
+              require('../../assets/neha.jpg'),
+              'Payments',
+              () => navigation.navigate('paymentsHistory')
+            )}
+
+          </View>
+        </View>
+      </Card>
+
     </ScrollView>
   );
 };
