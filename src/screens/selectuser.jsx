@@ -15,7 +15,7 @@ const SelectUser = ({ navigation }) => {
   useEffect(() => {
     const fetchMerchants = async () => {
       try {
-    const res=dispatch(getAllMerchants());
+    const res=dispatch(getAllCustomers());
     console.log(res);
     
       } catch (error) {
@@ -67,7 +67,7 @@ const SelectUser = ({ navigation }) => {
         <Text style={{ color: 'red' }}>Error: {error}</Text>
         <TouchableOpacity
           style={{ marginTop: 10, padding: 10, backgroundColor: '#007bff', borderRadius: 5 }}
-          onPress={() => dispatch(getAllMerchants())}
+          onPress={() => dispatch(getAllCustomers())}
         >
           <Text style={{ color: 'white' }}>Retry</Text>
         </TouchableOpacity>

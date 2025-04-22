@@ -17,6 +17,7 @@ const Transferpointstomerchant = () => {
     };
 
     const handleSubmit = () => {
+        console.log("Entered PIN:", pin); // Debugging log to check the PIN value
         if (pin.length === 4) {
             navigation.navigate('ShowPoints'); // Navigate to Show Balance screen
         } else {

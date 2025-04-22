@@ -4,13 +4,15 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // Example icon libraries
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-
-const Header = ({ username = "User Name", location = "Location", avatarUrl, onNotificationsPress, onSettingsPress }) => {
+import profile from '../../assets/profile.png';
+const Header = ({ username = "User Name",user, location = "Location", avatarUrl, onNotificationsPress, onSettingsPress }) => {
+  console.log(user);
+  
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: '#9F86C0' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgb(209,71,61)' }}>
       {/* Avatar */}
       <Image
-        source={{ uri: avatarUrl || 'https://via.placeholder.com/50' }}
+        source={{ uri: avatarUrl || '../../assets/neha.jpg' }}
         style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }}
       />
       

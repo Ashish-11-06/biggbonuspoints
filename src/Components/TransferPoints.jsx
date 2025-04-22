@@ -25,7 +25,8 @@ const TransferPoints = ({ route, navigation }) => {
     name: merchantName || `Merchant ${merchantId}` // Use passed name or fallback
   });
   const [customerId, setCustomerId] = useState(null);
-  
+  console.log("Merchant ID:", merchantId);
+  console.log("Merchant Name:", merchantName);
   const dispatch = useDispatch();
   const nav = useNavigation();
 
@@ -41,7 +42,7 @@ const TransferPoints = ({ route, navigation }) => {
         </TouchableOpacity>
       ),
     });
-  }, [nav]);
+  }, []);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -75,7 +76,7 @@ const TransferPoints = ({ route, navigation }) => {
     navigation.navigate('Home');
   };
 
-  const handleTransfer = async () => {
+  const handleTransfer = () => {
     if (!customerId) {
       Alert.alert("Error", "Customer ID not found");
       return;
@@ -86,30 +87,32 @@ const TransferPoints = ({ route, navigation }) => {
       return;
     }
   
-    try {
-      const userData = await AsyncStorage.getItem('user');
-      if (!userData) {
-        throw new Error("Authentication required");
-      }
-      
-      const response = await dispatch(customerToMerchantPoints({
-        customer_id: customerId,
-        merchant_id: merchantId,
-        points: parseInt(points)
-      })).unwrap();
+    navigation.navigate('PointsScreen', {
+      merchantId,
+      merchantName,
+      fromRedeem: true, // Indicate redeem flow
+      onPinEntered: async (pin) => {
+        try {
+          console.log("PIN entered:", pin);
+          const response = await dispatch(customerToMerchantPoints({
+            customer_id: customerId,
+            merchant_id: merchantId,
+            pin,
+            points: parseInt(points),
+          })).unwrap();
   
-      Alert.alert(
-        "Success", 
-        "Points transferred successfully!",
-        [
-          { text: "OK", onPress: navigateToHome }
-        ]
-      );
-      
-    } catch (error) {
-      console.error("Transfer failed:", error);
-      Alert.alert("Error", error?.message || "Transfer failed");
-    }
+          console.log("Transfer response:", response);
+          Alert.alert(
+            "Success",
+            "Points transferred successfully!",
+            [{ text: "OK", onPress: navigateToHome }]
+          );
+        } catch (error) {
+          console.error("Transfer failed:", error);
+          Alert.alert("Error", error?.message || "Transfer failed");
+        }
+      },
+    });
   };
 
   return (
@@ -129,7 +132,7 @@ const TransferPoints = ({ route, navigation }) => {
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>To:</Text>
             <Text style={styles.detailValue}>
-              {merchantDetails.name} {/* Now shows the actual merchant name */}
+              {merchantName || `${merchantId}`} {/* Show merchantName or fallback to merchantId */}
             </Text>
           </View>
           

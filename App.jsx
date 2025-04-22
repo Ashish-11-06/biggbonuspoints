@@ -27,7 +27,13 @@ import MerchantForm from './src/screens/MerchantForm';
 import RedeemPoints from './src/screens/RedeemPoints';
 import transfer from './src/screens/transfer';
 import Transferpointstomerchant from './src/screens/Transferpointstomerchant';
-import history from './src/screens/history';
+import History from './src/screens/History';
+import TransferPoints from './src/Components/TransferPoints';
+import SelectUser from './src/screens/SelectUser';
+import BankDetails from './src/screens/BankDetails';
+import HelpSection from './src/screens/HelpSection';
+import ChangeMobileNo from './src/screens/ChangeMobileNo';
+import ReceivePointsScreen from './src/screens/ReceivePointsScreen';
 const Stack = createStackNavigator();
 
 function App() {
@@ -85,7 +91,13 @@ function App() {
         <Stack.Screen name="RedeemPoints" component={RedeemPoints} options={{ headerShown: false }} />
         <Stack.Screen name="transfer" component={transfer} options={{ headerShown: false }} />
         <Stack.Screen name="Transferpointstomerchant" component={Transferpointstomerchant} options={{ headerShown: false }} />
-        <Stack.Screen name="history" component={history} options={{ headerShown: false }} />
+        <Stack.Screen name="History" component={History} options={{ headerShown: false }} />
+        <Stack.Screen name="TransferPoints" component={TransferPoints} options={{ headerShown: false }} />
+        <Stack.Screen name="SelectUser" component={SelectUser} options={{ headerShown: false }} />
+        <Stack.Screen name="BankDetails" component={BankDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="HelpSection" component={HelpSection} options={{ headerShown: false }} />
+        <Stack.Screen name="ChangeMobileNo" component={ChangeMobileNo} options={{ headerShown: false }} />
+        <Stack.Screen name="ReceivePointsScreen" component={ReceivePointsScreen} options={{ headerShown: false }} />
 
       </Stack.Navigator>
     </NavigationContainer>
