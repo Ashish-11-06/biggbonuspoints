@@ -18,7 +18,6 @@ const LoginScreen = ({ navigation }) => {
     const dispatch = useDispatch();
 
     const showSnackbar = (message) => {
-        // Ensure message is always a string and not undefined
         setSnackbarMessage(message ? String(message) : "");
         setSnackbarVisible(true);
     };
@@ -48,17 +47,21 @@ const LoginScreen = ({ navigation }) => {
 
         try {
             const userData = {
-                mobile: mobile,
-                pin: pin,
+                mobile,
+                pin,
                 user_category: selectedUserType,
             };
 
             const res = await dispatch(loginUser(userData)).unwrap();
+console.log('res',res);
 
             if (res?.message === "Login successful") {
                 const storageData = {
                     user_category: res.user_category,
+                    pin: res.pin,
                     token: res.token,
+                    username:res.first_name,
+                    is_profile_updated: res.is_profile_updated,
                 };
 
                 if (res.user_category === "customer") {
@@ -68,13 +71,20 @@ const LoginScreen = ({ navigation }) => {
                 } else if (res.user_category === "corporate") {
                     storageData.corporate_id = res.corporate_id;
                 }
-
+console.log('is profile updaed',res.is_profile_updated);
                 await AsyncStorage.setItem("user", JSON.stringify(storageData));
                 showSnackbar("Login successful");
+                if (res.is_profile_updated === false) {
+                    navigation.navigate("MerchantForm");
+                }
+                else {
                 navigation.navigate("Home");
             }
+        } else {
+            showSnackbar(res?.message || "Login failed. Please try again.");
+        }
         } catch (error) {
-            showSnackbar(error?.message || error?.toString() || "Login failed. Please try again.");
+            showSnackbar(error?.message || "Login failed. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -92,9 +102,7 @@ const LoginScreen = ({ navigation }) => {
     return (
         <Provider>
             <View style={styles.container}>
-                <Text variant="headlineMedium" style={styles.title}>
-                    Login
-                </Text>
+                <Text variant="headlineMedium" style={styles.title}>Login</Text>
 
                 <TextInput
                     label="Mobile Number"

@@ -8,6 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
 import { useDispatch } from 'react-redux';
+import History from './History';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -20,12 +21,15 @@ const HomeScreen = () => {
     const fetchUserDetails = async () => {
       try {
         const userString = await AsyncStorage.getItem('user');
+        console.log("User data from AsyncStorage:", userString);
+        
         if (userString) {
           const user = JSON.parse(userString);
           console.log("Parsed user data:", user);
 
           // Set the loggedInUser state
           setLoggedInUser(user);
+// console.log(username);
 
           // Extract and set the user_category
           const category = user.user_category || 'User';
@@ -34,6 +38,7 @@ const HomeScreen = () => {
           // Set user details
           setUserDetails({
             user_category: category,
+            user_name:user.username,
             id: user.customer_id || user.merchant_id || user.corporate_id || 'N/A',
           });
         }
@@ -45,12 +50,12 @@ const HomeScreen = () => {
     fetchUserDetails();
   }, []);
 
-  const renderActionButton = (iconSource, label, onPress) => (
+  const renderActionButton = (iconSource, label, onPress, customStyle = {}) => (
     <TouchableOpacity onPress={onPress}>
       <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
         <Image
           source={iconSource}
-          style={{ width: 50, height: 50, borderRadius: 25 }}
+          style={{ width: 50, height: 50, borderRadius: 25, ...customStyle }}
         />
         <Text style={{ marginTop: 5 }}>{label}</Text>
       </View>
@@ -59,6 +64,7 @@ const HomeScreen = () => {
 
   console.log("User Details:", userDetails);
   console.log("User Category:", userCategory);
+console.log(userDetails);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f3f3f3' }}>
@@ -66,6 +72,7 @@ const HomeScreen = () => {
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
         <Header
           username={userDetails.user_category}
+          user={userDetails.username}
           location={`ID: ${userDetails.id}`}
           avatarUrl="https://randomuser.me/api/portraits/men/1.jpg"
           onNotificationsPress={() => console.log("Notifications Pressed")}
@@ -81,21 +88,29 @@ const HomeScreen = () => {
         <View style={{ padding: 10 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             {renderActionButton(
-              require('../../assets/scanner.png'),
+              require('../../assets/scanner.png'), // Updated to red theme
               'Scan QR',
-              () => navigation.navigate('ScanQR')
+              () => navigation.navigate('ScanQR'),
+              {width:35,height:35} 
             )}
 
             {renderActionButton(
-              require('../../assets/neha.jpg'),
+              require('../../assets/chooseMerchant.png'), // Updated to blue theme
               userCategory === 'customer' ? 'Choose Merchant' : 'Choose Customer',
-              () => navigation.navigate('CustomerSelection')
+              () => navigation.navigate('CustomerSelection', { userCategory }),
+              {width:35,height:35} 
             )}
 
             {renderActionButton(
-              require('../../assets/neha.jpg'),
+              require('../../assets/points1.png'), // Updated to red theme
               'Points',
-              () => navigation.navigate('PointsScreen')
+              () => navigation.navigate('PointsScreen',
+                {
+                  merchantId: null,
+                  merchantName: null,
+                }
+              ),
+              {width:35,height:35} 
             )}
           </View>
         </View>
@@ -110,43 +125,67 @@ const HomeScreen = () => {
         <View style={{ padding: 10 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             {renderActionButton(
-              require('../../assets/scanner.png'),
+              require('../../assets/transfer.png'), // Updated to blue theme
               'Transfer',
-              () => console.log("Transfer pressed")
+              () => console.log("Transfer pressed"),
+              {width:35,height:35} 
             )}
 
             {renderActionButton(
-              require('../../assets/neha.jpg'),
+              require('../../assets/chooseMerchant.png'), // Updated to red theme
               'Select User',
-              () => navigation.navigate('SelectUser')
+              () => navigation.navigate('SelectUser'),
+              {width:35,height:35} 
             )}
 
             {renderActionButton(
-              require('../../assets/neha.jpg'),
+              require('../../assets/receive.png'), // Updated to blue theme
               'Receive',
-              () => navigation.navigate('ReceivePoints', { userId: userDetails.id })
+              () => navigation.navigate('ReceivePointsScreen', { userId: userDetails.id }),
+              {width:35,height:35} // Custom dimensions
             )}
           </View>
         </View>
       </Card>
-      
-      {/* payments section */}
-      <Card style={{ margin: 5, marginBottom: 10, padding: 10 }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Payments</Text>
+
+
+      <Card style={{ margin: 10, marginBottom: 20, padding: 10 }}>
+        {/* <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text> */}
         <View style={{ padding: 10 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            
-
             {renderActionButton(
-              require('../../assets/neha.jpg'),
-              'Payments',
-              () => navigation.navigate('paymentsHistory')
+              require('../../assets/bank.png'), // Updated to red theme
+              'Bank Details',
+              () => navigation.navigate("BankDetails"),
+              { width: 35, height: 35 } // Custom dimensions
             )}
 
+            {renderActionButton(
+              require('../../assets/help.png'), // Updated to blue theme
+              'Help Section',
+              () => navigation.navigate('HelpSection'),
+              { width: 35, height: 35 } // Custom dimensions
+            )}
+
+            {renderActionButton(
+              require('../../assets/mobile.png'), // Updated to red theme
+              'Change Mobile No',
+              () => navigation.navigate('ChangeMobileNo', { userId: userDetails.id }),
+              { width: 35, height: 35 } // Custom dimensions
+            )}
+          </View>
+        </View>
+        <View style={{ padding: 10 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {renderActionButton(
+              require('../../assets/bank1.png'), // Updated to blue theme
+              'Additional Details',
+              () => navigation.navigate("MerchantForm"),
+              { width: 35, height: 35 } // Custom dimensions
+            )}
           </View>
         </View>
       </Card>
-
     </ScrollView>
   );
 };
@@ -196,7 +235,7 @@ const MainNavigator = () => {
   const renderScene = BottomNavigation.SceneMap({
     home: HomeScreen,
     scanQR: ScanQRScreen,
-    history: HistoryScreen,
+    history: History,
   });
 
   return (

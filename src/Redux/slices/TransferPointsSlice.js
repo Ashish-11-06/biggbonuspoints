@@ -5,6 +5,8 @@ import transferPointsApi from "../api/TransferPointsApi";
 export const customerToMerchantPoints = createAsyncThunk(
   "points/transfer",
   async (transferData, { rejectWithValue }) => {
+    console.log("Transfer data:", transferData);
+    
     try {
       const response = await transferPointsApi.redeemPoints(transferData);
       

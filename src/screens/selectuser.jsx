@@ -3,7 +3,7 @@ import { View, TextInput, FlatList, Text, TouchableOpacity, ActivityIndicator } 
 import { useDispatch, useSelector } from "react-redux";
 import { getAllCustomers, getAllMerchants } from "../Redux/slices/userSlice";
 
-const selectuser = ({ navigation }) => {
+const SelectUser = ({ navigation }) => {
   const dispatch = useDispatch();
   const [searchText, setSearchText] = useState("");
   const [filteredContacts, setFilteredContacts] = useState([]);
@@ -15,7 +15,7 @@ const selectuser = ({ navigation }) => {
   useEffect(() => {
     const fetchMerchants = async () => {
       try {
-    const res=dispatch(getAllMerchants());
+    const res=dispatch(getAllCustomers());
     console.log(res);
     
       } catch (error) {
@@ -67,7 +67,7 @@ const selectuser = ({ navigation }) => {
         <Text style={{ color: 'red' }}>Error: {error}</Text>
         <TouchableOpacity
           style={{ marginTop: 10, padding: 10, backgroundColor: '#007bff', borderRadius: 5 }}
-          onPress={() => dispatch(getAllMerchants())}
+          onPress={() => dispatch(getAllCustomers())}
         >
           <Text style={{ color: 'white' }}>Retry</Text>
         </TouchableOpacity>
@@ -199,4 +199,4 @@ const selectuser = ({ navigation }) => {
   );
 };
 
-export default selectuser;
+export default SelectUser;

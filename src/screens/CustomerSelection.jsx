@@ -1,29 +1,49 @@
-import React, { useState, useEffect } from "react";
-import { View, TextInput, FlatList, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import React, { useState,useEffect } from "react";
+import { View, TextInput, FlatList, Text, TouchableOpacity } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllMerchants } from "../Redux/slices/userSlice";
+import { getAllCustomers, getAllMerchants } from "../Redux/slices/userSlice";
+import { useNavigation, useRoute } from "@react-navigation/native";
+
+const contacts = [
+  { id: "1", name: "customer1", phone: "8080252251" },
+  { id: "2", name: "customer2", phone: "9764181163" },
+  { id: "3", name: "customer3", phone: "9822878861" },
+  { id: "4", name: "customer4", phone: "9422204705" },
+  { id: "5", name: "customer5", phone: "1234567890" },
+  { id: "6", name: "customer6", phone: "7840910538" },
+  { id: "7", name: "customer7", phone: "8999649495" },
+];
 
 const CustomerSelection = ({ navigation }) => {
   const dispatch = useDispatch();
   const [searchText, setSearchText] = useState("");
   const [filteredContacts, setFilteredContacts] = useState([]);
+  const route = useRoute();
+  const { userCategory } = route.params;
+  // Get merchants and customers from Redux state with default empty arrays
+  const { merchants = [], customers = [], status, error } = useSelector((state) => state.user);
 
-  // Get merchants from Redux state with default empty array
-  const { merchants = [], status, error } = useSelector((state) => state.user);
+  // Assume userCategory is passed as a prop or fetched from Redux
+  // const userCategory = useSelector((state) => state.auth.userCategory); // Example: "merchant" or "customer"
 
-  // Fetch merchants when component mounts
+  // Fetch merchants or customers when component mounts
   useEffect(() => {
-    const fetchMerchants = async () => {
+    const fetchData = async () => {
       try {
-    const res=dispatch(getAllMerchants());
-    console.log(res);
-    
+        if (userCategory === "merchant") {
+          const res = dispatch(getAllCustomers());
+          console.log("Fetched Customers:", res);
+        } else {
+          const res = dispatch(getAllMerchants());
+          console.log("Fetched Merchants:", res);
+        }
       } catch (error) {
-        console.error("Error fetching merchants:", error);
+        console.error("Error fetching data:", error);
       }
     };
-    fetchMerchants();
-  }, [dispatch]);
+    fetchData();
+  }, [dispatch, userCategory]);
 
   const handleSearch = (text) => {
     setSearchText(text);
@@ -32,8 +52,9 @@ const CustomerSelection = ({ navigation }) => {
       return;
     }
 
-    // Create a combined name field from first_name and last_name
-    const filtered = merchants
+    const dataToFilter = userCategory === "merchant" ? customers : merchants;
+
+    const filtered = dataToFilter
       .filter(contact => {
         const fullName = `${contact?.first_name || ''} ${contact?.last_name || ''}`.toLowerCase();
         const phone = contact?.mobile || '';
@@ -52,12 +73,12 @@ const CustomerSelection = ({ navigation }) => {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
-        <Text>Loading merchants...</Text>
+        <Text>{userCategory === "merchant" ? "Loading customers..." : "Loading merchants..."}</Text>
       </View>
     );
   }
 
-  console.log("Merchants:", merchants);
+  console.log(userCategory === "merchant" ? "Customers:" : "Merchants:", userCategory === "merchant" ? customers : merchants);
   console.log("Filtered Contacts:", filteredContacts);
 
   // Error state
@@ -67,13 +88,14 @@ const CustomerSelection = ({ navigation }) => {
         <Text style={{ color: 'red' }}>Error: {error}</Text>
         <TouchableOpacity
           style={{ marginTop: 10, padding: 10, backgroundColor: '#007bff', borderRadius: 5 }}
-          onPress={() => dispatch(getAllMerchants())}
+          onPress={() => dispatch(userCategory === "merchant" ? getAllCustomers() : getAllMerchants())}
         >
           <Text style={{ color: 'white' }}>Retry</Text>
         </TouchableOpacity>
       </View>
     );
   }
+  // console.log(user)
 
   return (
     <View style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}>
@@ -92,90 +114,42 @@ const CustomerSelection = ({ navigation }) => {
       />
 
       {/* List of Filtered Contacts */}
-      return (
-  <View style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}>
-    {/* <TextInput
-      placeholder="Search by name or number"
-      value={searchText}
-      onChangeText={handleSearch}
-      style={{
-        height: 50,
-        borderColor: "gray",
-        borderWidth: 1,
-        borderRadius: 10,
-        paddingHorizontal: 10,
-        marginBottom: 10,
-      }}
-    /> */}
-
-    {/* List of Merchants */}
-    <FlatList
-      data={searchText.length > 0 ? filteredContacts : merchants} // Show filteredContacts if searching, otherwise show all merchants
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          style={{ padding: 15, borderBottomWidth: 1, borderColor: "#ccc" }}
-          onPress={() =>
-            navigation.navigate("TransferPoints", {
-              merchantId: item.user_id, // Pass the merchant's user_id
-              merchantName: `${item.first_name || ''} ${item.last_name || ''}`.trim(), // Pass merchant name for display
-            })
-          }
-        >
-          <View>
-            <Text style={{ fontWeight: 'bold' }}>
-              {`${item.first_name || ''} ${item.last_name || ''}`.trim() || 'No name'}
-            </Text>
-            <Text>{item.mobile || 'No phone'}</Text>
-            {item.shop_name && <Text>Shop: {item.shop_name}</Text>}
-          </View>
-        </TouchableOpacity>
-      )}
-      keyExtractor={(item, index) => item.user_id || item.mobile || `merchant-${index}`}
-      ListEmptyComponent={
-        <View style={{ padding: 15 }}>
-          <Text style={{ textAlign: 'center' }}>No merchants found</Text>
-        </View>
-      }
-      keyboardShouldPersistTaps="handled"
-      extraData={searchText}
-    />
-  </View>
-);
-      {/* {searchText.length > 0 && (
-        <FlatList
-          data={filteredContacts}
-          keyExtractor={(item, index) => item.user_id || item.mobile || `merchant-${index}`}
-          keyboardShouldPersistTaps="handled"
-          // In your CustomerSelection component's renderItem:
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={{ padding: 15, borderBottomWidth: 1, borderColor: "#ccc" }}
-              onPress={() =>
-                navigation.navigate("TransferPoints", {
-                  merchantId: item.user_id, // Pass the merchant's user_id
-                  merchantName: `${item.first_name || ''} ${item.last_name || ''}`.trim() // Pass merchant name for display
-                })
-              }
-            >
-              <View>
-                <Text style={{ fontWeight: 'bold' }}>
-                  {`${item.first_name || ''} ${item.last_name || ''}`.trim() || 'No name'}
-                </Text>
-                <Text>{item.mobile || 'No phone'}</Text>
-                {item.shop_name && <Text>Shop: {item.shop_name}</Text>}
-              </View>
-            </TouchableOpacity>
-          )}
-          ListEmptyComponent={
-            <View style={{ padding: 15 }}>
-              <Text style={{ textAlign: 'center' }}>No matching merchants found</Text>
+      <FlatList
+        data={searchText.length > 0 ? filteredContacts : (userCategory === "merchant" ? customers : merchants)}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={{ padding: 15, borderBottomWidth: 1, borderColor: "#ccc" }}
+            onPress={() =>
+              navigation.navigate("PointsScreen", {
+                userId: item.user_id,
+                userName: `${item.first_name || ''} ${item.last_name || ''}`.trim(), // Correctly pass userName
+                userMobile: item.mobile || 'No phone',
+                userShop: item.shop_name || null,
+                fromChooseMerchant: userCategory !== "merchant" // Custom variable
+              })
+            }
+          >
+            <View>
+              <Text style={{ fontWeight: 'bold' }}>
+                {`${item.first_name || ''} ${item.last_name || ''}`.trim() || 'No name'}
+              </Text>
+              <Text>{item.mobile || 'No phone'}</Text>
+              {item.shop_name && <Text>Shop: {item.shop_name}</Text>}
             </View>
-          }
-        />
-      )} */}
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item, index) => item.user_id || item.mobile || `user-${index}`}
+        ListEmptyComponent={
+          <View style={{ padding: 15 }}>
+            <Text style={{ textAlign: 'center' }}>No {userCategory === "merchant" ? "customers" : "merchants"} found</Text>
+          </View>
+        }
+        keyboardShouldPersistTaps="handled"
+        extraData={searchText}
+      />
 
       {/* Add New Number button */}
-      {searchText.length > 0 && filteredContacts.length === 0 && merchants.length > 0 && (
+      {searchText.length > 0 && filteredContacts.length === 0 && (
         <TouchableOpacity
           style={{
             padding: 15,

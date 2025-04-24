@@ -6,13 +6,17 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const ShowPoints = ({ route }) => {
     const navigation = useNavigation();
 
-    // Get points data passed from navigation
-    const pointsData = route.params.points || [];
+    // Safely get and filter valid points data
+    const pointsData = (route?.params?.points || []).filter(
+        item => item && typeof item.points !== 'undefined'
+    );
 
-    // Calculate total available points (sum of all points)
-    const totalPoints = pointsData.reduce((sum, item) => sum + parseInt(item.points || 0), 0);
+    // Calculate total available points
+    const totalPoints = pointsData.reduce((sum, item) => {
+        return sum + parseInt(item.points || 0);
+    }, 0);
 
-    // Process data to group by merchant and calculate merchant totals
+    // Group by merchant
     const merchantData = pointsData.reduce((acc, item) => {
         const merchantKey = item.merchant_name || item.merchant_id;
 
@@ -31,19 +35,20 @@ const ShowPoints = ({ route }) => {
         return acc;
     }, {});
 
-    // Convert to array for SectionList
+    // Convert merchant data into section format
     const merchantSections = Object.values(merchantData).map(merchant => ({
-        title: `${merchant.merchantName} (Total: ${merchant.totalPoints} BBP)`,
-        data: merchant.transactions
+        title: merchant.merchantName,
+        data: merchant.transactions,
+        merchantId: merchant.merchantId, // Pass merchantId for redeem functionality
     }));
 
     return (
         <View style={styles.container}>
-            {/* Custom Header */}
+            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity
                     style={styles.backButton}
-                    onPress={() => navigation.navigate('Home')}  // Changed from goBack() to navigate('Home')
+                    onPress={() => navigation.navigate('Home')}
                 >
                     <Text>← Back to Home</Text>
                 </TouchableOpacity>
@@ -51,25 +56,27 @@ const ShowPoints = ({ route }) => {
                 <View style={styles.headerRight} />
             </View>
 
-            {/* Available Points */}
+            {/* Total Points */}
             <View style={styles.totalPointsContainer}>
                 <Text style={styles.totalPointsLabel}>Total Available Points</Text>
                 <Text style={styles.totalPointsValue}>{totalPoints.toLocaleString()} BBP</Text>
             </View>
 
-            {/* Merchant-wise Points */}
+            {/* Points by Merchant */}
             <Text style={styles.sectionHeader}>Points by Merchant</Text>
 
             {merchantSections.length > 0 ? (
                 <SectionList
                     sections={merchantSections}
-                    keyExtractor={(item, index) => item.merchant_id + index}
+                    keyExtractor={(item, index) => `${item.merchant_id}_${index}`}
                     renderItem={({ item }) => (
                         <View style={styles.transactionRow}>
                             <View style={styles.transactionDetails}>
                                 <Text style={styles.transactionText}>Merchant ID: {item.merchant_id}</Text>
                                 {item.transaction_date && (
-                                    <Text style={styles.transactionDate}>{new Date(item.transaction_date).toLocaleDateString()}</Text>
+                                    <Text style={styles.transactionDate}>
+                                        {new Date(item.transaction_date).toLocaleDateString()}
+                                    </Text>
                                 )}
                             </View>
                             <Text style={styles.pointsText}>+{item.points} BBP</Text>
@@ -77,8 +84,20 @@ const ShowPoints = ({ route }) => {
                     )}
                     renderSectionHeader={({ section }) => (
                         <View style={styles.merchantHeader}>
-                            <Text style={styles.merchantName}>{section.title}</Text>
-                        </View>
+    <Text style={styles.merchantName}>{section.title}</Text>
+    <TouchableOpacity
+        style={styles.redeemButton}
+        onPress={() =>
+            navigation.navigate('TransferPoints', {
+                merchantId: section.merchantId, // Pass userId as merchantId
+                merchantName: section.title,         // Pass userName as merchantName
+            })
+        }
+    >
+        <Text style={styles.redeemButtonText}>Redeem</Text>
+    </TouchableOpacity>
+</View>
+
                     )}
                     ItemSeparatorComponent={() => <View style={styles.separator} />}
                     SectionSeparatorComponent={() => <View style={styles.sectionSeparator} />}
@@ -151,6 +170,9 @@ const styles = StyleSheet.create({
         paddingLeft: 25,
     },
     merchantHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         backgroundColor: '#4e73df',
         padding: 12,
         borderRadius: 8,
@@ -161,6 +183,17 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: 'white',
+    },
+    redeemButton: {
+        backgroundColor: '#10b981',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+    },
+    redeemButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 14,
     },
     transactionRow: {
         flexDirection: 'row',
