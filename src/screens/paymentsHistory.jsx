@@ -2,32 +2,57 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-nati
 import React from 'react';
 
 const PaymentsHistory = ({ navigation }) => {
-  const data = [];
+  const data = [
+    {
+      merchantId: 'M123',
+      paidAmount: '₹1500',
+      transactionId: 'TXN001',
+      paymentMode: 'UPI',
+      approve: 'Yes',
+      date: '2025-04-18',
+    },
+    {
+      merchantId: 'M124',
+      paidAmount: '₹2000',
+      transactionId: 'TXN002',
+      paymentMode: 'Card',
+      approve: 'No',
+      date: '2025-04-17',
+    },
+  ];
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Payments History</Text>
 
-      <View style={[styles.row, styles.headerRow]}>
-        <Text style={styles.headerCell}>Sr No</Text>
-        <Text style={styles.headerCell}>Transaction ID</Text>
-        <Text style={styles.headerCell}>Date</Text>
-        <Text style={styles.headerCell}>Approved</Text>
-      </View>
+      <ScrollView horizontal>
+        <View>
+          <View style={[styles.row, styles.headerRow]}>
+            <Text style={styles.headerCell}>Merchant ID</Text>
+            <Text style={styles.headerCell}>Paid Amount</Text>
+            <Text style={styles.headerCell}>Transaction ID</Text>
+            <Text style={styles.headerCell}>Payment Mode</Text>
+            <Text style={styles.headerCell}>Approve</Text>
+            <Text style={styles.headerCell}>Date</Text>
+          </View>
 
-      <ScrollView>
-        {data.length === 0 ? (
-          <Text style={styles.emptyText}>No transactions found</Text>
-        ) : (
-          data.map((item, index) => (
-            <View key={index} style={styles.row}>
-              <Text style={styles.cell}>{item.srNo}</Text>
-              <Text style={styles.cell}>{item.id}</Text>
-              <Text style={styles.cell}>{item.date}</Text>
-              <Text style={styles.cell}>{item.approved}</Text>
-            </View>
-          ))
-        )}
+          <ScrollView style={{ maxHeight: 300 }}>
+            {data.length === 0 ? (
+              <Text style={styles.emptyText}>No transactions found</Text>
+            ) : (
+              data.map((item, index) => (
+                <View key={index} style={styles.row}>
+                  <Text style={styles.cell}>{item.merchantId}</Text>
+                  <Text style={styles.cell}>{item.paidAmount}</Text>
+                  <Text style={styles.cell}>{item.transactionId}</Text>
+                  <Text style={styles.cell}>{item.paymentMode}</Text>
+                  <Text style={styles.cell}>{item.approve}</Text>
+                  <Text style={styles.cell}>{item.date}</Text>
+                </View>
+              ))
+            )}
+          </ScrollView>
+        </View>
       </ScrollView>
 
       <TouchableOpacity
@@ -41,6 +66,7 @@ const PaymentsHistory = ({ navigation }) => {
 };
 
 export default PaymentsHistory;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -64,12 +90,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
   },
   headerCell: {
-    flex: 1,
+    width: 120,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   cell: {
-    flex: 1,
+    width: 120,
     textAlign: 'center',
   },
   emptyText: {
