@@ -9,7 +9,7 @@ const History = () => {
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [transactionHistory, setTransactionHistory] = useState([]);
   const dispatch = useDispatch();
-
+  
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -26,20 +26,28 @@ const History = () => {
     fetchUserDetails();
   }, []);
 
+  console.log('logged user',loggedInUser)
   useEffect(() => {
     const fetchTransactionHistoryData = async () => {
-      if (!loggedInUser || !loggedInUser.customer_id || !loggedInUser.user_category) {
+      if (!loggedInUser) {
         console.error("LoggedInUser details are incomplete or null");
         return;
       }
 
       try {
-        const user_id = loggedInUser.customer_id;
+        let user_id;
+        if(loggedInUser?.user_category === 'customer') {
+          user_id = loggedInUser.customer_id;
+        } else if(loggedInUser?.user_category === 'merchant') {
+          user_id = loggedInUser.merchant_id;
+        }
         const user_category = loggedInUser.user_category;
 
         const response = await dispatch(
           fetchTransactionHistory({ user_id, user_category })
         );
+        console.log(response);
+        
 
         setTransactionHistory(response.payload.transaction_history);
       } catch (error) {
@@ -58,16 +66,45 @@ const History = () => {
     ];
 
     const pointsText = item.transaction_type === 'award' ? `+${item.points}` : item.points;
+    const convertUTCtoIST = (utcDate) => {
+      const date = new Date(utcDate);
+      date.setMinutes(date.getMinutes() + 330); // Add 5 hours 30 minutes
+    
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+      const year = date.getFullYear();
+    
+      const hours = date.getHours() % 12 || 12;
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+    
+      return `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
+    };
+    
+    const isCustomer = loggedInUser?.user_category === 'customer';
 
-    return (
+    return isCustomer ? (
       <View style={styles.row}>
         <Text style={[styles.cell, styles.colSr]}>{index + 1}</Text>
         <Text style={[styles.cell, styles.colMerchantName]}>{item.merchant_name}</Text>
         <Text style={[styles.cell, styles.colMerchant]}>{item.merchant_id}</Text>
         <Text style={pointsStyle}>{pointsText}</Text>
-        <Text style={[styles.cell, styles.colCreatedAt]}>{item.created_at}</Text>
+        <Text style={[styles.cell, styles.colCreatedAt]}>
+          {convertUTCtoIST(item.created_at)}
+        </Text>
+      </View>
+    ) : (
+      <View style={styles.row}>
+        <Text style={[styles.cell, styles.colSr]}>{index + 1}</Text>
+        <Text style={[styles.cell, styles.colMerchantName]}>{item.customer_name}</Text>
+        <Text style={[styles.cell, styles.colMerchant]}>{item.customer_id}</Text>
+        <Text style={pointsStyle}>{pointsText}</Text>
+        <Text style={[styles.cell, styles.colCreatedAt]}>
+          {convertUTCtoIST(item.created_at)}
+        </Text>
       </View>
     );
+    
   };
 
   return (
@@ -76,13 +113,23 @@ const History = () => {
       <ScrollView horizontal>
         <View style={styles.tableContainer}>
           {/* Header Row */}
+          {loggedInUser?.user_category == 'customer' ? (
           <View style={[styles.row, styles.header]}>
             <Text style={[styles.headerCell, styles.colSr]}>Sr. No.</Text>
             <Text style={[styles.headerCell, styles.colMerchantName]}>Merchant Name</Text>
             <Text style={[styles.headerCell, styles.colMerchant]}>Merchant ID</Text>
             <Text style={[styles.headerCell, styles.colPoints]}>Points</Text>
-            <Text style={[styles.headerCell, styles.colCreatedAt]}>Created At</Text>
+            <Text style={[styles.headerCell, styles.colCreatedAt]}>Time</Text>
           </View>
+          ):(
+            <View style={[styles.row, styles.header]}>
+            <Text style={[styles.headerCell, styles.colSr]}>Sr. No.</Text>
+            <Text style={[styles.headerCell, styles.colMerchantName]}>Customer Name</Text>
+            <Text style={[styles.headerCell, styles.colMerchant]}>Customer ID</Text>
+            <Text style={[styles.headerCell, styles.colPoints]}>Points</Text>
+            <Text style={[styles.headerCell, styles.colCreatedAt]}>Time</Text>
+          </View>
+          )} 
 
           {/* Data Rows */}
           <FlatList
