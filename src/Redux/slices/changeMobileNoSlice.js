@@ -11,7 +11,7 @@ export const addNewNumber = createAsyncThunk(
        console.log("Response from:", response);
        
         console.log("Response from API:", response.data);
-        if (response.status === 200 && response.data) {
+        if (response.status === 201 && response.data) {
           return response.data;
         }
         return rejectWithValue(response.data.error || "Failed to new number");
@@ -31,7 +31,7 @@ export const verifyNewNumber = createAsyncThunk(
        console.log("Response from:", response);
        
         console.log("Response from API:", response.data);
-        if (response.status === 201 && response.data) {
+        if (response.status === 200 && response.data) {
           return response.data;
         }
         return rejectWithValue(response.data.error || "Failed to verify number");

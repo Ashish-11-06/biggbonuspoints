@@ -3,6 +3,8 @@ import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'reac
 import { addNewNumber, verifyNewNumber } from '../Redux/slices/changeMobileNoSlice';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { RadioButton } from 'react-native-paper';
+import { Picker } from '@react-native-picker/picker';
 
 const ChangeMobileNo = () => {
   const [mobile, setMobile] = useState('');
@@ -12,8 +14,12 @@ const ChangeMobileNo = () => {
   const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [userCategory, setUserCategory] = useState(null);
- const [requestId, setRequestId] = useState(null);
-
+  const [choice, setChoice] = useState('');
+  const [requestId, setRequestId] = useState(null);
+  const [pin, setPin] = useState('');
+  const [securityQuestion, setSecurityQuestion] = useState('');
+  const [securityAnswer, setSecurityAnswer] = useState('');
+const [newMobile, setNewMobile] = useState('');
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -48,31 +54,36 @@ const ChangeMobileNo = () => {
   }, []);
 console.log('user',userDetails);
 
-  const handleUpdate =async () => {
+  const handleUpdate = async () => {
     if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
       Alert.alert("Invalid Number", "Please enter a valid 10-digit mobile number.");
       return;
     }
-    let data;
-    if(userDetails.user_category === 'customer'){ 
-    data={
-      new_mobile:mobile,
-      customer:userDetails.id, 
-    } 
-  } else {
-    data={
-      new_mobile:mobile,
-      merchant:userDetails.id, 
-    }
-  }
-  console.log('data',data);
   
-  const res=await dispatch(addNewNumber(data));
-  console.log('res',res);
-  if(res?.payload.message) {
-    setRequestId(res.payload.request_id);
-    Alert.alert(res.payload.message);
-  }
+    let data = {
+      new_mobile: mobile,
+      ...(userDetails.user_category === 'customer' ? { customer: userDetails.id } : { merchant: userDetails.id }),
+    };
+  
+    if (choice === 'pin') {
+      data.pin = pin;
+    } else if (choice === 'security_question') {
+      data.security_question = securityQuestion;
+      data.security_answer = securityAnswer;
+    }
+  
+    console.log('data', data);
+  
+    const res = await dispatch(addNewNumber(data));
+    console.log('res', res);
+  console.log('request id',res.payload.request_id);
+  
+    if (res?.payload.message) {
+      setNewMobile(res.payload.new_mobile);
+      setRequestId(res.payload.request_id);
+      Alert.alert(res.payload.message);
+    }
+  
     setIsOtpSent(true);
     Alert.alert("OTP Sent", "An OTP has been sent to your mobile number.");
   };
@@ -82,10 +93,22 @@ console.log('user',userDetails);
       Alert.alert("Invalid OTP", "Please enter a valid 6-digit OTP.");
       return;
     }
-    const data={
-      request_id:requestId,
-      otp:otp,
+    let data;
+    if (userDetails.user_category === 'customer') {
+     data={
+      // request_id:requestId,
+      customer:userDetails.id,
+      new_mobile:newMobile,
+      new_mobile_otp:otp,
     }
+  } else if (userDetails.user_category === 'merchant') {
+    data={
+      new_mobile:newMobile,
+      new_mobile_otp:otp,
+      merchant:userDetails.id,
+    }
+  }
+
 const res=await dispatch(verifyNewNumber(data));
 console.log('res',res);
 if(res.message) {
@@ -120,6 +143,64 @@ if(res.error) {
           maxLength={10}
         />
 
+        <View style={styles.radioRow}>
+          <RadioButton
+            value="pin"
+            status={choice === 'pin' ? 'checked' : 'unchecked'}
+            onPress={() => setChoice('pin')}
+          />
+          <Text 
+            style={styles.radioLabel} 
+            onPress={() => setChoice('pin')} // Added onPress to Text
+          >
+            PIN
+          </Text>
+
+          <RadioButton
+            value="security_question"
+            status={choice === 'security_question' ? 'checked' : 'unchecked'}
+            onPress={() => setChoice('security_question')}
+          />
+          <Text 
+            style={styles.radioLabel} 
+            onPress={() => setChoice('security_question')} // Added onPress to Text
+          >
+            Security Question
+          </Text>
+        </View>
+
+        {choice === 'pin' && (
+          <TextInput
+            style={styles.input}
+            placeholder="Enter PIN"
+            keyboardType="numeric"
+            value={pin}
+            onChangeText={setPin}
+            maxLength={4}
+          />
+        )}
+
+        {choice === 'security_question' && (
+          <>
+            <Picker
+              selectedValue={securityQuestion}
+              onValueChange={(value) => setSecurityQuestion(value)}
+              style={[styles.picker, { height: 60 }]} // Increased height
+            >
+              <Picker.Item label="Select a security question" value="" />
+              <Picker.Item label="What is your pet's name?" value="pet_name" />
+              <Picker.Item label="What is your mother's maiden name?" value="mother_maiden" />
+              <Picker.Item label="What was your first school?" value="first_school" />
+            </Picker>
+            <TextInput
+              style={[styles.input, { height: 50 }]} // Increased height
+              placeholder="Answer"
+              value={securityAnswer}
+              onChangeText={setSecurityAnswer}
+            />
+          </>
+        )}
+
         {isOtpSent && (
           <>
             <Text style={styles.label}>Enter OTP</Text>
@@ -142,7 +223,7 @@ if(res.error) {
         {!isOtpSent && (
           <View style={styles.button}>
             <TouchableOpacity style={styles.buttonBackground} onPress={handleUpdate}>
-              <Text style={styles.buttonText}>Update Number</Text>
+              <Text style={styles.buttonText}>Verify Number</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -202,6 +283,24 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  radioRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  radioLabel: {
+    marginRight: 20,
+    fontSize: 16,
+    color: '#444',
+  },
+  picker: {
+    height: 45,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 20,
+    backgroundColor: '#fff',
   },
 });
 
