@@ -1,16 +1,56 @@
 import { StyleSheet, Text, View, SectionList, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ShowPoints = ({ route }) => {
     const navigation = useNavigation();
+    const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
+    const [loggedInUser, setLoggedInUser] = useState(null);
+    const [userCategory, setUserCategory] = useState(null);
+   
+    const dispatch = useDispatch();
+  
+    useEffect(() => {
+      const fetchUserDetails = async () => {
+        try {
+          const userString = await AsyncStorage.getItem('user');
+          console.log("User data from AsyncStorage:", userString);
+          
+          if (userString) {
+            const user = JSON.parse(userString);
+            console.log("Parsed user data:", user);
+  
+            // Set the loggedInUser state
+            setLoggedInUser(user);
+  // console.log(username);
+  
+            // Extract and set the user_category
+            const category = user.user_category || 'User';
+            setUserCategory(category);
+  
+            // Set user details
+            setUserDetails({
+              user_category: category,
+              user_name:user.username,
+              id: user.customer_id || user.merchant_id || user.corporate_id || 'N/A',
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching user details from AsyncStorage:', error);
+        }
+      };
+  
+      fetchUserDetails();
+    }, []);
 
     // Safely get and filter valid points data
     const pointsData = (route?.params?.points || []).filter(
         item => item && typeof item.points !== 'undefined'
     );
-
+console.log('points dataaa',pointsData)
     // Calculate total available points
     const totalPoints = pointsData.reduce((sum, item) => {
         return sum + parseInt(item.points || 0);
@@ -35,6 +75,24 @@ const ShowPoints = ({ route }) => {
         return acc;
     }, {});
 
+    const customerData = pointsData.reduce((acc, item) => {
+        const customerKey = item.customer_name || item.customer_id;
+
+        if (!acc[customerKey]) {
+            acc[customerKey] = {
+                merchantName: item.customer_name || `Customer ${item.customer_id}`,
+                merchantId: item.customer_id,
+                totalPoints: 0,
+                transactions: []
+            };
+        }
+
+        acc[customerKey].totalPoints += parseInt(item.points || 0);
+        acc[customerKey].transactions.push(item);
+
+        return acc;
+    }, {});
+
     // Convert merchant data into section format
     const merchantSections = Object.values(merchantData).map(merchant => ({
         title: merchant.merchantName,
@@ -42,6 +100,25 @@ const ShowPoints = ({ route }) => {
         merchantId: merchant.merchantId, // Pass merchantId for redeem functionality
     }));
 
+    const customerSections = Object.values(customerData).map(merchant => ({
+        title: merchant.merchantName,
+        data: merchant.transactions,
+        merchantId: merchant.merchantId, // Pass merchantId for redeem functionality
+    }));
+
+
+    console.log('cust data',customerData);
+    console.log('cust section',customerSections);
+    
+    const isCustomer = loggedInUser?.user_category === 'customer';
+    const safeMerchantSections = merchantSections || [];
+    const safeCustomerSections = customerSections || [];
+    
+    const dataToRender = isCustomer ? safeMerchantSections : safeCustomerSections;
+    const noDataMessage = isCustomer
+      ? 'No merchant data available'
+      : 'No customer data available';
+    
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -63,50 +140,58 @@ const ShowPoints = ({ route }) => {
             </View>
 
             {/* Points by Merchant */}
-            <Text style={styles.sectionHeader}>Points by Merchant</Text>
+            <Text style={styles.sectionHeader}>{loggedInUser?.user_category === 'customer' ? 'Points by Merchant' : 'Points to Customer'}</Text>
+            {dataToRender.length > 0 ? (
+  <SectionList
+    sections={dataToRender}
+    keyExtractor={(item, index) => `${item.merchant_id || item.customer_id}_${index}`}
+    renderItem={({ item }) => (
+      <View style={styles.transactionRow}>
+        <View style={styles.transactionDetails}>
+          <Text style={styles.transactionText}>
+            {isCustomer
+              ? `Merchant ID: ${item.merchant_id}`
+              : `Customer ID: ${item.customer_id}`}
+          </Text>
+          {item.transaction_date && (
+            <Text style={styles.transactionDate}>
+              {new Date(item.transaction_date).toLocaleDateString()}
+            </Text>
+          )}
+        </View>
+        {loggedInUser?.user_category=== 'customer' ? (
+        <Text style={styles.pointsText}>+{item.points} BBP</Text>
+    ):(
+        <Text style={styles.awardPointsText}>{item.points} BBP</Text>
 
-            {merchantSections.length > 0 ? (
-                <SectionList
-                    sections={merchantSections}
-                    keyExtractor={(item, index) => `${item.merchant_id}_${index}`}
-                    renderItem={({ item }) => (
-                        <View style={styles.transactionRow}>
-                            <View style={styles.transactionDetails}>
-                                <Text style={styles.transactionText}>Merchant ID: {item.merchant_id}</Text>
-                                {item.transaction_date && (
-                                    <Text style={styles.transactionDate}>
-                                        {new Date(item.transaction_date).toLocaleDateString()}
-                                    </Text>
-                                )}
-                            </View>
-                            <Text style={styles.pointsText}>+{item.points} BBP</Text>
-                        </View>
-                    )}
-                    renderSectionHeader={({ section }) => (
-                        <View style={styles.merchantHeader}>
-    <Text style={styles.merchantName}>{section.title}</Text>
-    <TouchableOpacity
-        style={styles.redeemButton}
-        onPress={() =>
+    )
+    }
+      </View>
+    )}
+    renderSectionHeader={({ section }) => (
+      <View style={styles.merchantHeader}>
+        <Text style={styles.merchantName}>{section.title}</Text>
+        <TouchableOpacity
+          style={styles.redeemButton}
+          onPress={() =>
             navigation.navigate('TransferPoints', {
-                merchantId: section.merchantId, // Pass userId as merchantId
-                merchantName: section.title,         // Pass userName as merchantName
+              merchantId: section.merchantId || '', // or customerId if needed
+              merchantName: section.title,
             })
-        }
-    >
-        <Text style={styles.redeemButtonText}>Redeem</Text>
-    </TouchableOpacity>
-</View>
-
-                    )}
-                    ItemSeparatorComponent={() => <View style={styles.separator} />}
-                    SectionSeparatorComponent={() => <View style={styles.sectionSeparator} />}
-                />
-            ) : (
-                <View style={styles.emptyState}>
-                    <Text style={styles.noTransactions}>No merchant data available</Text>
-                </View>
-            )}
+          }
+        >
+          <Text style={styles.redeemButtonText}>{loggedInUser?.user_category === 'customer' ? 'Redeem' : 'Award'}</Text>
+        </TouchableOpacity>
+      </View>
+    )}
+    ItemSeparatorComponent={() => <View style={styles.separator} />}
+    SectionSeparatorComponent={() => <View style={styles.sectionSeparator} />}
+  />
+) : (
+  <View style={styles.emptyState}>
+    <Text style={styles.noTransactions}>{noDataMessage}</Text>
+  </View>
+)}
         </View>
     );
 };
@@ -221,6 +306,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: '#10b981',
+        marginLeft: 10,
+    },
+    awardPointsText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: 'red',
         marginLeft: 10,
     },
     separator: {

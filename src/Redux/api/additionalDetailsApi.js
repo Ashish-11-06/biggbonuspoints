@@ -7,6 +7,12 @@ const additinalDetailsApi = {
     getAdditionalDetails: (userId) => {
         return axiosInstance.get(`redeemAwardPoints/customer/profile/${userId}/`);
     },
+    addAdditinalDetailsMerchant: ({userId,data}) => {
+        return axiosInstance.put(`redeemAwardPoints/update-merchant-profile/${userId}/`,data);
+    },
+    getAdditionalDetailsMerchant: (userId) => {
+        return axiosInstance.get(`redeemAwardPoints/merchant/profile/${userId}/`);
+    },
 };
 
 export default additinalDetailsApi;

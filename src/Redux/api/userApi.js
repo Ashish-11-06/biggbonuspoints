@@ -3,6 +3,8 @@ import axiosInstance from "../axiosInstance";
 
 const userApi = {
     loginUser: (credentials) => {
+        console.log('login data appi', credentials);
+        
         return axiosInstance.post(`login-user/`, credentials);
     },
     RegisterUser: (userData) => {

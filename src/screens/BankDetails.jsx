@@ -3,9 +3,13 @@ import { View, Text, TextInput, StyleSheet, ScrollView, Button, Alert } from 're
 import { fetchBankDetails, fetchBankDetailsById } from '../Redux/slices/bankDetailsSlice';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator } from 'react-native-paper';
 
 const BankDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  
   const dispatch = useDispatch();
   const [bankDetails, setBankDetails] = useState(null);
   const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
@@ -50,43 +54,50 @@ const BankDetails = () => {
       try {
         const user_id = userDetails.id;
         const user_category = userDetails.user_category;
-
+        setLoading(true); 
         if (user_id && user_category) {
           console.log("User ID:", user_id);
           console.log("User Category:", user_category);
+  try {
+    const res = await dispatch(fetchBankDetailsById({ user_id, user_category }));
+    console.log("Bank Details Response:", res);
+    console.log("Bank Details Response Payload:", res?.payload);
 
-          const res = await dispatch(fetchBankDetailsById({ user_id, user_category }));
-          console.log("Bank Details Response:", res);
-          console.log("Bank Details Response Payload:", res?.payload);
+    if (res?.payload) {
+      const bankDetailsData = res.payload[0];
 
-          if (res?.payload) {
-            setBankDetails(res?.payload);
+      const fetchedData = {
+        accountHolder: bankDetailsData.account_holder_name || '',
+        accountNumber: bankDetailsData.account_number || '',
+        bankName: bankDetailsData.bank_name || '',
+        ifscCode: bankDetailsData.ifsc_code || '',
+        branch: bankDetailsData.branch || '',
+    };
+console.log('fetched dataaa',fetchedData);
 
-            // Update bankData with the actual response data
-            setBankData({
-              accountHolder: res.payload.account_holder_name || '',
-              accountNumber: res.payload.account_number || '',
-              bankName: res.payload.bank_name || '',
-              ifscCode: res.payload.ifsc_code || '',
-              branch: res.payload.branch || '',
-            });
-          }
+      setBankData(fetchedData);
+      setFormData(fetchedData);  // ✅ important
+    }
+  } catch (error) {
+    console.log(error);  
+  }  finally {
+    setLoading(false); // 👈 Stop loading whether success or error
+  }
+         
         }
       } catch (error) {
         console.error('Error fetching bank details:', error);
         Alert.alert('Error', 'Failed to fetch bank details');
       }
-      
     };
-
-    // Call the API only when userDetails are fully loaded
+  
     if (userDetails.id && userDetails.user_category) {
       fetchBankDetailsByIdOnce();
     }
-  }, [userDetails]); // Add userDetails as a dependency to ensure it runs only when userDetails changes
+  }, [loggedInUser,dispatch]);
+  
 
-
-  console.log("Bank Details:", bankDetails);
+  console.log("Bank Detailssss:", bankDetails);
   const [formData, setFormData] = useState({
     accountHolder: '',
     accountNumber: '',
@@ -136,40 +147,51 @@ console.log(userDetails);
     Alert.alert("Bank Details Updated", `Account Holder: ${formData.accountHolder}`);
   };
 
-  if (!isEditing && bankData.accountHolder) {
+  if (!isEditing && bankData) {
     return (
       <View style={styles.container}>
-        <Text style={styles.heading}>Bank Details</Text>
+      <Text style={styles.heading}>Bank Details</Text>
 
-        <View style={styles.detailContainer}>
-          <Text style={styles.label}>Account Holder:</Text>
-          <Text style={styles.value}>{bankData.accountHolder}</Text>
+      {loading ? (
+        // Show loader while loading
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#9F86C0" />
         </View>
+      ) : (
+        // Show bank details after loading
+        <View>
+          <View style={styles.detailContainer}>
+            <Text style={styles.label}>Account Holder:</Text>
+            <Text style={styles.value}>{bankData.accountHolder}</Text>
+          </View>
 
-        <View style={styles.detailContainer}>
-          <Text style={styles.label}>Account Number:</Text>
-          <Text style={styles.value}>{bankData.accountNumber}</Text>
-        </View>
+          <View style={styles.detailContainer}>
+            <Text style={styles.label}>Account Number:</Text>
+            <Text style={styles.value}>{bankData.accountNumber}</Text>
+          </View>
 
-        <View style={styles.detailContainer}>
-          <Text style={styles.label}>Bank Name:</Text>
-          <Text style={styles.value}>{bankData.bankName}</Text>
-        </View>
+          <View style={styles.detailContainer}>
+            <Text style={styles.label}>Bank Name:</Text>
+            <Text style={styles.value}>{bankData.bankName}</Text>
+          </View>
 
-        <View style={styles.detailContainer}>
-          <Text style={styles.label}>IFSC Code:</Text>
-          <Text style={styles.value}>{bankData.ifscCode}</Text>
-        </View>
+          <View style={styles.detailContainer}>
+            <Text style={styles.label}>IFSC Code:</Text>
+            <Text style={styles.value}>{bankData.ifscCode}</Text>
+          </View>
 
-        <View style={styles.detailContainer}>
-          <Text style={styles.label}>Branch:</Text>
-          <Text style={styles.value}>{bankData.branch}</Text>
-        </View>
+          <View style={styles.detailContainer}>
+            <Text style={styles.label}>Branch:</Text>
+            <Text style={styles.value}>{bankData.branch}</Text>
+          </View>
 
-        <View style={styles.buttonContainer}>
-          <Button title="Edit" onPress={handleEdit} color="#9F86C0" />
+          <View style={styles.buttonContainer}>
+            <Button title="Edit" onPress={handleEdit} color="#9F86C0" />
+          </View>
         </View>
-      </View>
+      )}
+    </View>
+  
     );
   }
 

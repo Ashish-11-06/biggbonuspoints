@@ -30,16 +30,16 @@ const Header = ({ username = "User Name",user, location = "Location", avatarUrl,
       </View>
       
       {/* Notification Icon */}
-      <TouchableOpacity onPress={onNotificationsPress} style={{ marginHorizontal: 10 }}>
+      {/* <TouchableOpacity onPress={onNotificationsPress} style={{ marginHorizontal: 10 }}>
       <Image source={require('../../assets/notification.png')} style={{ width: 24, height: 24 }} />
       {/* <MaterialIcons name="../../assets/notification.png" size={24} color="white" /> Change icon here */}
-      </TouchableOpacity>
+      {/* </TouchableOpacity> */} 
       
       {/* Settings Icon */}
-      <TouchableOpacity onPress={onSettingsPress}>
-      <Image source={require('../../assets/setting.png')} style={{ width: 21, height: 21 }} />
+      {/* <TouchableOpacity onPress={onSettingsPress}>
+      <Image source={require('../../assets/setting.png')} style={{ width: 21, height: 21 }} /> */}
         {/* <FontAwesome name="cog" size={24} color="white" /> Change icon here */}
-      </TouchableOpacity>
+      {/* </TouchableOpacity> */}
     </View>
   );
 };

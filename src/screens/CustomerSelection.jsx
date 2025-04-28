@@ -125,7 +125,7 @@ const CustomerSelection = ({ navigation }) => {
                 userName: `${item.first_name || ''} ${item.last_name || ''}`.trim(), // Correctly pass userName
                 userMobile: item.mobile || 'No phone',
                 userShop: item.shop_name || null,
-                fromChooseMerchant: userCategory !== "merchant" // Custom variable
+                fromChooseMerchant: true // Custom variable
               })
             }
           >

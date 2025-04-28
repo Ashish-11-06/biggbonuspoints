@@ -12,7 +12,7 @@ import {
   Platform
 } from "react-native";
 import { Camera, CameraType } from 'react-native-camera-kit';
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ScanQR = () => {
@@ -24,7 +24,8 @@ const ScanQR = () => {
   const [isFetching, setIsFetching] = useState(false);
   const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
   const cameraRef = useRef(null);
-
+  const route = useRoute();
+  const fromTransferHome = route.params?.fromTransferHome;console.log('from transferhome',fromTransferHome)
   useEffect(() => {
     const loadUserDetails = async () => {
       try {
@@ -60,10 +61,26 @@ const ScanQR = () => {
   const handleScanSuccess = async (qrData) => {
     try {
       const result = await fetchDataFromQR(qrData);
+      console.log('QR code data:', result);
+      console.log(result.raw);
       
+      const rawData = result.raw;
+      
+      let extractedData;
+      if (rawData.includes(":")) {
+        // Example: "receive:MEID30680592289" → extract part after ':'
+        extractedData = rawData.split(":")[1];
+      } else {
+        // Example: "CUST000002" → use as is
+        extractedData = rawData;
+      }
+      
+      console.log("Extracted Data:", extractedData);
       navigation.navigate("TransferPoints", {
-        merchantId: result.raw,
-        customerId: userDetails.id
+        // merchantId: result.raw,
+        merchantId: extractedData,
+        customerId: userDetails.id,
+        fromTransferHome:fromTransferHome
       });
       
       setScannedData(null);

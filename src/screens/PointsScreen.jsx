@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCustomerPoints } from '../Redux/slices/pointsSlice';
+import { fetchCustomerPoints, fetchMerchantPoints } from '../Redux/slices/pointsSlice';
 
 const PointsScreen = ({ route }) => {
     const [pin, setPin] = useState('');
@@ -11,10 +11,12 @@ const PointsScreen = ({ route }) => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
     const { customerPoints, status, error } = useSelector(state => state.customerPoints);
-    const { merchantId, merchantName, fromChooseMerchant, userName, userMobile, userShop, fromRedeem, onPinEntered } = route.params;
+    const { merchantId, merchantName, fromChooseMerchant, userName, userMobile, userShop, fromRedeem, onPinEntered, fromHomeScreen} = route.params;
     const userId = route.params.userId; // Extract userId from route params
+    const [userCategory, setUserCategory] = useState(null);
     console.log(merchantName, merchantId, fromChooseMerchant);
-    console.log(userName, userId); // Correctly log userName and userId
+console.log('from home screen',fromHomeScreen);
+    // console.log(userName, userId); // Correctly log userName and userId
     // Fetch user ID from AsyncStorage on component mount
     useEffect(() => {
         const fetchUserId = async () => {
@@ -22,6 +24,8 @@ const PointsScreen = ({ route }) => {
                 const storedUser = await AsyncStorage.getItem('user');
                 if (storedUser) {
                     const parsedUser = JSON.parse(storedUser);
+                    console.log("User data from AsyncStorage:", parsedUser);
+                    setUserCategory(parsedUser.user_category);
                     setLoggedInUserId(parsedUser.user_category === 'merchant' ? parsedUser.merchant_id : parsedUser.customer_id);
                     console.log("Parsed user data:", parsedUser);
                 } else {
@@ -46,11 +50,13 @@ const PointsScreen = ({ route }) => {
     };
 
     const handleSubmit = async () => {
+        console.log('clicked ');
+        
         if (pin.length === 4) {
             if (fromRedeem && onPinEntered) {
                 onPinEntered(pin); // Pass the entered PIN back to TransferPoints
                 navigation.goBack(); // Navigate back to TransferPoints
-            } else {
+            } else if(userCategory === 'customer'){ 
                 // Existing behavior for non-redeem flow
                 const requestData = {
                     customer_id: loggedInUserId,
@@ -74,7 +80,32 @@ const PointsScreen = ({ route }) => {
 
                     console.log("Fetched points:", response.merchant_points);
                 } catch (err) {
-                    Alert.alert('Error', err.message || 'Failed to fetch points');
+                    Alert.alert(err || 'Failed to fetch points');
+                }
+            } else if(userCategory === 'merchant'){
+                const requestData = {
+                    merchant_id: loggedInUserId,
+                    pin: pin,
+                };
+
+                try {
+                    const response = await dispatch(fetchMerchantPoints(requestData)).unwrap();
+                    console.log(response);
+                    if (fromChooseMerchant) {
+                        navigation.navigate('TransferPoints', {
+                            merchantId: userId, // Pass userId as merchantId
+                            merchantName: userName, // Pass userName as merchantName
+                        });
+                    } else {
+                        navigation.navigate('ShowPoints', {
+                            points: response.customer_points,
+                            merchantId: null,
+                            merchantName: null,
+                        });
+                    }
+                    console.log("Fetched points:", response.merchant_points);
+                } catch (err) {
+                    Alert.alert(err);
                 }
             }
         } else {
@@ -90,8 +121,11 @@ const PointsScreen = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.merchantId}>Merchant ID: {userId}</Text>
-            {/* <Text style={styles.userInfo}>Name: {userName}</Text>
+{!fromHomeScreen && (
+  <Text style={styles.merchantId}>
+    {userCategory === 'customer' ? 'Merchant ID' : 'Customer ID'}: {userId}
+  </Text>
+)}            {/* <Text style={styles.userInfo}>Name: {userName}</Text>
             <Text style={styles.userInfo}>Mobile: {userMobile}</Text>
             {userShop && <Text style={styles.userInfo}>Shop: {userShop}</Text>} */}
             <Text style={styles.title}>ENTER 4-DIGIT UPI PIN</Text>

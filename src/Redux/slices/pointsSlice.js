@@ -6,6 +6,25 @@ export const fetchCustomerPoints = createAsyncThunk(
     async (data, { rejectWithValue }) => {
       try {
         const response = await PointsApi.viewMerchantWisePoints(data);
+        console.log("Response from API view merchant:", response.data);
+        
+        if (response.status === 200 && response.data) {
+          return response.data;
+        }
+        return rejectWithValue(response.data.error || "Failed to fetch points");
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message || "An error occurred");
+      }
+    }
+  );
+
+export const fetchMerchantPoints = createAsyncThunk(
+    "points/getPointsMerchant",
+    async (data, { rejectWithValue }) => {
+      try {
+        const response = await PointsApi.viewCustomerWisePoints(data);
+        console.log("Response from API view merchant:", response.data);
+        
         if (response.status === 200 && response.data) {
           return response.data;
         }
@@ -21,6 +40,7 @@ const customerPointsSlice = createSlice({
   name: "customerPoints",
   initialState: {
     customerPoints: [], // Changed to match what you use in reducers
+    merchantPoints: [],
     status: "idle",
     error: null,
   },
@@ -36,6 +56,18 @@ const customerPointsSlice = createSlice({
         state.customerPoints = action.payload; 
       })
       .addCase(fetchCustomerPoints.rejected, (state, action) => { // Changed to fetchCustomerPoints
+        state.status = "failed";
+        state.error = action.payload || "Failed to fetch data";
+      })
+      .addCase(fetchMerchantPoints.pending, (state) => { // Changed to fetchMerchantPoints
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchMerchantPoints.fulfilled, (state, action) => { // Changed to fetchMerchantPoints
+        state.status = "succeeded";
+        state.merchantPoints = action.payload; 
+      })
+      .addCase(fetchMerchantPoints.rejected, (state, action) => { // Changed to fetchCustomerPoints
         state.status = "failed";
         state.error = action.payload || "Failed to fetch data";
       });

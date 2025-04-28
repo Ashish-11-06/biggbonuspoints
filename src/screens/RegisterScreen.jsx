@@ -17,6 +17,8 @@ const RegisterScreen = ({ navigation }) => {
     const confirmPinRef = useRef("");
     const securityQuestionRef = useRef("");
     const securityAnswerRef = useRef("");
+    const referenceQuestionRef = useRef("");
+    const referenceAnswerRef = useRef("");
     const userTypeRef = useRef("");
 
     // State management
@@ -26,6 +28,8 @@ const RegisterScreen = ({ navigation }) => {
     const [helpDialog, setHelpDialog] = useState(false);
     const [countdown, setCountdown] = useState(0);
     const [customerId, setCustomerId] = useState("");
+    const [selectedReference, setSelectedReference] = useState(""); // Add state for reference question
+    const [userType, setUserType] = useState(""); // Add state for user type
 
     // Error states
     const [firstNameError, setFirstNameError] = useState("");
@@ -36,6 +40,8 @@ const RegisterScreen = ({ navigation }) => {
     const [confirmPinError, setConfirmPinError] = useState("");
     const [securityQuestionError, setSecurityQuestionError] = useState("");
     const [securityAnswerError, setSecurityAnswerError] = useState("");
+    const [referenceQuestionError, setReferenceQuestionError] = useState("");
+    const [referenceAnswerError, setReferenceAnswerError] = useState("");
     const [userTypeError, setUserTypeError] = useState("");
 
     const dispatch = useDispatch();
@@ -67,6 +73,10 @@ const RegisterScreen = ({ navigation }) => {
         setSecurityQuestionError("");
         setSecurityAnswerError("");
         setUserTypeError("");
+ setReferenceAnswerError("");
+        setReferenceQuestionError("");
+ 
+
 
         // Validate First Name
         if (!firstNameRef.current) {
@@ -118,6 +128,16 @@ const RegisterScreen = ({ navigation }) => {
             setSecurityAnswerError("Security Answer is required");
             isValid = false;
         }
+        if (!referenceQuestionRef.current && userTypeRef.current === "merchant") {
+            setReferenceQuestionError("reference Question is required");
+            isValid = false;
+        }
+
+        // Validate Security Answer
+        if (!referenceAnswerRef.current && referenceQuestionRef.current === "emp_id") {
+            setReferenceAnswerError("reference Answer is required");
+            isValid = false;
+        }
 
         // Validate User Type
         if (!userTypeRef.current) {
@@ -130,6 +150,8 @@ const RegisterScreen = ({ navigation }) => {
 
     // Handle OTP sending
     const sendOtp = async () => {
+        console.log('button clicked');
+        
         if (!validateFields()) return;
 
         setRegisterLoading(true);
@@ -143,11 +165,14 @@ const RegisterScreen = ({ navigation }) => {
                 security_question: securityQuestionRef.current,
                 answer: securityAnswerRef.current,
                 user_category: userTypeRef.current,
-                ...(userTypeRef.current !== "customer" && { user_type: userTypeRef.current }),
+                ...(userTypeRef.current === "merchant" && {
+                    reference_question: referenceQuestionRef.current,
+                    reference_answer: referenceAnswerRef.current,
+                }),
             };
-
+            console.log('form', formData);
             const res = await dispatch(registerUser(formData));
-
+            // const res= 'abc';
             if (res?.type === "user/registerUser/fulfilled") {
                 const { user_id, user_category } = res.payload;
                 
@@ -250,13 +275,17 @@ const RegisterScreen = ({ navigation }) => {
 
                         {/* User Type Picker */}
                         <Picker
-                            selectedValue={userTypeRef.current}
-                            onValueChange={(value) => (userTypeRef.current = value)}
+                            selectedValue={userType}
+                            onValueChange={(value) => {
+                                setUserType(value); // Update state to trigger re-render
+                                userTypeRef.current = value;
+                                setSelectedReference(""); // Reset reference selection when user type changes
+                            }}
                             style={styles.picker}
                         >
                             <Picker.Item label="Select a user type" value="" />
                             <Picker.Item label="Customer" value="customer" />
-                            <Picker.Item label="Merchant" value="individual" />
+                            <Picker.Item label="Merchant" value="merchant" />
                             <Picker.Item label="Corporate Merchant" value="corporate" />
                         </Picker>
                         {userTypeError ? <Text style={styles.errorText}>{userTypeError}</Text> : null}
@@ -349,6 +378,51 @@ const RegisterScreen = ({ navigation }) => {
                             style={styles.input}
                         />
                         {securityAnswerError ? <Text style={styles.errorText}>{securityAnswerError}</Text> : null}
+
+                        {/* Reference Question Picker (only for merchants) */}
+                        {userType === "merchant" && (
+                            <>
+                                <Picker
+                                    selectedValue={selectedReference}
+                                    onValueChange={(value) => {
+                                        setSelectedReference(value); // Update state
+                                        referenceQuestionRef.current = value;
+                                        if (value !== "emp_id") {
+                                            referenceAnswerRef.current = null; // Reset answer if not "Sales Person"
+                                        }
+                                    }}
+                                    style={styles.picker}
+                                >
+                                    <Picker.Item label="Select a Reference" value="" />
+                                    <Picker.Item label="Social Media" value="Social Media" />
+                                    <Picker.Item label="Sales " value="emp_id" />
+                                    <Picker.Item label="News Paper" value="News Paper" />
+                                    <Picker.Item label="Other" value="Other" />
+                                </Picker>
+                                {referenceQuestionError ? <Text style={styles.errorText}>{referenceQuestionError}</Text> : null}
+
+                                {/* Reference Answer Input */}
+                                {selectedReference === "emp_id" && (
+                                    <TextInput
+                                        label="Please enter Sales Person ID"
+                                        mode="outlined"
+                                        onChangeText={(text) => (referenceAnswerRef.current = text)}
+                                        error={!!referenceAnswerError}
+                                        style={styles.input}
+                                    />
+                                )}
+                                {selectedReference === "Other" && (
+                                    <TextInput
+                                        label="Please enter Reference"
+                                        mode="outlined"
+                                        onChangeText={(text) => (referenceAnswerRef.current = text)}
+                                        error={!!referenceAnswerError}
+                                        style={styles.input}
+                                    />
+                                )}
+                                {referenceAnswerError ? <Text style={styles.errorText}>{referenceAnswerError}</Text> : null}
+                            </>
+                        )}
 
                         {/* Register/OTP Button */}
                         <Button

@@ -84,6 +84,8 @@ const HelpSection = () => {
           placeholderTextColor="#aaa"
           value={query}
           onChangeText={setQuery}
+          height={100} // Increased height for the input box
+          multiline={true} // Allow multiple lines
         />
 
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
@@ -127,6 +129,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: '#fff',
     width: '100%', // Ensure input spans full width
+    rows:4,
+    height: 100, // Increased height for the input box
   },
   button: {
     backgroundColor: '#9F86C0',

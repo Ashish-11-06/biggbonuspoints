@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, Alert, ScrollView, StyleSheet } from 're
 import { useForm, Controller } from 'react-hook-form';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
-import { addAdditinalDetails, fetchAdditionalDetails} from '../Redux/slices/additionalDetailsSlice';
+import { addAdditinalDetails, addAdditinalDetailsMerchant, fetchAdditionalDetails, fetchAdditionalDetailsMerchant} from '../Redux/slices/additionalDetailsSlice';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -21,6 +21,7 @@ const MerchantForm = () => {
     first_name: 'First Name',
     last_name: 'Last Name',
     id: 'User ID',
+    mobile_number: 'Mobile Number',
     age: 'Age',
     gender: 'Gender',
     city: 'City',
@@ -28,10 +29,10 @@ const MerchantForm = () => {
     country: 'Country',
     pincode: 'Pincode',
     address: 'Address',
-    aadhar: 'Aadhar Number',
-    pan: 'PAN Number',
+    aadhar_number: 'Aadhar Number',
+    pan_number: 'PAN Number',
     shopName: 'Shop Name',
-    registerShopName: 'Registered Shop Name',
+    // registerShopName: 'Registered Shop Name',
     gst: 'GST Number',
   };
 
@@ -49,31 +50,32 @@ const MerchantForm = () => {
           const category = user.user_category || 'User';
           setUserCategory(category);
 
-          setUserDetails({
+          const initialDetails = {
             user_category: category,
             first_name: user.first_name || '',
             last_name: user.last_name || '',
             id: user.customer_id || user.merchant_id || user.corporate_id || 'N/A',
-            age: user.age || '25',
-            gender: user.gender || 'Female',
-            city: user.city || 'Mumbai',
-            state: user.state || 'Maharashtra',
-            country: user.country || 'India',
-            pincode: user.pincode || '400001',
-            address: user.address || '123 Street Name',
-            aadhar: user.aadhar || '1234-5678-9012',
-            pan: user.pan || 'ABCDE1234F',
-            shopName: user.shopName || 'My Shop',
-            registerShopName: user.registerShopName || 'Shop Name',
-            gst: user.gst || '27ABCDE1234F1Z5',
-          });
+            mobile_number: user.mobile_number || '', // Add mobile number if available
+            age: user.age || '',
+            gender: user.gender || '',
+            city: user.city || '',
+            state: user.state || '',
+            country: user.country || '',
+            pincode: user.pincode || '',
+            address: user.address || '',
+            aadhar_number: user.aadhar_number || '',
+            pan_number: user.pan_number || '',
+            shopName: user.shopName || '',
+            // registerShopName: user.registerShopName || '',
+            gst: user.gst || '',
+          };
 
-          // Pre-fill form fields if profile is updated
-          if (user.is_profile_updated) {
-            Object.keys(userDetails).forEach((key) => {
-              setValue(key, userDetails[key]);
-            });
-          }
+          setUserDetails(initialDetails);
+
+          // Pre-fill form fields
+          Object.keys(initialDetails).forEach((key) => {
+            setValue(key, initialDetails[key]);
+          });
         }
       } catch (error) {
         console.error('Error fetching user details from AsyncStorage:', error);
@@ -89,7 +91,12 @@ console.log(userDetails.id);
   useEffect(() => {
     const fetchAdditinalDetails = async () => {
       const userId = loggedInUser?.customer_id || loggedInUser?.merchant_id || loggedInUser?.corporate_id || 'N/A';
-      const response = await dispatch(fetchAdditionalDetails(userId));
+     let response = null;
+      if(loggedInUser?.user_category === 'customer') {
+         response = await dispatch(fetchAdditionalDetails(userId));
+      } else if(loggedInUser?.user_category === 'merchant') {
+          response = await dispatch(fetchAdditionalDetailsMerchant(userId));
+      }
       console.log('Fetched additional details:', response?.payload.profile_data);
       
       const fetchedData = response?.payload.profile_data;
@@ -101,20 +108,20 @@ console.log(userDetails.id);
           first_name: fetchedData.first_name || '', // Separate first_name
           last_name: fetchedData.last_name || '', // Separate last_name
           id: fetchedData.customer_id || fetchedData.merchant_id || fetchedData.corporate_id || 'N/A',
-          age: fetchedData.age?.toString() || '25', // Ensure age is converted to string
-          gender: fetchedData.gender || 'Female',
-          city: fetchedData.city || 'Mumbai',
-          state: fetchedData.state || 'Maharashtra',
-          country: fetchedData.country || 'India',
-          pincode: fetchedData.pincode?.toString() || '400001', // Ensure pincode is converted to string
-          address: fetchedData.address || '123 Street Name',
-          aadhar: fetchedData.aadhar_number || '1234-5678-9012',
-          pan: fetchedData.pan_number || 'ABCDE1234F',
-          shopName: fetchedData.shopName || 'My Shop',
-          registerShopName: fetchedData.registerShopName || 'Shop Name',
-          gst: fetchedData.gst || '27ABCDE1234F1Z5',
+          age: fetchedData.age?.toString() || '', // Ensure age is converted to string
+          gender: fetchedData.gender || '',
+          city: fetchedData.city || '',
+          state: fetchedData.state || '',
+          country: fetchedData.country || '',
+          pincode: fetchedData.pincode?.toString() || '', // Ensure pincode is converted to string
+          address: fetchedData.address || '',
+          aadhar_number: fetchedData.aadhar_number || '',
+          pan_number: fetchedData.pan_number || '',
+          shopName: fetchedData.shopName || '',
+          // registerShopName: fetchedData.registerShopName || 'Shop Name',
+          gst: fetchedData.gst || '',
         };
-
+console.log('update data payload',updatedUserDetails)
         setUserDetails(updatedUserDetails); // Update userDetails using profileData
 
         // Pre-fill form fields if profile is updated
@@ -129,9 +136,16 @@ console.log(userDetails.id);
   }, [loggedInUser, dispatch]);
   
   const onSubmit = async (data) => {
-    console.log('Form submitted:', data);
+    console.log('hello');
     
-    const res = await dispatch(addAdditinalDetails({ userId: userDetails.id, data }));
+    console.log('Form submitted:', data);
+    let res=null;
+    if(loggedInUser?.user_category === 'customer') {
+      res = await dispatch(addAdditinalDetails({ userId: userDetails.id, data }));
+    }
+    else if(loggedInUser?.user_category === 'merchant') {
+     res = await dispatch(addAdditinalDetailsMerchant({ userId: userDetails.id, data }));
+    }
     console.log(res);
     Alert.alert('Form Submitted');
     setIsEditing(false); // Exit edit mode after submission
@@ -149,21 +163,22 @@ console.log(userDetails.id);
         first_name: updatedData.first_name || '', // Separate first_name
         last_name: updatedData.last_name || '', // Separate last_name
         id: updatedData.customer_id || updatedData.merchant_id || updatedData.corporate_id || 'N/A',
-        age: updatedData.age?.toString() || '25', // Ensure age is converted to string
-        gender: updatedData.gender || 'Female',
-        city: updatedData.city || 'Mumbai',
-        state: updatedData.state || 'Maharashtra',
-        country: updatedData.country || 'India',
-        pincode: updatedData.pincode?.toString() || '400001', // Ensure pincode is converted to string
-        address: updatedData.address || '123 Street Name',
-        aadhar: updatedData.aadhar_number || '1234-5678-9012',
-        pan: updatedData.pan_number || 'ABCDE1234F',
-        shopName: updatedData.shopName || 'My Shop',
-        registerShopName: updatedData.registerShopName || 'Shop Name',
-        gst: updatedData.gst || '27ABCDE1234F1Z5',
+        age: updatedData.age?.toString() || '', // Ensure age is converted to string
+        gender: updatedData.gender || '',
+        city: updatedData.city || '',
+        state: updatedData.state || '',
+        country: updatedData.country || '',
+        pincode: updatedData.pincode?.toString() || '', // Ensure pincode is converted to string
+        address: updatedData.address || '',
+        aadhar_number: updatedData.aadhar_number || '',
+        pan_number: updatedData.pan_number || '',
+        shopName: updatedData.shopName || '',
+        // registerShopName: updatedData.registerShopName || '',
+        gst: updatedData.gst || '',
       };
 
       setUserDetails(updatedUserDetails);
+console.log('hiii');
 
       // Update form fields with the latest data
       Object.keys(updatedUserDetails).forEach((key) => {
@@ -234,10 +249,11 @@ const handleEdit = () => {
                       style={[styles.input, styles.picker]} // Added picker-specific styling
                       enabled={isEditing || !loggedInUser?.is_profile_updated}
                     >
-                      {[
-                        'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Delhi', 'Gujarat', 
-                        'Haryana', 'Himachal Pradesh', 'Jammu', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 
-                        'Maharashtra', 'Meghalaya', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 
+                      <Picker.Item label="Select State" value="" />
+                      { [
+                        'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Delhi', 'Gujarat',
+                        'Haryana', 'Himachal Pradesh', 'Jammu', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh',
+                        'Maharashtra', 'Meghalaya', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
                         'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
                       ].map((option) => (
                         <Picker.Item key={option} label={option} value={option} />
@@ -257,6 +273,7 @@ const handleEdit = () => {
                       style={[styles.input, styles.picker]} // Added picker-specific styling
                       enabled={isEditing || !loggedInUser?.is_profile_updated}
                     >
+                      <Picker.Item label="Select Gender" value="" />
                       <Picker.Item label="Male" value="Male" />
                       <Picker.Item label="Female" value="Female" />
                       <Picker.Item label="Other" value="Other" />
@@ -267,19 +284,32 @@ const handleEdit = () => {
               ) : (
                 <Controller
                   control={control}
-                  rules={{ required: key !== 'aadhar' && key !== 'pan' && key !== 'gst' }}
+                  rules={{
+                    required: key !== 'aadhar_number' && key !== 'pan_number' && key !== 'gst',
+                    pattern: key === 'mobile_number' ? /^[0-9]{10}$/ : key === 'aadhar_number' ? /^[0-9]{12}$/ : undefined, // Validate 10-digit mobile number or 12-digit aadhar
+                    minLength: key === 'pincode' ? 6 : undefined, // Minimum length for pincode
+                    maxLength: key === 'pincode' ? 6 : undefined, // Maximum length for pincode
+                  }}
                   render={({ field: { onChange, value } }) => (
                     <TextInput
                       style={styles.input}
                       onChangeText={onChange}
                       value={value}
                       editable={isEditing || !loggedInUser?.is_profile_updated}
+                      keyboardType={key === 'mobile_number' || key === 'aadhar_number' || key === 'pincode' || key === 'age' ? 'numeric' : 'default'} // Numeric keyboard for specific fields
                     />
                   )}
                   name={key}
                 />
               )}
-              {errors[key] && <Text style={styles.error}>{errors[key].message}</Text>}
+              {errors[key] && (
+                <Text style={styles.error}>
+                  {key === 'mobile_number' && 'Mobile number must be 10 digits.'}
+                  {key === 'pincode' && 'Pincode must be 6 digits.'}
+                  {key === 'aadhar_number' && 'Aadhar number must be 12 digits.'}
+                  {key !== 'aadhar_number' && key !== 'pan_number' && key !== 'gst' && `${fieldLabels[key] || key} is required.`}
+                </Text>
+              )}
             </View>
           ))}
           <Button title="Submit" onPress={handleSubmit(onSubmit)} color="#9F86C0" />

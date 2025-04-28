@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -13,20 +14,32 @@ import {
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from "react-redux";
-import { customerToMerchantPoints, resetTransferState } from "../Redux/slices/TransferPointsSlice";
+import { customerToCustomerPoints, customerToMerchantPoints, merchantToCustomerPoints, merchantToMerchantPoints, resetTransferState } from "../Redux/slices/TransferPointsSlice";
 import { useNavigation } from '@react-navigation/native';
+import { fetchCustomerPoints, fetchMerchantPoints } from "../Redux/slices/pointsSlice";
+import { Picker } from "@react-native-picker/picker";
 
 const TransferPoints = ({ route, navigation }) => {
   // Get both merchantId and merchantName from route params
-  const { merchantId, merchantName } = route.params;
+  const { merchantId, merchantName,fromTransferHome, fromSelectUser } = route.params;
+  console.log(fromSelectUser);
+  console.log('merchant id',merchantId);
+  console.log('merchant name',merchantName);
+  
+  
   const [points, setPoints] = useState("");
+  const [selectedMerchant, setSelectedMerchant] = useState('');
   const [userDetails, setUserDetails] = useState({});
+  const [pointsData,setPointsData]=useState([]);
   const [merchantDetails, setMerchantDetails] = useState({
-    name: merchantName || `Merchant ${merchantId}` // Use passed name or fallback
+    name: merchantName || `Merchant ${receiverId}` // Use passed name or fallback
   });
   const [customerId, setCustomerId] = useState(null);
-  console.log("Merchant ID:", merchantId);
+  const receiverId=merchantId;
+  const [merchant_Id,setMerchantId] =useState(null);
+  console.log("Merchant ID:", receiverId);
   console.log("Merchant Name:", merchantName);
+  const [userCategory,setUserCategory] = useState(null);
   const dispatch = useDispatch();
   const nav = useNavigation();
 
@@ -44,22 +57,84 @@ const TransferPoints = ({ route, navigation }) => {
     });
   }, []);
 
+useEffect(()=>{
+  if(userCategory === 'customer') {
+    const customerPoints =async () => {
+      const requestData = {
+        customer_id:customerId,
+        pin: userDetails?.pin,
+    };
+      const res=await dispatch(fetchCustomerPoints(requestData));
+console.log('customer points res',res);
+
+      const merchantPoints = res?.payload?.merchant_points || [];
+    setPointsData(merchantPoints);
+      console.log('customer points',res);
+  
+    }
+    customerPoints();
+  }
+},[customerId,dispatch])
+
+console.log('ppoints data',pointsData)
+
+const totalPoints = Array.isArray(pointsData)
+  ? pointsData.reduce((sum, item) => sum + parseInt(item.points || 0), 0)
+  : 0;
+
+
+const merchantData = pointsData.reduce((acc, item) => {
+  const merchantKey = item.merchant_name || item.merchant_id;
+
+  if (!acc[merchantKey]) {
+      acc[merchantKey] = {
+          merchantName: item.merchant_name || `Merchant ${item.merchant_id}`,
+          merchantId: item.merchant_id,
+          totalPoints: 0,
+          transactions: []
+      };
+  }
+
+  acc[merchantKey].totalPoints += parseInt(item.points || 0);
+  acc[merchantKey].transactions.push(item);
+
+  return acc;
+}, {});
+
+// Convert merchant data into section format
+const merchantSections = Object.values(merchantData).map(merchant => ({
+  title: merchant.merchantName,
+  data: merchant.transactions,
+  merchantId: merchant.merchantId, // Pass merchantId for redeem functionality
+}));
+
+
+console.log('user data',userDetails);
+console.log('merchant section',merchantSections)
+
   useEffect(() => {
     const fetchDetails = async () => {
       try {
         const userData = await AsyncStorage.getItem('user');
         if (userData) {
           const parsedData = JSON.parse(userData);
-          if (parsedData.customer_id) {
+          console.log("Parsed user data:", parsedData);
+          if(parsedData.user_category === 'customer') { 
             setCustomerId(parsedData.customer_id);
+          }
+          if(parsedData.user_category === 'merchant') { 
+            setMerchantId(parsedData.merchant_id);
+          }
+          setUserCategory(parsedData.user_category);
             setUserDetails({
               name: `Customer ${parsedData.customer_id}`,
+              pin:parsedData.pin
             });
           }
         }
         
         // No need to set merchant name here as we're using the passed value
-      } catch (error) {
+       catch (error) {
         console.error("Error fetching details:", error);
         Alert.alert("Error", "Failed to load user data");
       }
@@ -70,17 +145,14 @@ const TransferPoints = ({ route, navigation }) => {
     return () => {
       dispatch(resetTransferState());
     };
-  }, [merchantId, dispatch]);
+  }, [receiverId, dispatch]);
 
   const navigateToHome = () => {
     navigation.navigate('Home');
   };
 
   const handleTransfer = () => {
-    if (!customerId) {
-      Alert.alert("Error", "Customer ID not found");
-      return;
-    }
+    console.log("Transfer button pressed");
   
     if (!points || isNaN(points) || parseInt(points) <= 0) {
       Alert.alert("Invalid Amount", "Please enter a valid points amount");
@@ -88,32 +160,83 @@ const TransferPoints = ({ route, navigation }) => {
     }
   
     navigation.navigate('PointsScreen', {
-      merchantId,
+      receiverId,
       merchantName,
+      fromHomeScreen: false, // Indicate not from HomeScreen
       fromRedeem: true, // Indicate redeem flow
       onPinEntered: async (pin) => {
         try {
           console.log("PIN entered:", pin);
-          const response = await dispatch(customerToMerchantPoints({
-            customer_id: customerId,
-            merchant_id: merchantId,
-            pin,
-            points: parseInt(points),
-          })).unwrap();
   
-          console.log("Transfer response:", response);
-          Alert.alert(
-            "Success",
-            "Points transferred successfully!",
-            [{ text: "OK", onPress: navigateToHome }]
-          );
+          if (userCategory === 'customer' && !fromTransferHome && !fromSelectUser) {
+            const response = await dispatch(customerToMerchantPoints({
+              customer_id: customerId,
+              merchant_id: receiverId,
+              pin,
+              points: parseInt(points),
+            })).unwrap();
+  
+            console.log('res', response);
+            if (response?.message) {
+              Alert.alert("Success", response.message, [
+                { text: "OK", onPress: navigateToHome }
+              ]);
+            }
+  
+          } 
+          // else if(userCategory === 'custome' && fromSelectUser) {
+            
+          // }
+          
+          else if(userCategory === 'merchant' && !fromTransferHome && !fromSelectUser ) {
+            const response = await dispatch(merchantToCustomerPoints({
+              customer_id: receiverId,
+              merchant_id: merchant_Id,
+              pin,
+              points: parseInt(points),
+            })).unwrap();
+  
+            console.log("Transfer response:", response);
+            if(response.message) {
+              Alert.alert(response.message || "Points awarded successfullyyy")
+            }
+          } else if (userCategory === 'merchant' && fromSelectUser) {
+            const response = await dispatch(merchantToMerchantPoints({
+              receiver_merchant_id: receiverId,
+              sender_merchant_id: merchant_Id, 
+              pin,
+              points: parseInt(points),
+            })).unwrap();
+  
+            console.log("Transfer response:", response);
+            if(response.message) {
+              Alert.alert(response.message || "Points transferred successfullyyy")
+            }
+  
+          } else if ((userCategory === 'customer' && fromSelectUser) || (userCategory === 'customer' && fromTransferHome)) {
+            const response = await dispatch(customerToCustomerPoints({
+              receiver_customer_id: receiverId,
+              sender_customer_id: customerId,
+              merchant_id:selectedMerchant,
+              pin,
+              points: parseInt(points),
+            })).unwrap();
+  
+            console.log("Transfer response:", response);
+            if(response.message) {
+              Alert.alert(response.message || 'Points transferred successfullyyy')
+            }
+          }
+  
         } catch (error) {
+          Alert.alert(error);
           console.error("Transfer failed:", error);
-          Alert.alert("Error", error?.message || "Transfer failed");
         }
       },
     });
   };
+  
+  console.log('user cateogry',userCategory)
 
   return (
     <KeyboardAvoidingView 
@@ -126,16 +249,37 @@ const TransferPoints = ({ route, navigation }) => {
           
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>From:</Text>
-            <Text style={styles.detailValue}>{userDetails.name || `Customer ${customerId || 'Loading...'}`}</Text>
+            <Text style={styles.detailValue}>{userCategory === 'customer'? customerId : merchant_Id}</Text>
+            {/* <Text style={styles.detailValue}>{userDetails.name || ` ${customerId}`}</Text> */}
           </View>
           
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>To:</Text>
             <Text style={styles.detailValue}>
-              {merchantName || `${merchantId}`} {/* Show merchantName or fallback to merchantId */}
+              {merchantName || `${receiverId}`} {/* Show merchantName or fallback to merchantId */}
             </Text>
           </View>
-          
+
+          {(fromSelectUser && userCategory === 'customer') || (fromTransferHome && userCategory === 'customer')  ? (
+            <>
+          <Text style={styles.label}>Select Merchant:</Text>
+      <Picker
+        selectedValue={selectedMerchant}
+        onValueChange={(itemValue, itemIndex) => setSelectedMerchant(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="-- Choose a Merchant --" value="" />
+        {pointsData.map((merchant, index) => (
+          <Picker.Item
+          key={index}
+          label={`${merchant.merchant_name ? merchant.merchant_name : ''} | ${merchant.points} Points | ${merchant.merchant_id}`}
+          value={merchant.merchant_id}
+        />
+        
+        ))}
+      </Picker>
+      </>
+      ):null}
           <TextInput
             style={styles.input}
             placeholder="Enter points to transfer"
@@ -148,7 +292,7 @@ const TransferPoints = ({ route, navigation }) => {
           <TouchableOpacity
             style={styles.transferButton}
             onPress={handleTransfer}
-            disabled={!customerId}
+            // disabled={!customerId}
           >
             <Text style={styles.transferButtonText}>
               Transfer Points

@@ -7,7 +7,6 @@ const bankDetailsApi = {
     getBankDetailsById: ({user_id,user_category}) => {
         return axiosInstance.get(`redeemAwardPoints/bank-details/${user_id}/${user_category}/`);
     } ,
-
 };
 
 export default bankDetailsApi;

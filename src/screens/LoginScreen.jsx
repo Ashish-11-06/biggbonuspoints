@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { Text, TextInput, Button, Snackbar, Provider } from "react-native-paper";
+import { Text, TextInput, Button, Snackbar, Provider, RadioButton } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ForgotPinDialog from "../Dialog/ForgotPinDialog";
 import { Picker } from "@react-native-picker/picker";
@@ -9,11 +9,14 @@ import { useDispatch } from "react-redux";
 
 const LoginScreen = ({ navigation }) => {
     const [mobile, setMobile] = useState("");
+    const [merchantId, setMerchantId] = useState("");
+    const [terminal, setTerminal] = useState("");
     const [pin, setPin] = useState("");
     const [loading, setLoading] = useState(false);
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [dialogVisible, setDialogVisible] = useState(false);
+    const [choice, setChoice] = useState("");
     const [selectedUserType, setSelectedUserType] = useState("");
     const dispatch = useDispatch();
 
@@ -23,18 +26,15 @@ const LoginScreen = ({ navigation }) => {
     };
 
     const handleLogin = async () => {
+        console.log('login clicked');
+        
         if (!selectedUserType) {
             showSnackbar("Please select a user type.");
             return;
         }
 
-        if (!mobile || !pin) {
-            showSnackbar("Please enter both mobile number and PIN.");
-            return;
-        }
-
-        if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
-            showSnackbar("Enter a valid 10-digit mobile number.");
+        if (!pin) {
+            showSnackbar("Please enter your PIN.");
             return;
         }
 
@@ -43,25 +43,101 @@ const LoginScreen = ({ navigation }) => {
             return;
         }
 
+        if (selectedUserType === 'customer') {
+            if (!mobile) {
+                showSnackbar("Please enter your mobile number.");
+                return;
+            }
+
+            if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
+                showSnackbar("Enter a valid 10-digit mobile number.");
+                return;
+            }
+        }
+
+        if (selectedUserType === 'merchant') {
+            if (choice === 'mobile') {
+                if (!mobile) {
+                    showSnackbar("Please enter your mobile number.");
+                    return;
+                }
+
+                if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
+                    showSnackbar("Enter a valid 10-digit mobile number.");
+                    return;
+                }
+            } else if (choice === 'merchant_id') {
+                if (!merchantId) {
+                    showSnackbar("Please enter your Merchant ID.");
+                    return;
+                }
+
+                if (!/^[a-zA-Z0-9]+$/.test(merchantId)) {
+                    showSnackbar("Merchant ID must be alphanumeric.");
+                    return;
+                }
+            } else {
+                showSnackbar("Please select a valid option for Merchant login.");
+                return;
+            }
+        }
+
+        if (selectedUserType === 'terminal') {
+            if (!terminal) {
+                showSnackbar("Please enter your Terminal ID.");
+                return;
+            }
+
+            if (terminal.length !== 10 || !/^\d+$/.test(terminal)) {
+                showSnackbar("Terminal ID must be a valid 10-digit number.");
+                return;
+            }
+        }
+
         setLoading(true);
 
         try {
-            const userData = {
-                mobile,
-                pin,
-                user_category: selectedUserType,
-            };
+            let userData;
+            if (selectedUserType === 'customer') {
+                userData = {
+                    mobile,
+                    pin,
+                    user_category: selectedUserType,
+                };
+            } else if (selectedUserType === 'merchant' && choice === 'mobile') {
+                userData = {
+                    mobile,
+                    pin,
+                    user_category: selectedUserType,
+                };
+            } else if (selectedUserType === 'merchant' && choice === 'merchant_id') {
+                userData = {
+                    merchant_id: merchantId,
+                    pin,
+                    user_category: selectedUserType,
+                };
+            } else if (selectedUserType === 'terminal') {
+                userData = {
+                    terminal_id: terminal,
+                    pin,
+                    user_category: selectedUserType,
+                };
+            }
+
+            console.log('login data', userData);
 
             const res = await dispatch(loginUser(userData)).unwrap();
-console.log('res',res);
+            console.log('res', res);
 
             if (res?.message === "Login successful") {
                 const storageData = {
                     user_category: res.user_category,
                     pin: res.pin,
                     token: res.token,
-                    username:res.first_name,
+                    username: res.first_name,
                     is_profile_updated: res.is_profile_updated,
+                    first_name: res.first_name,
+                    last_name: res.last_name,
                 };
 
                 if (res.user_category === "customer") {
@@ -71,18 +147,18 @@ console.log('res',res);
                 } else if (res.user_category === "corporate") {
                     storageData.corporate_id = res.corporate_id;
                 }
-console.log('is profile updaed',res.is_profile_updated);
+
+                console.log('is profile updated', res.is_profile_updated);
                 await AsyncStorage.setItem("user", JSON.stringify(storageData));
                 showSnackbar("Login successful");
                 if (res.is_profile_updated === false) {
-                    navigation.navigate("MerchantForm");
+                navigation.navigate("MerchantForm", { userData: storageData });
+                } else {
+                    navigation.navigate("Home", { userData: storageData });
                 }
-                else {
-                navigation.navigate("Home");
+            } else {
+                showSnackbar(res?.message || "Login failed. Please try again.");
             }
-        } else {
-            showSnackbar(res?.message || "Login failed. Please try again.");
-        }
         } catch (error) {
             showSnackbar(error?.message || "Login failed. Please try again.");
         } finally {
@@ -104,15 +180,100 @@ console.log('is profile updaed',res.is_profile_updated);
             <View style={styles.container}>
                 <Text variant="headlineMedium" style={styles.title}>Login</Text>
 
-                <TextInput
-                    label="Mobile Number"
-                    mode="outlined"
-                    keyboardType="phone-pad"
-                    value={mobile}
-                    onChangeText={(text) => setMobile(text.replace(/[^0-9]/g, ""))}
-                    maxLength={10}
-                    style={styles.input}
-                />
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={selectedUserType}
+                        onValueChange={(itemValue) => setSelectedUserType(itemValue)}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="Select a user type" value="" />
+                        <Picker.Item label="Customer" value="customer" />
+                        <Picker.Item label="Merchant" value="merchant" />
+                        <Picker.Item label="Terminal" value="terminal" />
+                    </Picker>
+                </View>
+                {selectedUserType === "merchant" && (
+                    <>
+                     <View style={styles.radioRow}>
+          <RadioButton
+            value="mobile"
+            status={choice === 'mobile' ? 'checked' : 'unchecked'}
+            onPress={() => setChoice('mobile')}
+          />
+          <Text 
+            style={styles.radioLabel} 
+            onPress={() => setChoice('mobile')} // Added onPress to Text
+          >
+            Mobile
+          </Text>
+
+          <RadioButton
+            value="Merchant_id"
+            status={choice === 'merchant_id' ? 'checked' : 'unchecked'}
+            onPress={() => setChoice('merchant_id')}
+          />
+          <Text 
+            style={styles.radioLabel} 
+            onPress={() => setChoice('merchant_id')} // Added onPress to Text
+          >
+            Merchant ID
+          </Text>
+
+        </View>
+  
+    </>
+)}
+
+
+{selectedUserType === "customer" && (
+    <TextInput
+        label="Mobile Number"
+        mode="outlined"
+        keyboardType="phone-pad"
+        value={mobile}
+        onChangeText={(text) => setMobile(text.replace(/[^0-9]/g, ""))}
+        maxLength={10}
+        style={styles.input}
+    />
+)}
+
+                { (selectedUserType === 'merchant' && choice === 'mobile') && (
+    <TextInput
+        label="Mobile Number"
+        mode="outlined"
+        keyboardType="phone-pad"
+        value={mobile}
+        onChangeText={(text) => setMobile(text.replace(/[^0-9]/g, ""))}
+        maxLength={10}
+        style={styles.input}
+    />
+)}
+                { (selectedUserType === 'merchant' && choice === 'merchant_id') && (
+    <TextInput
+        label="Merchant ID"
+        mode="outlined"
+        value={merchantId} // Ensure merchantId state is bound here
+        onChangeText={(text) => setMerchantId(text.replace(/[^a-zA-Z0-9]/g, ""))} // Allow alphanumeric characters
+        maxLength={15} // Adjust maxLength if needed
+        style={styles.input}
+    />
+)}
+
+                { (selectedUserType === 'terminal') && (
+    <TextInput
+        label="Terminal ID"
+        mode="outlined"
+        keyboardType="phone-pad"
+        value={mobile}
+        onChangeText={(text) => setTerminal(text.replace(/[^0-9]/g, ""))}
+        maxLength={10}
+        style={styles.input}
+    />
+)}
+
+
+
+
 
                 <TextInput
                     label="4-Digit PIN"
@@ -125,18 +286,6 @@ console.log('is profile updaed',res.is_profile_updated);
                     style={styles.input}
                 />
 
-                <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={selectedUserType}
-                        onValueChange={(itemValue) => setSelectedUserType(itemValue)}
-                        style={styles.picker}
-                    >
-                        <Picker.Item label="Select a user type" value="" />
-                        <Picker.Item label="Customer" value="customer" />
-                        <Picker.Item label="Merchant" value="merchant" />
-                        <Picker.Item label="Corporate Merchant" value="corporate" />
-                    </Picker>
-                </View>
 
                 <Button
                     mode="contained"
@@ -248,6 +397,17 @@ const styles = StyleSheet.create({
     snackbarText: {
         color: "white",
     },
+    radioRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+      },
+      radioLabel: {
+        marginRight: 20,
+        fontSize: 16,
+        color: '#444',
+      },
+  
 });
 
 export default LoginScreen;

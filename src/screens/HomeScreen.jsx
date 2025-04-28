@@ -108,15 +108,16 @@ console.log(userDetails);
                 {
                   merchantId: null,
                   merchantName: null,
+                  fromHomeScreen: 'true',
                 }
               ),
               {width:35,height:35} 
             )}
           </View>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
+        {/* <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
           <Text style={{ textAlign: 'center' }}>My ID: {userDetails.id}</Text>
-        </View>
+        </View> */}
       </Card>
 
       {/* Transfer Points Section */}
@@ -127,7 +128,9 @@ console.log(userDetails);
             {renderActionButton(
               require('../../assets/transfer.png'), // Updated to blue theme
               'Transfer',
-              () => console.log("Transfer pressed"),
+              () => navigation.navigate('ScanQR',{
+                fromTransferHome:'true'
+              }),
               {width:35,height:35} 
             )}
 
@@ -176,15 +179,34 @@ console.log(userDetails);
           </View>
         </View>
         <View style={{ padding: 10 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View style={{ 
+    flexDirection: 'row', 
+    justifyContent: loggedInUser?.user_category === 'merchant' ? 'space-between' : 'flex-start' 
+  }}>
             {renderActionButton(
               require('../../assets/bank1.png'), // Updated to blue theme
               'Additional Details',
               () => navigation.navigate("MerchantForm"),
               { width: 35, height: 35 } // Custom dimensions
             )}
+
+{renderActionButton(
+              require('../../assets/bank1.png'), // Updated to blue theme
+              'Historyy',
+              () => navigation.navigate("History"),
+              { width: 35, height: 35 } // Custom dimensions
+            )}
+{loggedInUser?.user_category === 'merchant' && (
+  renderActionButton(
+    require('../../assets/bank1.png'), // Updated to blue theme
+    'Payment',
+    () => navigation.navigate('PaymentsHistory'),
+    { width: 35, height: 35 } // Custom dimensions
+  )
+)}
           </View>
         </View>
+      
       </Card>
 
 
@@ -206,63 +228,64 @@ console.log(userDetails);
 };
 
 // Scan QR Screen
-const ScanQRScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f3f3' }}>
-    <Image
-      source={require('../../assets/neha.jpg')}
-      style={{ width: 200, height: 200 }}
-    />
-    <Text style={{ marginTop: 20 }}>Scan QR Code</Text>
-  </View>
-);
+// const ScanQRScreen = () => (
+//   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f3f3' }}>
+//     <Image
+//       source={require('../../assets/neha.jpg')}
+//       style={{ width: 200, height: 200 }}
+//     />
+//     <Text style={{ marginTop: 20 }}>Scan QR Code</Text>
+//   </View>
+// );
 
-// History Screen
-const HistoryScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f3f3' }}>
-    <Text>Transaction History</Text>
-  </View>
-);
+// // History Screen
+// const HistoryScreen = () => (
+//   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f3f3' }}>
+//     <Text>Transaction History</Text>
+//   </View>
+// );
 
 // Bottom Navigation
-const MainNavigator = () => {
-  const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    {
-      key: 'home',
-      title: 'Home',
-      focusedIcon: 'home',
-      unfocusedIcon: 'home-outline'
-    },
-    {
-      key: 'scanQR',
-      title: 'Scan',
-      focusedIcon: 'qrcode-scan',
-      unfocusedIcon: 'qrcode'
-    },
-    {
-      key: 'history',
-      title: 'History',
-      focusedIcon: 'history',
-      unfocusedIcon: 'history'
-    },
-  ]);
+// const MainNavigator = () => {
+//   const [index, setIndex] = useState(0);
+//   const [routes] = useState([
+//     {
+//       key: 'home',
+//       title: 'Home',
+//       focusedIcon: 'home',
+//       IconButton: 'home-outline'
+//     },
+//     {
+//       key: 'scanQR',
+//       title: 'Scan',
+//       focusedIcon: 'qrcode-scan',
+//       unfocusedIcon: 'qrcode'
+//     },
+//     {
+//       key: 'history',
+//       title: 'History',
+//       focusedIcon: 'history',
+//       unfocusedIcon: 'history'
+//     },
+//   ]);
 
-  const renderScene = BottomNavigation.SceneMap({
-    home: HomeScreen,
-    scanQR: ScanQRScreen,
-    history: History,
-  });
+//   const renderScene = BottomNavigation.SceneMap({
+//     home: HomeScreen,
+//     scanQR: ScanQRScreen,
+//     history: History,
+//   });
 
-  return (
-    <BottomNavigation
-      navigationState={{ index, routes }}
-      onIndexChange={setIndex}
-      renderScene={renderScene}
-      barStyle={{ backgroundColor: 'white' }}
-      activeColor="#6A1B9A"
-      inactiveColor="#888"
-    />
-  );
-};
+//   return (
+//     <BottomNavigation
+//       navigationState={{ index, routes }}
+//       onIndexChange={setIndex}
+//       renderScene={renderScene}
+//       barStyle={{ backgroundColor: 'white' }}
+//       activeColor="#6A1B9A"
+//       inactiveColor="#888"
+//     />
+//   );
+// };
 
-export default MainNavigator;
+export default HomeScreen
+;

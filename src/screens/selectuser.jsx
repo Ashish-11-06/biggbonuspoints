@@ -2,28 +2,85 @@ import React, { useState, useEffect } from "react";
 import { View, TextInput, FlatList, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllCustomers, getAllMerchants } from "../Redux/slices/userSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SelectUser = ({ navigation }) => {
   const dispatch = useDispatch();
   const [searchText, setSearchText] = useState("");
   const [filteredContacts, setFilteredContacts] = useState([]);
-
+  const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [userCategory, setUserCategory] = useState(null);
   // Get merchants from Redux state with default empty array
-  const { merchants = [], status, error } = useSelector((state) => state.user);
+  const { merchants = [],customers = [], status, error } = useSelector((state) => state.user);
+  const cm=useSelector((state) => state.user);
+  console.log('cmm',cm);
+  
+  console.log('customers',customers);
+  console.log('merchants',merchants);
+  
 
   // Fetch merchants when component mounts
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const userString = await AsyncStorage.getItem('user');
+        console.log("User data from AsyncStorage:", userString);
+        
+        if (userString) {
+          const user = JSON.parse(userString);
+          console.log("Parsed user data:", user);
+
+          // Set the loggedInUser state
+          setLoggedInUser(user);
+// console.log(username);
+
+          // Extract and set the user_category
+          const category = user.user_category || 'User';
+          setUserCategory(category);
+
+          // Set user details
+          setUserDetails({
+            user_category: category,
+            user_name:user.username,
+            id: user.customer_id || user.merchant_id || user.corporate_id || 'N/A',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user details from AsyncStorage:', error);
+      }
+    };
+
+    fetchUserDetails();
+  }, []);
+
+  console.log("User Details:", userDetails);
+  // console.log("User Category:", userCategory);
+  // console.log('logged user',loggedInUser);
+  
+  
   useEffect(() => {
     const fetchMerchants = async () => {
+      console.log('called');
+      
       try {
+        if(userCategory === "merchant" && merchants.length === 0){
+          console.log('merch called');   
+          const res=dispatch(getAllMerchants());
+          console.log(res);
+        } else if(userCategory === "customer" && customers.length === 0 ){
+          console.log('cust called');
+          
     const res=dispatch(getAllCustomers());
     console.log(res);
-    
+        }  
       } catch (error) {
         console.error("Error fetching merchants:", error);
       }
     };
     fetchMerchants();
-  }, [dispatch]);
+  }, [userCategory,dispatch]);
 
   const handleSearch = (text) => {
     setSearchText(text);
@@ -32,8 +89,10 @@ const SelectUser = ({ navigation }) => {
       return;
     }
 
+    const dataToFilter = userCategory === "merchant" ? merchants : customers;
+
     // Create a combined name field from first_name and last_name
-    const filtered = merchants
+    const filtered = dataToFilter
       .filter(contact => {
         const fullName = `${contact?.first_name || ''} ${contact?.last_name || ''}`.toLowerCase();
         const phone = contact?.mobile || '';
@@ -64,14 +123,14 @@ const SelectUser = ({ navigation }) => {
   if (error) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: 'red' }}>Error: {error}</Text>
-        <TouchableOpacity
-          style={{ marginTop: 10, padding: 10, backgroundColor: '#007bff', borderRadius: 5 }}
-          onPress={() => dispatch(getAllCustomers())}
-        >
-          <Text style={{ color: 'white' }}>Retry</Text>
-        </TouchableOpacity>
-      </View>
+             <Text style={{ color: 'red' }}>Error: {error}</Text>
+             <TouchableOpacity
+               style={{ marginTop: 10, padding: 10, backgroundColor: '#007bff', borderRadius: 5 }}
+               onPress={() => dispatch(userCategory === "merchant" ? getAllMerchants() : getAllCustomers())}
+             >
+               <Text style={{ color: 'white' }}>Retry</Text>
+             </TouchableOpacity>
+           </View>
     );
   }
 
@@ -110,14 +169,15 @@ const SelectUser = ({ navigation }) => {
 
     {/* List of Merchants */}
     <FlatList
-      data={searchText.length > 0 ? filteredContacts : merchants} // Show filteredContacts if searching, otherwise show all merchants
-      renderItem={({ item }) => (
+        data={searchText.length > 0 ? filteredContacts : (userCategory === "merchant" ? merchants : customers)}
+        renderItem={({ item }) => (
         <TouchableOpacity
           style={{ padding: 15, borderBottomWidth: 1, borderColor: "#ccc" }}
           onPress={() =>
             navigation.navigate("TransferPoints", {
               merchantId: item.user_id, // Pass the merchant's user_id
               merchantName: `${item.first_name || ''} ${item.last_name || ''}`.trim(), // Pass merchant name for display
+            fromSelectUser:true
             })
           }
         >
@@ -133,7 +193,7 @@ const SelectUser = ({ navigation }) => {
       keyExtractor={(item, index) => item.user_id || item.mobile || `merchant-${index}`}
       ListEmptyComponent={
         <View style={{ padding: 15 }}>
-          <Text style={{ textAlign: 'center' }}>No merchants found</Text>
+          <Text style={{ textAlign: 'center' }}>{userCategory === 'merchant' ? 'No merchants found' : 'No customer found'}</Text>
         </View>
       }
       keyboardShouldPersistTaps="handled"

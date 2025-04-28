@@ -34,6 +34,9 @@ import BankDetails from './src/screens/BankDetails';
 import HelpSection from './src/screens/HelpSection';
 import ChangeMobileNo from './src/screens/ChangeMobileNo';
 import ReceivePointsScreen from './src/screens/ReceivePointsScreen';
+import Profile from './src/screens/Profile';
+import Payments from './src/screens/Payments';
+import PaymentsHistory from './src/screens/PaymentsHistory';
 const Stack = createStackNavigator();
 
 function App() {
@@ -98,6 +101,9 @@ function App() {
         <Stack.Screen name="HelpSection" component={HelpSection} options={{ headerShown: false }} />
         <Stack.Screen name="ChangeMobileNo" component={ChangeMobileNo} options={{ headerShown: false }} />
         <Stack.Screen name="ReceivePointsScreen" component={ReceivePointsScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+        <Stack.Screen name="Payments" component={Payments} options={{ headerShown: false }} />
+        <Stack.Screen name="PaymentsHistory" component={PaymentsHistory} options={{ headerShown: false }} />
 
       </Stack.Navigator>
     </NavigationContainer>

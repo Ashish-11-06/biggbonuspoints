@@ -37,7 +37,11 @@ export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (data, { rejectWithValue }) => {
     try {
+      console.log('login data',data);
+      
       const response = await userApi.loginUser(data);
+      console.log('login response',response);
+      
       if (response.status === 200 && response.data) {
         return response.data;
       } else if (response.status === 400) {
@@ -54,6 +58,8 @@ export const getAllMerchants = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await userApi.getAllMerchants();
+      console.log('get all merchants',response);
+      
       if (response.status === 200 && response.data) {
         return response.data;
       }
@@ -69,6 +75,8 @@ export const getAllCustomers = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await userApi.getAllCustomers();
+      console.log('getAllCustomers response',response);
+      
       if (response.status === 200 && response.data) {
         return response.data;
       }
