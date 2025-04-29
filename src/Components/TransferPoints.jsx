@@ -200,7 +200,7 @@ console.log('merchant section',merchantSections)
             if(response.message) {
               Alert.alert(response.message || "Points awarded successfullyyy")
             }
-          } else if (userCategory === 'merchant' && fromSelectUser) {
+          } else if ((userCategory === 'merchant' && fromSelectUser) || (userCategory === 'merchant' && fromTransferHome)  ) {
             const response = await dispatch(merchantToMerchantPoints({
               receiver_merchant_id: receiverId,
               sender_merchant_id: merchant_Id, 
@@ -209,9 +209,11 @@ console.log('merchant section',merchantSections)
             })).unwrap();
   
             console.log("Transfer response:", response);
-            if(response.message) {
-              Alert.alert(response.message || "Points transferred successfullyyy")
-            }
+            Alert.alert(
+              "Success", // title (safe to be static)
+              response.message || "Points transferred successfullyyy" // message
+            );
+            
   
           } else if ((userCategory === 'customer' && fromSelectUser) || (userCategory === 'customer' && fromTransferHome)) {
             const response = await dispatch(customerToCustomerPoints({
@@ -272,7 +274,7 @@ console.log('merchant section',merchantSections)
         {pointsData.map((merchant, index) => (
           <Picker.Item
           key={index}
-          label={`${merchant.merchant_name ? merchant.merchant_name : ''} | ${merchant.points} Points | ${merchant.merchant_id}`}
+          label={`${merchant.merchant_name ? merchant.merchant_name : ''} | ${merchant.merchant_id}`}
           value={merchant.merchant_id}
         />
         

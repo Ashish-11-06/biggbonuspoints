@@ -87,6 +87,9 @@ const MerchantForm = () => {
 // console.log(loggedInUser.id);
 console.log(userDetails.id);
 
+const navigateToHome = () => {
+  navigation.navigate('Home');
+};
 
   useEffect(() => {
     const fetchAdditinalDetails = async () => {
@@ -147,7 +150,12 @@ console.log('update data payload',updatedUserDetails)
      res = await dispatch(addAdditinalDetailsMerchant({ userId: userDetails.id, data }));
     }
     console.log(res);
-    Alert.alert('Form Submitted');
+    if(res?.payload.message) {
+
+      Alert.alert(res?.payload.message, [
+       { text:"OK", onPress: navigateToHome}
+      ]);
+    }
     setIsEditing(false); // Exit edit mode after submission
 
     // Fetch updated details

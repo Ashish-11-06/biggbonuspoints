@@ -168,6 +168,7 @@ const RegisterScreen = ({ navigation }) => {
                 ...(userTypeRef.current === "merchant" && {
                     reference_question: referenceQuestionRef.current,
                     reference_answer: referenceAnswerRef.current,
+                    user_type:"individual"
                 }),
             };
             console.log('form', formData);

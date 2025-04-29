@@ -23,6 +23,7 @@ const CustomerSelection = ({ navigation }) => {
   const { userCategory } = route.params;
   // Get merchants and customers from Redux state with default empty arrays
   const { merchants = [], customers = [], status, error } = useSelector((state) => state.user);
+console.log('user category',userCategory);
 
   // Assume userCategory is passed as a prop or fetched from Redux
   // const userCategory = useSelector((state) => state.auth.userCategory); // Example: "merchant" or "customer"
@@ -149,7 +150,7 @@ const CustomerSelection = ({ navigation }) => {
       />
 
       {/* Add New Number button */}
-      {searchText.length > 0 && filteredContacts.length === 0 && (
+      {searchText.length > 0 && filteredContacts.length === 0 && userCategory === 'merchant' && (
         <TouchableOpacity
           style={{
             padding: 15,

@@ -6,7 +6,11 @@ export const registerUser = createAsyncThunk(
   "user/registerUser",
   async (data, { rejectWithValue }) => {
     try {
+      console.log('data',data);
+      
       const response = await userApi.RegisterUser(data);
+      console.log('response slice',response);
+      
       if (response.status === 200 && response.data) {
         return response.data;
       } else if (response.status === 400) {

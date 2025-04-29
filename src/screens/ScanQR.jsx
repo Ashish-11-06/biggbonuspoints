@@ -14,6 +14,7 @@ import {
 import { Camera, CameraType } from 'react-native-camera-kit';
 import { useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from "react-redux";
 
 const ScanQR = () => {
   const navigation = useNavigation();
@@ -25,7 +26,52 @@ const ScanQR = () => {
   const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
   const cameraRef = useRef(null);
   const route = useRoute();
-  const fromTransferHome = route.params?.fromTransferHome;console.log('from transferhome',fromTransferHome)
+  const fromTransferHome = route.params?.fromTransferHome;
+  const fromScanQR = route.params?.fromScanQR;
+
+  console.log('from fromScanQRe',fromScanQR);
+  console.log('from transfer homee',fromTransferHome);
+  
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [userCategory, setUserCategory] = useState(null);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const userString = await AsyncStorage.getItem('user');
+        console.log("User data from AsyncStorage:", userString);
+        
+        if (userString) {
+          const user = JSON.parse(userString);
+          console.log("Parsed user data:", user);
+
+          // Set the loggedInUser state
+          setLoggedInUser(user);
+// console.log(username);
+
+          // Extract and set the user_category
+          const category = user.user_category || 'User';
+          setUserCategory(category);
+
+          // Set user details
+          setUserDetails({
+            user_category: category,
+            user_name:user.username,
+            id: user.customer_id || user.merchant_id || user.corporate_id || 'N/A',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user details from AsyncStorage:', error);
+      }
+    };
+
+    fetchUserDetails();
+  }, []);
+
+  const navigateToHome = () => {
+    navigation.navigate('Home');
+  };
   useEffect(() => {
     const loadUserDetails = async () => {
       try {
@@ -57,48 +103,94 @@ const ScanQR = () => {
       setIsFetching(false);
     }
   };
+console.log('userrrrr categoryyy',loggedInUser?.user_category);
 
-  const handleScanSuccess = async (qrData) => {
-    try {
-      const result = await fetchDataFromQR(qrData);
-      console.log('QR code data:', result);
-      console.log(result.raw);
-      
-      const rawData = result.raw;
-      
-      let extractedData;
-      if (rawData.includes(":")) {
-        // Example: "receive:MEID30680592289" → extract part after ':'
-        extractedData = rawData.split(":")[1];
-      } else {
-        // Example: "CUST000002" → use as is
-        extractedData = rawData;
-      }
-      
-      console.log("Extracted Data:", extractedData);
-      navigation.navigate("TransferPoints", {
-        // merchantId: result.raw,
-        merchantId: extractedData,
-        customerId: userDetails.id,
-        fromTransferHome:fromTransferHome
-      });
-      
-      setScannedData(null);
-      setIsScannerOpen(false);
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        "Could not read QR code data.",
-        [{
-          text: "OK",
-          onPress: () => {
-            setScannedData(null);
-            setIsScannerOpen(true);
-          }
-        }]
-      );
+const handleScanSuccess = async (qrData) => {
+  try {
+    const result = await fetchDataFromQR(qrData);
+    console.log('QR code data:', result);
+    console.log(result.raw);
+
+    const rawData = result.raw;
+
+    let extractedData;
+    if (rawData.includes(":")) {
+      // Example: "receive:MEID30680592289"
+      extractedData = rawData.split(":")[1];
+    } else {
+      extractedData = rawData;
     }
-  };
+
+    console.log("Extracted Data:", extractedData);
+
+    if (fromTransferHome) {
+      const isCustomer = loggedInUser?.user_category === 'customer' && loggedInUser?.customer_id?.startsWith('C');
+      const isMerchant = loggedInUser?.user_category === 'merchant' && loggedInUser?.merchant_id?.startsWith('M');
+
+      if (isCustomer && extractedData?.startsWith('M')) {
+        Alert.alert('Error', 'This option cannot be used to send points to a merchant. To transfer points to a merchant, please use the "Scan QR" feature available on the Home Screen',
+          [
+            { text: "OK", onPress: navigateToHome }
+          ]
+        );
+        return;
+      }
+
+      if (isMerchant && extractedData?.startsWith('C')) {
+        Alert.alert('Error', 'This option cannot be used to send points to a customer. To transfer points to a customer, please use the "Scan QR" feature available on the Home Screen',
+          [
+            { text: "OK", onPress: navigateToHome }
+          ]
+        );
+        return;
+      }
+    }
+    if (fromScanQR) {
+      const isCustomer = loggedInUser?.user_category === 'customer' && loggedInUser?.customer_id?.startsWith('C');
+      const isMerchant = loggedInUser?.user_category === 'merchant' && loggedInUser?.merchant_id?.startsWith('M');
+
+      if (isCustomer && extractedData?.startsWith('C')) {
+        Alert.alert('Error', 'This option cannot be used to send points to a customer. To transfer points to a customer, please use the "Transfer BBP" feature available on the Home Screen',
+          [
+            { text: "OK", onPress: navigateToHome }
+          ]
+        );
+        return;
+      }
+
+      if (isMerchant && extractedData?.startsWith('M')) {
+        Alert.alert('Error', 'This option cannot be used to send points to a merchant. To transfer points to a merchant, please use the "Transfer BBP" feature available on the Home Screen',
+          [
+            { text: "OK", onPress: navigateToHome }
+          ]
+        );
+        return;
+      }
+    }
+
+    navigation.navigate("TransferPoints", {
+      merchantId: extractedData,
+      customerId: userDetails.id,
+      fromTransferHome: fromTransferHome
+    });
+
+    setScannedData(null);
+    setIsScannerOpen(false);
+  } catch (error) {
+    Alert.alert(
+      "Error",
+      "Could not read QR code data.",
+      [{
+        text: "OK",
+        onPress: () => {
+          setScannedData(null);
+          setIsScannerOpen(true);
+        }
+      }]
+    );
+  }
+};
+
 
   const onBarcodeScan = (event) => {
     if (event.nativeEvent.codeStringValue !== scannedData && !isFetching) {

@@ -90,7 +90,9 @@ console.log(userDetails);
             {renderActionButton(
               require('../../assets/scanner.png'), // Updated to red theme
               'Scan QR',
-              () => navigation.navigate('ScanQR'),
+              () => navigation.navigate('ScanQR',{
+                fromScanQR:'true'
+              }),
               {width:35,height:35} 
             )}
 
@@ -127,7 +129,7 @@ console.log(userDetails);
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             {renderActionButton(
               require('../../assets/transfer.png'), // Updated to blue theme
-              'Transfer',
+              'Transfer BBP',
               () => navigation.navigate('ScanQR',{
                 fromTransferHome:'true'
               }),
@@ -136,14 +138,14 @@ console.log(userDetails);
 
             {renderActionButton(
               require('../../assets/chooseMerchant.png'), // Updated to red theme
-              'Select User',
+              userCategory === 'customer' ? 'Select Customer' : 'Select Merchant',
               () => navigation.navigate('SelectUser'),
               {width:35,height:35} 
             )}
 
             {renderActionButton(
               require('../../assets/receive.png'), // Updated to blue theme
-              'Receive',
+              'Your QR',
               () => navigation.navigate('ReceivePointsScreen', { userId: userDetails.id }),
               {width:35,height:35} // Custom dimensions
             )}
@@ -172,7 +174,7 @@ console.log(userDetails);
 
             {renderActionButton(
               require('../../assets/mobile.png'), // Updated to red theme
-              'Change Mobile No',
+              'Mobile No.',
               () => navigation.navigate('ChangeMobileNo', { userId: userDetails.id }),
               { width: 35, height: 35 } // Custom dimensions
             )}
@@ -180,19 +182,20 @@ console.log(userDetails);
         </View>
         <View style={{ padding: 10 }}>
         <View style={{ 
-    flexDirection: 'row', 
+    flexDirection: 'row',
+    // justifyContent:'space-between' 
     justifyContent: loggedInUser?.user_category === 'merchant' ? 'space-between' : 'flex-start' 
   }}>
             {renderActionButton(
               require('../../assets/bank1.png'), // Updated to blue theme
-              'Additional Details',
+              'Your Details',
               () => navigation.navigate("MerchantForm"),
               { width: 35, height: 35 } // Custom dimensions
             )}
 
 {renderActionButton(
               require('../../assets/bank1.png'), // Updated to blue theme
-              'Historyy',
+              'History',
               () => navigation.navigate("History"),
               { width: 35, height: 35 } // Custom dimensions
             )}
