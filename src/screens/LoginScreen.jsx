@@ -88,11 +88,11 @@ const LoginScreen = ({ navigation }) => {
                 return;
             }
 
-            if (terminal.length !== 10 || !/^\d+$/.test(terminal)) {
-                showSnackbar("Terminal ID must be a valid 10-digit number.");
-                return;
-            }
-        }
+            // if (!/^[a-zA-Z0-9]+$/.test(terminal)) {
+            //     showSnackbar("Terminal ID must be alphanumeric.");
+            //     return;
+        // }
+    }
 
         setLoading(true);
 
@@ -130,6 +130,7 @@ const LoginScreen = ({ navigation }) => {
             console.log('res', res);
 
             if (res?.message === "Login successful") {
+
                 const storageData = {
                     user_category: res.user_category,
                     pin: res.pin,
@@ -142,11 +143,26 @@ const LoginScreen = ({ navigation }) => {
 
                 if (res.user_category === "customer") {
                     storageData.customer_id = res.customer_id;
-                } else if (res.user_category === "merchant") {
-                    storageData.merchant_id = res.merchant_id;
-                } else if (res.user_category === "corporate") {
+                } 
+                if(res.user_type == 'corporate') {
+                    storageData.user_type = res.user_type,
                     storageData.corporate_id = res.corporate_id;
                 }
+                if (res.user_category === "merchant") {
+                    storageData.merchant_id = res.merchant_id;
+                }
+
+                if(res.user_category === 'terminal') {
+                    storageData.terminal_id=res?.terminal_id,
+                    storageData.merchant_id=res?.merchant_id,
+                    storageData.user_category=res?.user_category
+                    storageData.pin=res?.tid_pin
+                }
+                //  else if (res.user_category === "corporate") {
+                //     storageData.corporate_id = res.corporate_id;
+                // }
+               
+console.log('storageeee ',storageData);
 
                 console.log('is profile updated', res.is_profile_updated);
                 await AsyncStorage.setItem("user", JSON.stringify(storageData));
@@ -263,10 +279,10 @@ const LoginScreen = ({ navigation }) => {
     <TextInput
         label="Terminal ID"
         mode="outlined"
-        keyboardType="phone-pad"
-        value={mobile}
-        onChangeText={(text) => setTerminal(text.replace(/[^0-9]/g, ""))}
-        maxLength={10}
+        // keyboardType="phone-pad"
+        value={terminal}
+        onChangeText={(text) => setTerminal(text.replace(/[^a-zA-Z0-9]/g, ""))}
+        // maxLength={10}
         style={styles.input}
     />
 )}

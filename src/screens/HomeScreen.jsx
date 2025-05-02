@@ -15,6 +15,8 @@ const HomeScreen = () => {
   const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [userCategory, setUserCategory] = useState(null);
+  const [loggedInUserId,setLoggedInUserId]=useState(null);
+  const [user,setUser]=useState(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -22,34 +24,29 @@ const HomeScreen = () => {
       try {
         const userString = await AsyncStorage.getItem('user');
         console.log("User data from AsyncStorage:", userString);
-        
         if (userString) {
           const user = JSON.parse(userString);
           console.log("Parsed user data:", user);
-
-          // Set the loggedInUser state
-          setLoggedInUser(user);
-// console.log(username);
-
-          // Extract and set the user_category
-          const category = user.user_category || 'User';
-          setUserCategory(category);
-
-          // Set user details
-          setUserDetails({
-            user_category: category,
-            user_name:user.username,
-            id: user.customer_id || user.merchant_id || user.corporate_id || 'N/A',
-          });
+          setUser(user);
+          setUserCategory(user?.user_category)
+          if(user.user_category === 'customer') {
+            setLoggedInUserId(user.customer_id);
+          }
+          if(user.user_category === 'merchant') {
+            setLoggedInUserId(user.merchant_id);
+          }
+          if(user.user_category === 'terminal') {
+            setLoggedInUserId(user.terminal_id);
+          }
         }
       } catch (error) {
         console.error('Error fetching user details from AsyncStorage:', error);
       }
     };
-
     fetchUserDetails();
   }, []);
 
+console.log('rrrrrr',user);
   const renderActionButton = (iconSource, label, onPress, customStyle = {}) => (
     <TouchableOpacity onPress={onPress}>
       <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
@@ -71,9 +68,9 @@ console.log(userDetails);
       {/* Header */}
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
         <Header
-          username={userDetails.user_category}
-          user={userDetails.username}
-          location={`ID: ${userDetails.id}`}
+          username={user?.user_category}
+          // user={userDetails.username}
+          location={loggedInUserId}
           avatarUrl="https://randomuser.me/api/portraits/men/1.jpg"
           onNotificationsPress={() => console.log("Notifications Pressed")}
           onSettingsPress={() => console.log("Settings Pressed")}
@@ -123,9 +120,11 @@ console.log(userDetails);
       </Card>
 
       {/* Transfer Points Section */}
+      {userCategory !== 'terminal' && 
       <Card style={{ margin: 10, marginBottom: 20, padding: 10 }}>
         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text>
         <View style={{ padding: 10 }}>
+
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             {renderActionButton(
               require('../../assets/transfer.png'), // Updated to blue theme
@@ -152,6 +151,7 @@ console.log(userDetails);
           </View>
         </View>
       </Card>
+}
 
 
       <Card style={{ margin: 10, marginBottom: 20, padding: 10 }}>
@@ -172,34 +172,44 @@ console.log(userDetails);
               { width: 35, height: 35 } // Custom dimensions
             )}
 
-            {renderActionButton(
-              require('../../assets/mobile.png'), // Updated to red theme
-              'Mobile No.',
-              () => navigation.navigate('ChangeMobileNo', { userId: userDetails.id }),
-              { width: 35, height: 35 } // Custom dimensions
+{userCategory !== 'terminal' &&
+  renderActionButton(
+    require('../../assets/mobile.png'), // Updated to red theme
+    'Mobile No.',
+    () => navigation.navigate('ChangeMobileNo', { userId: userDetails.id }),
+    { width: 35, height: 35 } // Custom dimensions
+  )
+}
+
+{userCategory === 'terminal' &&
+renderActionButton(
+              require('../../assets/receive.png'), // Updated to blue theme
+              'Your QR',
+              () => navigation.navigate('ReceivePointsScreen', { userId: userDetails.id }),
+              {width:35,height:35} // Custom dimensions
             )}
           </View>
         </View>
         <View style={{ padding: 10 }}>
         <View style={{ 
     flexDirection: 'row',
-    // justifyContent:'space-between' 
-    justifyContent: loggedInUser?.user_category === 'merchant' ? 'space-between' : 'flex-start' 
+    justifyContent:'space-between' 
+    // justifyContent: loggedInUser?.user_category === 'merchant' ? 'space-between' : 'flex-start' 
   }}>
-            {renderActionButton(
+    {userCategory !== 'terminal' &&
+            renderActionButton(
               require('../../assets/bank1.png'), // Updated to blue theme
               'Your Details',
               () => navigation.navigate("MerchantForm"),
               { width: 35, height: 35 } // Custom dimensions
             )}
-
 {renderActionButton(
               require('../../assets/bank1.png'), // Updated to blue theme
               'History',
               () => navigation.navigate("History"),
               { width: 35, height: 35 } // Custom dimensions
             )}
-{loggedInUser?.user_category === 'merchant' && (
+{userCategory !== 'terminal' && userCategory !== 'customer'  && (
   renderActionButton(
     require('../../assets/bank1.png'), // Updated to blue theme
     'Payment',
@@ -207,9 +217,35 @@ console.log(userDetails);
     { width: 35, height: 35 } // Custom dimensions
   )
 )}
+
+{ userCategory === 'customer'  && (
+  renderActionButton(
+    require('../../assets/bank1.png'), // Updated to blue theme
+    'Cashout Points',
+    () => navigation.navigate('Cashout'),
+    { width: 35, height: 35 } // Custom dimensions
+  )
+)}
+
+
           </View>
         </View>
-      
+        <View style={{ padding: 10 }}>
+        <View style={{ 
+    flexDirection: 'row',
+    justifyContent:'space-between' 
+    // justifyContent: loggedInUser?.user_category === 'merchant' ? 'space-between' : 'flex-start' 
+  }}>
+    { userCategory === 'merchant'  && (
+  renderActionButton(
+    require('../../assets/bank1.png'), // Updated to blue theme
+    'Cashout Points',
+    () => navigation.navigate('Cashout'),
+    { width: 35, height: 35 } // Custom dimensions
+  )
+)}
+    </View>
+    </View>
       </Card>
 
 

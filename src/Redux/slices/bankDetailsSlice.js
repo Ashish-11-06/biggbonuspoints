@@ -22,11 +22,11 @@ export const fetchBankDetails = createAsyncThunk(
   );
 export const fetchBankDetailsById = createAsyncThunk(
     "bankDetails/getBankDetailsById",
-    async ({user_id,user_category,data}, { rejectWithValue }) => {
+    async ({user_id,user_category}, { rejectWithValue }) => {
       try {
-        console.log("Data in fetchBankDetails:", {user_id,user_category,data});
+        console.log("Data in fetchBankDetails:", {user_id,user_category});
         
-        const response = await bankDetailsApi.getBankDetailsById({user_id,user_category,data});
+        const response = await bankDetailsApi.getBankDetailsById({user_id,user_category});
        console.log("Response from:", response);
        
         console.log("Response from API:", response.data);

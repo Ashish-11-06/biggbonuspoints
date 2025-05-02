@@ -31,10 +31,12 @@ const TransferPoints = ({ route, navigation }) => {
   const [selectedMerchant, setSelectedMerchant] = useState('');
   const [userDetails, setUserDetails] = useState({});
   const [pointsData,setPointsData]=useState([]);
+  const [terminalMerchant,setTerminalMerchant] = useState(null);
   const [merchantDetails, setMerchantDetails] = useState({
     name: merchantName || `Merchant ${receiverId}` // Use passed name or fallback
   });
   const [customerId, setCustomerId] = useState(null);
+  const [terminalId,setTerminalId] = useState(null);
   const receiverId=merchantId;
   const [merchant_Id,setMerchantId] =useState(null);
   console.log("Merchant ID:", receiverId);
@@ -42,6 +44,8 @@ const TransferPoints = ({ route, navigation }) => {
   const [userCategory,setUserCategory] = useState(null);
   const dispatch = useDispatch();
   const nav = useNavigation();
+  const [user,setUser]=useState(null);
+
 
   // Set header options
   useEffect(() => {
@@ -124,6 +128,11 @@ console.log('merchant section',merchantSections)
           }
           if(parsedData.user_category === 'merchant') { 
             setMerchantId(parsedData.merchant_id);
+          } 
+          if(parsedData.user_category === 'terminal') { 
+            setTerminalId(parsedData.terminal_id);
+            console.log('terminal merchantt',parsedData.merchant_id);
+            setTerminalMerchant(parsedData.merchant_id);
           }
           setUserCategory(parsedData.user_category);
             setUserDetails({
@@ -136,7 +145,7 @@ console.log('merchant section',merchantSections)
         // No need to set merchant name here as we're using the passed value
        catch (error) {
         console.error("Error fetching details:", error);
-        Alert.alert("Error", "Failed to load user data");
+        // Alert.alert("Error", "Failed to load user data");
       }
     };
     
@@ -150,9 +159,14 @@ console.log('merchant section',merchantSections)
   const navigateToHome = () => {
     navigation.navigate('Home');
   };
+// console.log('terminal user',userCategory)
+console.log('terminal merchant',terminalMerchant);
+console.log('terminal id',terminalId);
+
 
   const handleTransfer = () => {
     console.log("Transfer button pressed");
+
   
     if (!points || isNaN(points) || parseInt(points) <= 0) {
       Alert.alert("Invalid Amount", "Please enter a valid points amount");
@@ -183,29 +197,44 @@ console.log('merchant section',merchantSections)
               ]);
             }
   
-          } 
-          // else if(userCategory === 'custome' && fromSelectUser) {
-            
-          // }
-          
-          else if(userCategory === 'merchant' && !fromTransferHome && !fromSelectUser ) {
-            const response = await dispatch(merchantToCustomerPoints({
-              customer_id: receiverId,
-              merchant_id: merchant_Id,
-              pin,
-              points: parseInt(points),
-            })).unwrap();
-  
-            console.log("Transfer response:", response);
-            if(response.message) {
-              Alert.alert(response.message || "Points awarded successfullyyy")
+          } else if ((userCategory === 'merchant' || userCategory === 'terminal') && !fromTransferHome && !fromSelectUser) {
+            console.log('hello merchant to customer');
+           let requestData;
+            if(userCategory === 'merchant') {
+               requestData = {
+                customer_id: receiverId,
+                merchant_id: merchant_Id,
+                pin,
+                points: parseInt(points),
+                ...(user?.corporate_id && { corporate_id: user.corporate_id })  // Add only if exists
+              };
+            } else {
+              requestData = {
+                customer_id: receiverId,
+                merchant_id: terminalMerchant,
+                terminal_id:terminalId,
+                pin,
+                points: parseInt(points),
+              }
             }
-          } else if ((userCategory === 'merchant' && fromSelectUser) || (userCategory === 'merchant' && fromTransferHome)  ) {
+           
+          console.log('request data',requestData);
+          
+            const response = await dispatch(merchantToCustomerPoints(requestData)).unwrap();
+          
+            console.log("Transfer response:", response);
+            if (response.message) {
+              Alert.alert(response.message || "Points awarded successfully");
+            }
+          }
+           else if ((userCategory === 'merchant' && fromSelectUser) || (userCategory === 'merchant' && fromTransferHome)  ) {
             const response = await dispatch(merchantToMerchantPoints({
               receiver_merchant_id: receiverId,
               sender_merchant_id: merchant_Id, 
               pin,
               points: parseInt(points),
+              // ...(user?.corporate_id && { corporate_id: user.corporate_id })  // Add only if exists
+
             })).unwrap();
   
             console.log("Transfer response:", response);
@@ -213,8 +242,6 @@ console.log('merchant section',merchantSections)
               "Success", // title (safe to be static)
               response.message || "Points transferred successfullyyy" // message
             );
-            
-  
           } else if ((userCategory === 'customer' && fromSelectUser) || (userCategory === 'customer' && fromTransferHome)) {
             const response = await dispatch(customerToCustomerPoints({
               receiver_customer_id: receiverId,
@@ -231,8 +258,12 @@ console.log('merchant section',merchantSections)
           }
   
         } catch (error) {
-          Alert.alert(error);
-          console.error("Transfer failed:", error);
+          Alert.alert(
+            'Error',
+            error,
+            [{ text: 'OK' }]
+          );
+          
         }
       },
     });
@@ -250,9 +281,15 @@ console.log('merchant section',merchantSections)
           <Text style={styles.title}>Transfer Points</Text>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>From:</Text>
-            <Text style={styles.detailValue}>{userCategory === 'customer'? customerId : merchant_Id}</Text>
-            {/* <Text style={styles.detailValue}>{userDetails.name || ` ${customerId}`}</Text> */}
+          <Text style={styles.detailLabel}>From:</Text>
+<Text style={styles.detailValue}>
+  {
+    userCategory === 'customer' ? customerId :
+    userCategory === 'merchant' ? merchant_Id :
+    terminalId
+  }
+</Text>
+  {/* <Text style={styles.detailValue}>{userDetails.name || ` ${customerId}`}</Text> */}
           </View>
           
           <View style={styles.detailRow}>

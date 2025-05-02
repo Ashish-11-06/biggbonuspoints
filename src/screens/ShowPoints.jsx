@@ -4,12 +4,16 @@ import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchCustomerPoints } from '../Redux/slices/pointsSlice';
 
 const ShowPoints = ({ route }) => {
     const navigation = useNavigation();
     const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [userCategory, setUserCategory] = useState(null);
+    const [loggedInUserId, setLoggedInUserId] = useState(null);
+   const [points,setPoints] = useState(null);
+    
    
     const dispatch = useDispatch();
   
@@ -22,7 +26,8 @@ const ShowPoints = ({ route }) => {
           if (userString) {
             const user = JSON.parse(userString);
             console.log("Parsed user data:", user);
-  
+            setLoggedInUserId(user.user_category === 'merchant' ? user.merchant_id : user.customer_id);
+
             // Set the loggedInUser state
             setLoggedInUser(user);
   // console.log(username);
@@ -46,6 +51,18 @@ const ShowPoints = ({ route }) => {
       fetchUserDetails();
     }, []);
 
+    // useEffect(() => {
+    //   const fetchPoints= async() => {
+    //     const requestData = {
+    //       customer_id: loggedInUserId,
+    //       pin: 1234,
+    //   };
+    //     const response = await dispatch(fetchCustomerPoints(requestData)).unwrap();
+    //     console.log('fetch customer points response',response);
+    //     setPoints(response.merchant_points);
+        
+    //   }
+    // })
     // Safely get and filter valid points data
     const pointsData = (route?.params?.points || []).filter(
         item => item && typeof item.points !== 'undefined'
@@ -55,6 +72,7 @@ console.log('points dataaa',pointsData)
     const totalPoints = pointsData.reduce((sum, item) => {
         return sum + parseInt(item.points || 0);
     }, 0);
+console.log('total points',totalPoints);
 
     // Group by merchant
     const merchantData = pointsData.reduce((acc, item) => {
@@ -140,6 +158,8 @@ console.log('points dataaa',pointsData)
             </View>
 
             {/* Points by Merchant */}
+            {userCategory === 'customer' &&
+            <>
             <Text style={styles.sectionHeader}>{loggedInUser?.user_category === 'customer' ? 'Points by Merchant' : 'Points to Customer'}</Text>
             {dataToRender.length > 0 ? (
   <SectionList
@@ -192,6 +212,9 @@ console.log('points dataaa',pointsData)
     <Text style={styles.noTransactions}>{noDataMessage}</Text>
   </View>
 )}
+</>
+}
+
         </View>
     );
 };

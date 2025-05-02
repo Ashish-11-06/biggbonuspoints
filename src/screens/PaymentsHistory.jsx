@@ -85,7 +85,7 @@ const PaymentsHistory = ({ navigation }) => {
                   <Text style={styles.headerCell}>Date</Text>
                 </View>
   
-                <ScrollView style={{ maxHeight: 300 }}>
+                <ScrollView>
                   {Array.isArray(data) && data.length > 0 ? (
                     data.map((item, index) => (
                       <View key={index} style={styles.row}>

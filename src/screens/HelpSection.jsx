@@ -9,6 +9,9 @@ const HelpSection = () => {
   const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [userCategory, setUserCategory] = useState(null);
+  const [terminal,setTerminal] = useState(null);
+  const [terminalMerchant,setTerminalMerchant] = useState(null);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -23,8 +26,11 @@ const HelpSection = () => {
 
           // Set the loggedInUser state
           setLoggedInUser(user);
-// console.log(username);
-
+console.log('userrr',user);
+if(user?.user_category === 'terminal') {
+  setTerminal(user.terminal_id);
+  setTerminalMerchant(user.merchant_id);
+}
           // Extract and set the user_category
           const category = user.user_category || 'User';
           setUserCategory(category);
@@ -50,14 +56,21 @@ const HelpSection = () => {
       data = {
         issue_description: query,
         customer: userDetails.id,
-        merchant: null,
+        // merchant: null,
       };
     } else if (userDetails.user_category === 'merchant') {
       data = {
         issue_description: query,
-        customer: null,
+        // customer: null,
         merchant: userDetails.id,
       };
+    } else if(userDetails.user_category === 'terminal') {
+      data = {
+        issue_description: query,
+        // customer: null,
+        merchant:terminalMerchant,
+        terminal:terminal
+      }
     }
     console.log('data', data);
   

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCustomerPoints, fetchMerchantPoints } from '../Redux/slices/pointsSlice';
+import { fetchCustomerPoints, fetchMerchantPoints, fetchTerminalPoints } from '../Redux/slices/pointsSlice';
 
 const PointsScreen = ({ route }) => {
     const [pin, setPin] = useState('');
@@ -14,8 +14,11 @@ const PointsScreen = ({ route }) => {
     const { merchantId, merchantName, fromChooseMerchant, userName, userMobile, userShop, fromRedeem, onPinEntered, fromHomeScreen} = route.params;
     const userId = route.params.userId; // Extract userId from route params
     const [userCategory, setUserCategory] = useState(null);
+    const [terminalMerchant,setTerminalMerchant] = useState('');
+    const [loggedPin,setLoggedPin] = useState('');
     console.log(merchantName, merchantId, fromChooseMerchant);
 console.log('from home screen',fromHomeScreen);
+
     // console.log(userName, userId); // Correctly log userName and userId
     // Fetch user ID from AsyncStorage on component mount
     useEffect(() => {
@@ -25,8 +28,17 @@ console.log('from home screen',fromHomeScreen);
                 if (storedUser) {
                     const parsedUser = JSON.parse(storedUser);
                     console.log("User data from AsyncStorage:", parsedUser);
+                    setLoggedPin(parsedUser?.pin);
                     setUserCategory(parsedUser.user_category);
-                    setLoggedInUserId(parsedUser.user_category === 'merchant' ? parsedUser.merchant_id : parsedUser.customer_id);
+                    if(parsedUser?.user_category === 'customer') {
+                        setLoggedInUserId(parsedUser.customer_id);
+                    } else if(parsedUser?.user_category === 'merchant') {
+                        setLoggedInUserId(parsedUser.merchant_id);
+                    } else if(parsedUser?.user_category === 'terminal') {
+                        setLoggedInUserId(parsedUser.terminal_id);
+                        setTerminalMerchant(parsedUser?.merchant_id)
+                    }
+                    // setLoggedInUserId(parsedUser.user_category === 'merchant' ? parsedUser.merchant_id : parsedUser.customer_id);
                     console.log("Parsed user data:", parsedUser);
                 } else {
                     Alert.alert('Error', 'User not found');
@@ -44,14 +56,30 @@ console.log('from home screen',fromHomeScreen);
             setPin(pin + value);
         }
     };
+console.log('merchant iddddd',loggedInUserId);
 
     const handleDelete = () => {
         setPin(pin.slice(0, -1));
     };
 
     const handleSubmit = async () => {
-        console.log('clicked ');
+
+        console.log('Entered PIN:', pin, typeof pin);
+console.log('Logged PIN:', loggedPin, typeof loggedPin);
+        console.log('clicked ',pin);
+        console.log('logged pin',loggedPin);
         
+        if (pin !== String(loggedPin)) {
+            Alert.alert('Incorrect PIN', 'Please try again!', [
+              {
+                text: 'OK',
+                onPress: () => {}, // stays on same screen
+              },
+            ]);
+            setPin('');
+            return;
+          }
+          
         if (pin.length === 4) {
             if (fromRedeem && onPinEntered) {
                 onPinEntered(pin); // Pass the entered PIN back to TransferPoints
@@ -83,29 +111,89 @@ console.log('from home screen',fromHomeScreen);
                     Alert.alert(err || 'Failed to fetch points');
                 }
             } else if(userCategory === 'merchant'){
-                const requestData = {
-                    merchant_id: loggedInUserId,
-                    pin: pin,
-                };
-
+                // const requestData = {
+                //     merchant_id: loggedInUserId,
+                //     pin: pin,
+                // };
+                let merchantId;
+                if(userCategory === 'merchant') {
+                    merchantId=loggedInUserId;
+                }
+                // } else {
+                //     merchantId = terminalMerchant;
+                // }
                 try {
-                    const response = await dispatch(fetchMerchantPoints(requestData)).unwrap();
+                    const response = await dispatch(fetchMerchantPoints(merchantId)).unwrap();
                     console.log(response);
-                    if (fromChooseMerchant) {
+                    if (fromChooseMerchant && userCategory === 'merchant') {
                         navigation.navigate('TransferPoints', {
                             merchantId: userId, // Pass userId as merchantId
                             merchantName: userName, // Pass userName as merchantName
                         });
-                    } else {
+                    }
+                    // } else if(fromChooseMerchant && userCategory === 'terminal') {
+                    //     console.log('user iddd',userId);
+                    //     console.log('merchant name',loggedInUserId);
+                    //     navigation.navigate('TransferPoints', {
+                    //         merchantId: userId, // Pass userId as merchantId
+                    //         merchantName: userName, // Pass userName as merchantName
+                    //     });
+                    // }
+                     else {
+                        console.log('pointsssss',response.points_data);
+                        
                         navigation.navigate('ShowPoints', {
-                            points: response.customer_points,
+                            points: response.points_data,
                             merchantId: null,
                             merchantName: null,
                         });
                     }
                     console.log("Fetched points:", response.merchant_points);
                 } catch (err) {
-                    Alert.alert(err);
+                    console.log('rrrrrrrrrrrr');
+                    
+                    Alert.alert('errrrrrr',err);
+                }
+            
+            } else if(userCategory === 'terminal'){
+                const requestData = {
+                    terminal_id: loggedInUserId,
+                    tid_pin: pin,
+                    merchant_id:terminalMerchant
+                };
+            console.log('request data',requestData);
+            
+                try {
+                    const response = await dispatch(fetchTerminalPoints(requestData)).unwrap();
+                    console.log(response);
+                    if (fromChooseMerchant && userCategory === 'merchant') {
+                        navigation.navigate('TransferPoints', {
+                            merchantId: userId, // Pass userId as merchantId
+                            merchantName: userName, // Pass userName as merchantName
+                        });
+                    }
+                    // } else if(fromChooseMerchant && userCategory === 'terminal') {
+                    //     console.log('user iddd',userId);
+                    //     console.log('merchant name',loggedInUserId);
+                    //     navigation.navigate('TransferPoints', {
+                    //         merchantId: userId, // Pass userId as merchantId
+                    //         merchantName: userName, // Pass userName as merchantName
+                    //     });
+                    // }
+                     else {
+                        console.log('pointsssss',response.points_data);
+                        
+                        navigation.navigate('ShowPoints', {
+                            points: response.points_data,
+                            merchantId: null,
+                            merchantName: null,
+                        });
+                    }
+                    console.log("Fetched points:", response.merchant_points);
+                } catch (err) {
+                    console.log('rrrrrrrrrrrr');
+                    
+                    Alert.alert('errrrrrr',err);
                 }
             }
         } else {
@@ -115,7 +203,7 @@ console.log('from home screen',fromHomeScreen);
 
     useEffect(() => {
         if (status === 'failed' && error) {
-            Alert.alert('Error', error);
+            // Alert.alert('Error', error);
         }
     }, [status, error]);
 

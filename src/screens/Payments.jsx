@@ -12,6 +12,7 @@ import { addPaymentDetails } from '../Redux/slices/paymentDetailsSlice';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { RadioButton } from 'react-native-paper';
 
   const Payments = () => {
     const navigation = useNavigation();
@@ -31,6 +32,7 @@ import { useNavigation } from '@react-navigation/native';
     const [userDetails, setUserDetails] = useState({ user_category: '', id: '' });
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [userCategory, setUserCategory] = useState(null);
+    const [choice,setChoice] = useState(null);
     useEffect(() => {
       const fetchUserDetails = async () => {
         try {
@@ -98,25 +100,32 @@ import { useNavigation } from '@react-navigation/native';
         merchant:loggedInUser?.merchant_id,
         paid_amount:paidAmount,
         transaction_id:transactionId,
-        payment_mode:paymentMethod
+        payment_mode:paymentMethod,
+        plan_type:choice
       }
 
       console.log('data ', data);
 
-      const res=await dispatch(addPaymentDetails(data));
+      const res = await dispatch(addPaymentDetails(data));
       console.log(res);
+      if(res?.payload.message) {
+        Alert.alert('Success',res.payload.message ,[{
+          text:'OK',
+          onPress: () => navigation.goBack()
+        }])
+      } 
       if(res.error) {
         console.log('errrr',res.payload);
         Alert.alert(res?.payload);
         return;
       }
-      Alert.alert(
-        'Payment Info Submitted!',
-        'Amount will be reflected in 24hrs if details are genuine',
-        [{ text: 'OK',
-          onPress: () => navigation.goBack()
-         }]
-      );
+      // Alert.alert(
+      //   'Payment Info Submitted!',
+      //   'Amount will be reflected in 24hrs if details are genuine',
+      //   [{ text: 'OK',
+      //     onPress: () => navigation.goBack()
+      //    }]
+      // );
     };
   
     return (
@@ -160,6 +169,34 @@ import { useNavigation } from '@react-navigation/native';
             <Picker.Item label="Debit Card" value="Debit Card" />
             {/* <Picker.Item label="Bank Transfer" value="Bank Transfer" /> */}
           </Picker>
+        </View>
+
+       
+        <Text style={styles.label}>Select Plan Type:</Text>
+        <View style={styles.radioRow}>
+          <RadioButton
+            value="rental"
+            status={choice === 'rental' ? 'checked' : 'unchecked'}
+            onPress={() => setChoice('rental')}
+          />
+          <Text 
+            style={styles.radioLabel} 
+            onPress={() => setChoice('rental')} // Added onPress to Text
+          >
+            Rental
+          </Text>
+
+          <RadioButton
+            value="prepaid"
+            status={choice === 'prepaid' ? 'checked' : 'unchecked'}
+            onPress={() => setChoice('prepaid')}
+          />
+          <Text 
+            style={styles.radioLabel} 
+            onPress={() => setChoice('prepaid')} // Added onPress to Text
+          >
+            Prepaid
+          </Text>
         </View>
   
         {/* Submit Button */}
@@ -212,6 +249,16 @@ import { useNavigation } from '@react-navigation/native';
       color: '#fff',
       fontSize: 16,
       fontWeight: '600',
+    },
+    radioRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    radioLabel: {
+      marginRight: 20,
+      fontSize: 16,
+      color: '#444',
     },
   });
   

@@ -32,12 +32,13 @@ console.log('user category',userCategory);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (userCategory === "merchant") {
+        if (userCategory === "customer") {
+          const res = dispatch(getAllMerchants());
+          // const res = dispatch(getAllCustomers());
+          console.log("Fetched Merchants:", res);
+        } else {
           const res = dispatch(getAllCustomers());
           console.log("Fetched Customers:", res);
-        } else {
-          const res = dispatch(getAllMerchants());
-          console.log("Fetched Merchants:", res);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -116,7 +117,7 @@ console.log('user category',userCategory);
 
       {/* List of Filtered Contacts */}
       <FlatList
-        data={searchText.length > 0 ? filteredContacts : (userCategory === "merchant" ? customers : merchants)}
+        data={searchText.length > 0 ? filteredContacts : (userCategory === "customer" ? merchants : customers)}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={{ padding: 15, borderBottomWidth: 1, borderColor: "#ccc" }}

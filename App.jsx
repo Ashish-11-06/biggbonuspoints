@@ -37,6 +37,7 @@ import ReceivePointsScreen from './src/screens/ReceivePointsScreen';
 import Profile from './src/screens/Profile';
 import Payments from './src/screens/Payments';
 import PaymentsHistory from './src/screens/PaymentsHistory';
+import Cashout from './src/screens/Cashout';
 const Stack = createStackNavigator();
 
 function App() {
@@ -104,6 +105,7 @@ function App() {
         <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
         <Stack.Screen name="Payments" component={Payments} options={{ headerShown: false }} />
         <Stack.Screen name="PaymentsHistory" component={PaymentsHistory} options={{ headerShown: false }} />
+        <Stack.Screen name="Cashout" component={Cashout} options={{ headerShown: false }} />
 
       </Stack.Navigator>
     </NavigationContainer>

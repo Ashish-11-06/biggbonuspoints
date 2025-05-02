@@ -1,30 +1,39 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
 import { fetchTransactionHistory } from '../Redux/slices/transactionHistorySlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
+import { ActivityIndicator } from 'react-native-paper';
 
 const History = () => {
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [transactionHistory, setTransactionHistory] = useState([]);
+  const [terminalMerchant,setTerminalMerchant] = useState(null);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
         const userString = await AsyncStorage.getItem('user');
+        console.log('user string',userString);
+        
         if (userString) {
           const user = JSON.parse(userString);
           setLoggedInUser(user);
+          console.log('user',user);   
+          if(user.user_category === 'terminal') {
+            setTerminalMerchant(user.merchant_id);
+          }
         }
       } catch (error) {
         console.error('Error fetching user details from AsyncStorage:', error);
       }
     };
-
     fetchUserDetails();
   }, []);
+console.log('logged user',loggedInUser);
 
   console.log('logged user',loggedInUser)
   useEffect(() => {
@@ -35,14 +44,19 @@ const History = () => {
       }
 
       try {
+        setLoading(true); // Start loader
         let user_id;
+        let user_category;
         if(loggedInUser?.user_category === 'customer') {
+         user_category = loggedInUser.user_category;
           user_id = loggedInUser.customer_id;
         } else if(loggedInUser?.user_category === 'merchant') {
+          user_category = loggedInUser.user_category;
           user_id = loggedInUser.merchant_id;
-        }
-        const user_category = loggedInUser.user_category;
-
+        } else if(loggedInUser?.user_category === 'terminal') {
+          user_category = 'merchant';
+          user_id = terminalMerchant;
+        } 
         const response = await dispatch(
           fetchTransactionHistory({ user_id, user_category })
         );
@@ -52,6 +66,8 @@ const History = () => {
         setTransactionHistory(response.payload.transaction_history);
       } catch (error) {
         console.error('Error fetching transaction history:', error);
+      } finally {
+        setLoading(false); // Stop loader
       }
     };
 
@@ -109,36 +125,58 @@ const History = () => {
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
-      <Text style={{ fontSize: 18, marginBottom: 10, textAlign: 'center' }}>Transaction History</Text>
-      <ScrollView horizontal>
-        <View style={styles.tableContainer}>
-          {/* Header Row */}
-          {loggedInUser?.user_category == 'customer' ? (
-          <View style={[styles.row, styles.header]}>
-            <Text style={[styles.headerCell, styles.colSr]}>Sr. No.</Text>
-            <Text style={[styles.headerCell, styles.colMerchantName]}>Merchant Name</Text>
-            <Text style={[styles.headerCell, styles.colMerchant]}>Merchant ID</Text>
-            <Text style={[styles.headerCell, styles.colPoints]}>Points</Text>
-            <Text style={[styles.headerCell, styles.colCreatedAt]}>Time</Text>
-          </View>
-          ):(
-            <View style={[styles.row, styles.header]}>
-            <Text style={[styles.headerCell, styles.colSr]}>Sr. No.</Text>
-            <Text style={[styles.headerCell, styles.colMerchantName]}>Customer Name</Text>
-            <Text style={[styles.headerCell, styles.colMerchant]}>Customer ID</Text>
-            <Text style={[styles.headerCell, styles.colPoints]}>Points</Text>
-            <Text style={[styles.headerCell, styles.colCreatedAt]}>Time</Text>
-          </View>
-          )} 
-
-          {/* Data Rows */}
-          <FlatList
-            data={transactionHistory}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => index.toString()}
-          />
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#0000ff" />
         </View>
-      </ScrollView>
+      ) : (
+        <>
+          <Text style={{ fontSize: 18, marginBottom: 10, textAlign: 'center' }}>
+            Transaction History
+          </Text>
+          <ScrollView horizontal>
+            <View style={styles.tableContainer}>
+              {/* Header Row */}
+              {loggedInUser?.user_category == 'customer' ? (
+                <View style={[styles.row, styles.header]}>
+                  <Text style={[styles.headerCell, styles.colSr]}>Sr. No.</Text>
+                  <Text style={[styles.headerCell, styles.colMerchantName]}>
+                    Merchant Name
+                  </Text>
+                  <Text style={[styles.headerCell, styles.colMerchant]}>
+                    Merchant ID
+                  </Text>
+                  <Text style={[styles.headerCell, styles.colPoints]}>Points</Text>
+                  <Text style={[styles.headerCell, styles.colCreatedAt]}>
+                    Time
+                  </Text>
+                </View>
+              ) : (
+                <View style={[styles.row, styles.header]}>
+                  <Text style={[styles.headerCell, styles.colSr]}>Sr. No.</Text>
+                  <Text style={[styles.headerCell, styles.colMerchantName]}>
+                    Customer Name
+                  </Text>
+                  <Text style={[styles.headerCell, styles.colMerchant]}>
+                    Customer ID
+                  </Text>
+                  <Text style={[styles.headerCell, styles.colPoints]}>Points</Text>
+                  <Text style={[styles.headerCell, styles.colCreatedAt]}>
+                    Time
+                  </Text>
+                </View>
+              )}
+
+              {/* Data Rows */}
+              <FlatList
+                data={transactionHistory}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            </View>
+          </ScrollView>
+        </>
+      )}
     </View>
   );
 };

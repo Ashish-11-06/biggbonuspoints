@@ -53,7 +53,11 @@ const BankDetails = () => {
     const fetchBankDetailsByIdOnce = async () => {
       try {
         const user_id = userDetails.id;
-        const user_category = userDetails.user_category;
+        let user_category;
+         user_category = userDetails.user_category;
+         if(userDetails.user_category === 'terminal') {
+          user_category = 'merchant'
+         }
         setLoading(true); 
         if (user_id && user_category) {
           console.log("User ID:", user_id);
@@ -185,9 +189,11 @@ console.log(userDetails);
             <Text style={styles.value}>{bankData.branch}</Text>
           </View>
 
+        {userCategory !== 'terminal' ? (
           <View style={styles.buttonContainer}>
             <Button title="Edit" onPress={handleEdit} color="#9F86C0" />
           </View>
+      ) : null}
         </View>
       )}
     </View>

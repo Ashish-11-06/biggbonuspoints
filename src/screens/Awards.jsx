@@ -105,6 +105,7 @@ const navigation = useNavigation();
         value={mobile}
         onChangeText={handleMobileNumber}
         keyboardType="numeric"
+        maxLength={10}
       />
 
 <Text style={styles.label}>

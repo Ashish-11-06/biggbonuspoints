@@ -20,9 +20,51 @@ export const fetchCustomerPoints = createAsyncThunk(
 
 export const fetchMerchantPoints = createAsyncThunk(
     "points/getPointsMerchant",
+    async (merchantId, { rejectWithValue }) => {
+      try {
+        const response = await PointsApi.viewCustomerWisePoints(merchantId);
+        console.log("Response from API view merchant:", response.data);
+        
+        if (response.status === 200 && response.data) {
+          return response.data;
+        }
+        return rejectWithValue(response.data.error || "Failed to fetch points");
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message || "An error occurred");
+      }
+    }
+  );
+
+export const fetchPrepaidMerchant = createAsyncThunk(
+    "points/getPointsMerchantPrepaid",
+    async (_, { rejectWithValue }) => {
+      try {
+        console.log('fetch prepaid merchants');
+        
+        const response = await PointsApi.viewPrepaidMerchants();
+        console.log(response);
+        
+        console.log("Response from API view merchant:", response.data);
+        
+        if (response.status === 200 && response.data) {
+          return response.data;
+        }
+        return rejectWithValue(response.data.error || "Failed to fetch points");
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message || "An error occurred");
+      }
+    }
+  );
+  
+export const fetchTerminalPoints = createAsyncThunk(
+    "points/fetchTerminalPoints",
     async (data, { rejectWithValue }) => {
       try {
-        const response = await PointsApi.viewCustomerWisePoints(data);
+        console.log('fetch prepaid merchants');
+        
+        const response = await PointsApi.viewTerminalPoints(data);
+        console.log(response);
+        
         console.log("Response from API view merchant:", response.data);
         
         if (response.status === 200 && response.data) {
@@ -41,6 +83,7 @@ const customerPointsSlice = createSlice({
   initialState: {
     customerPoints: [], // Changed to match what you use in reducers
     merchantPoints: [],
+    terminalPoints:[],
     status: "idle",
     error: null,
   },
@@ -68,6 +111,18 @@ const customerPointsSlice = createSlice({
         state.merchantPoints = action.payload; 
       })
       .addCase(fetchMerchantPoints.rejected, (state, action) => { // Changed to fetchCustomerPoints
+        state.status = "failed";
+        state.error = action.payload || "Failed to fetch data";
+      })
+      .addCase(fetchTerminalPoints.pending, (state) => { // Changed to fetchTerminalPoints
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchTerminalPoints.fulfilled, (state, action) => { // Changed to fetchTerminalPoints
+        state.status = "succeeded";
+        state.terminalPoints = action.payload; 
+      })
+      .addCase(fetchTerminalPoints.rejected, (state, action) => { // Changed to fetchCustomerPoints
         state.status = "failed";
         state.error = action.payload || "Failed to fetch data";
       });

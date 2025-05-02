@@ -15,7 +15,7 @@ const MerchantForm = () => {
   const [userCategory, setUserCategory] = useState(null);
   const [isEditing, setIsEditing] = useState(false); // New state for edit mode
   const dispatch = useDispatch();
-  const [profileData, setProfileData] = useState(null); // New state for profile data
+  const [profileData, setProfileData] = useState([]); // New state for profile data
   const fieldLabels = {
     user_category: 'User Category',
     first_name: 'First Name',
@@ -29,11 +29,11 @@ const MerchantForm = () => {
     country: 'Country',
     pincode: 'Pincode',
     address: 'Address',
-    aadhar_number: 'Aadhar Number',
+    aadhaar_number: 'Aadhar Number',
     pan_number: 'PAN Number',
-    shopName: 'Shop Name',
-    // registerShopName: 'Registered Shop Name',
-    gst: 'GST Number',
+    shop_name: 'Shop Name',
+    // registershop_name: 'Registered Shop Name',
+    gst_number: 'GST Number',
   };
 
   useEffect(() => {
@@ -63,11 +63,11 @@ const MerchantForm = () => {
             country: user.country || '',
             pincode: user.pincode || '',
             address: user.address || '',
-            aadhar_number: user.aadhar_number || '',
+            aadhaar_number: user.aadhaar_number || '',
             pan_number: user.pan_number || '',
-            shopName: user.shopName || '',
-            // registerShopName: user.registerShopName || '',
-            gst: user.gst || '',
+            shop_name: user.shop_name || '',
+            // registershop_name: user.registershop_name || '',
+            gst_number: user.gst_number || '',
           };
 
           setUserDetails(initialDetails);
@@ -86,6 +86,7 @@ const MerchantForm = () => {
   }, []);
 // console.log(loggedInUser.id);
 console.log(userDetails.id);
+console.log('gender');
 
 const navigateToHome = () => {
   navigation.navigate('Home');
@@ -118,11 +119,11 @@ const navigateToHome = () => {
           country: fetchedData.country || '',
           pincode: fetchedData.pincode?.toString() || '', // Ensure pincode is converted to string
           address: fetchedData.address || '',
-          aadhar_number: fetchedData.aadhar_number || '',
+          aadhaar_number: fetchedData.aadhaar_number || '',
           pan_number: fetchedData.pan_number || '',
-          shopName: fetchedData.shopName || '',
-          // registerShopName: fetchedData.registerShopName || 'Shop Name',
-          gst: fetchedData.gst || '',
+          shop_name: fetchedData.shop_name || '',
+          // registershop_name: fetchedData.registershop_name || 'Shop Name',
+          gst_number: fetchedData.gst_number || '',
         };
 console.log('update data payload',updatedUserDetails)
         setUserDetails(updatedUserDetails); // Update userDetails using profileData
@@ -145,14 +146,18 @@ console.log('update data payload',updatedUserDetails)
     let res=null;
     if(loggedInUser?.user_category === 'customer') {
       res = await dispatch(addAdditinalDetails({ userId: userDetails.id, data }));
+      console.log('customer resonse',res);
+      
     }
     else if(loggedInUser?.user_category === 'merchant') {
      res = await dispatch(addAdditinalDetailsMerchant({ userId: userDetails.id, data }));
+     console.log('merchant response',res);
+     
     }
     console.log(res);
     if(res?.payload.message) {
 
-      Alert.alert(res?.payload.message, [
+      Alert.alert('success',res?.payload.message, [
        { text:"OK", onPress: navigateToHome}
       ]);
     }
@@ -178,11 +183,11 @@ console.log('update data payload',updatedUserDetails)
         country: updatedData.country || '',
         pincode: updatedData.pincode?.toString() || '', // Ensure pincode is converted to string
         address: updatedData.address || '',
-        aadhar_number: updatedData.aadhar_number || '',
+        aadhaar_number: updatedData.aadhaar_number || '',
         pan_number: updatedData.pan_number || '',
-        shopName: updatedData.shopName || '',
-        // registerShopName: updatedData.registerShopName || '',
-        gst: updatedData.gst || '',
+        shop_name: updatedData.shop_name || '',
+        // registershop_name: updatedData.registershop_name || '',
+        gst_number: updatedData.gst_number || '',
       };
 
       setUserDetails(updatedUserDetails);
@@ -220,17 +225,20 @@ const handleEdit = () => {
             return rows;
           }, []).map((row, rowIndex) => (
             <View key={rowIndex} style={styles.rowContainer}>
-              {row.map((key) => (
+            {row
+              .filter((key) => !(key === 'shop_name' && userCategory === 'customer')) // hide shop_name for customers
+              .map((key) => (
                 <View key={key} style={styles.halfWidthContainer}>
                   <Text>{fieldLabels[key] || key}</Text>
                   <TextInput
-                    style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#9F86C0' }]} // Reverted styling
+                    style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#9F86C0' }]}
                     value={userDetails[key]}
                     editable={false}
                   />
                 </View>
               ))}
-            </View>
+          </View>
+          
           ))}
           <Button title="Edit" onPress={handleEdit} color="#9F86C0" />
         </>
@@ -293,8 +301,8 @@ const handleEdit = () => {
                 <Controller
                   control={control}
                   rules={{
-                    required: key !== 'aadhar_number' && key !== 'pan_number' && key !== 'gst',
-                    pattern: key === 'mobile_number' ? /^[0-9]{10}$/ : key === 'aadhar_number' ? /^[0-9]{12}$/ : undefined, // Validate 10-digit mobile number or 12-digit aadhar
+                    required: key !== 'aadhaar_number' && key !== 'pan_number' && key !== 'gst_number',
+                    pattern: key === 'mobile_number' ? /^[0-9]{10}$/ : key === 'aadhaar_number' ? /^[0-9]{12}$/ : undefined, // Validate 10-digit mobile number or 12-digit aadhar
                     minLength: key === 'pincode' ? 6 : undefined, // Minimum length for pincode
                     maxLength: key === 'pincode' ? 6 : undefined, // Maximum length for pincode
                   }}
@@ -304,7 +312,7 @@ const handleEdit = () => {
                       onChangeText={onChange}
                       value={value}
                       editable={isEditing || !loggedInUser?.is_profile_updated}
-                      keyboardType={key === 'mobile_number' || key === 'aadhar_number' || key === 'pincode' || key === 'age' ? 'numeric' : 'default'} // Numeric keyboard for specific fields
+                      keyboardType={key === 'mobile_number' || key === 'aadhaar_number' || key === 'pincode' || key === 'age' ? 'numeric' : 'default'} // Numeric keyboard for specific fields
                     />
                   )}
                   name={key}
@@ -314,8 +322,8 @@ const handleEdit = () => {
                 <Text style={styles.error}>
                   {key === 'mobile_number' && 'Mobile number must be 10 digits.'}
                   {key === 'pincode' && 'Pincode must be 6 digits.'}
-                  {key === 'aadhar_number' && 'Aadhar number must be 12 digits.'}
-                  {key !== 'aadhar_number' && key !== 'pan_number' && key !== 'gst' && `${fieldLabels[key] || key} is required.`}
+                  {key === 'aadhaar_number' && 'Aadhar number must be 12 digits.'}
+                  {key !== 'aadhaar_number' && key !== 'pan_number' && key !== 'gst_number' && `${fieldLabels[key] || key} is required.`}
                 </Text>
               )}
             </View>
