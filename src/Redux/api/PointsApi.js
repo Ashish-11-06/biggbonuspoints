@@ -11,9 +11,9 @@ const PointsApi = {
         console.log('view prepaid merchants');    
         return axiosInstance.get(`redeemAwardPoints/customer-points/prepaid-merchants/`)
     } ,
-    viewTerminalPoints:(data) => {
-        console.log('data in api',data); 
-        return axiosInstance.post(`redeemAwardPoints/terminal-customer-points/`,data)
+    viewTerminalPoints:(id) => {
+        console.log('data in api',id); 
+        return axiosInstance.get(`api/redeemAwardPoints/terminal-customer-points/?terminal_id=${id}`)
     }
 };
 

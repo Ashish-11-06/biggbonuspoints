@@ -58,11 +58,11 @@ export const fetchPrepaidMerchant = createAsyncThunk(
   
 export const fetchTerminalPoints = createAsyncThunk(
     "points/fetchTerminalPoints",
-    async (data, { rejectWithValue }) => {
+    async (id, { rejectWithValue }) => {
       try {
         console.log('fetch prepaid merchants');
         
-        const response = await PointsApi.viewTerminalPoints(data);
+        const response = await PointsApi.viewTerminalPoints(id);
         console.log(response);
         
         console.log("Response from API view merchant:", response.data);

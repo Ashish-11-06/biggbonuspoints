@@ -156,15 +156,16 @@ console.log('Logged PIN:', loggedPin, typeof loggedPin);
                 }
             
             } else if(userCategory === 'terminal'){
-                const requestData = {
-                    terminal_id: loggedInUserId,
-                    tid_pin: pin,
-                    merchant_id:terminalMerchant
-                };
-            console.log('request data',requestData);
+                // const requestData = {
+                //     terminal_id: loggedInUserId,
+                //     tid_pin: pin,
+                //     merchant_id:terminalMerchant
+                // };
+                const  terminalId= loggedInUserId;
+            console.log('request data',terminalId);
             
                 try {
-                    const response = await dispatch(fetchTerminalPoints(requestData)).unwrap();
+                    const response = await dispatch(fetchTerminalPoints(terminalId)).unwrap();
                     console.log(response);
                     if (fromChooseMerchant && userCategory === 'merchant') {
                         navigation.navigate('TransferPoints', {
