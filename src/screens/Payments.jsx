@@ -240,7 +240,7 @@ import { RadioButton } from 'react-native-paper';
     },
     submitButton: {
       marginTop: 24,
-      backgroundColor: '#007bff',
+      backgroundColor: '#F14242',
       paddingVertical: 12,
       borderRadius: 6,
       alignItems: 'center',

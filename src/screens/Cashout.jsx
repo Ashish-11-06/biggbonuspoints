@@ -252,7 +252,7 @@ const handleCashoutMerchant = () => {
 
   const dataToRender = isCustomer ? safeMerchantSections : safeCustomerSections;
   const noDataMessage = isCustomer
-    ? 'No merchant data available'
+    ? 'No points available'
     : 'No customer data available';
 
     console.log('safe merchant section',safeMerchantSections);
@@ -368,7 +368,7 @@ const handleCashoutMerchant = () => {
       <Button onPress={handleCancelModal} textColor="#e53e3e">
         Cancel
       </Button>
-      <Button onPress={submitCashout} mode="contained" buttonColor="#4e73df">
+      <Button onPress={submitCashout} mode="contained" buttonColor="#F14242">
         Submit
       </Button>
     </Dialog.Actions>
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
       width: 24,
     },
     totalPointsContainer: {
-      backgroundColor: '#4e73df',
+      backgroundColor: '#F14242',
       borderRadius: 12,
       padding: 20,
       margin: 20,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: '#4e73df',
+      backgroundColor: '#F14242',
       padding: 12,
       borderRadius: 8,
       marginVertical: 8,
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
           fontSize: 16,
         },
         submitButton: {
-          backgroundColor: '#4e73df',
+          backgroundColor: '#F14242',
           padding: 14,
           borderRadius: 8,
           alignItems: 'center',

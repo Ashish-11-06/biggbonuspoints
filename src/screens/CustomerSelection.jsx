@@ -74,7 +74,7 @@ console.log('user category',userCategory);
   if (status === "loading") {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#F14242"/>
         <Text>{userCategory === "merchant" ? "Loading customers..." : "Loading merchants..."}</Text>
       </View>
     );
@@ -156,7 +156,7 @@ console.log('user category',userCategory);
           style={{
             padding: 15,
             marginTop: 10,
-            backgroundColor: "#007bff",
+            backgroundColor: "#F14242",
             borderRadius: 10,
           }}
           onPress={() =>

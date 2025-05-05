@@ -38,6 +38,8 @@ export const fetchAdditionalDetailsMerchant = createAsyncThunk(
     "details/addDetails",
     async (data, { rejectWithValue }) => {
       try {
+        console.log('hiii');
+        
         const response = await additinalDetailsApi.getAdditionalDetailsMerchant(data);
         console.log("Response from API:", response);
         if (response.status === 200 && response.data) {

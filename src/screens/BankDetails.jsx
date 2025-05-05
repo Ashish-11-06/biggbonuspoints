@@ -159,7 +159,7 @@ console.log(userDetails);
       {loading ? (
         // Show loader while loading
         <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#9F86C0" />
+          <ActivityIndicator size="large" color="#F14242" />
         </View>
       ) : (
         // Show bank details after loading
@@ -191,7 +191,7 @@ console.log(userDetails);
 
         {userCategory !== 'terminal' ? (
           <View style={styles.buttonContainer}>
-            <Button title="Edit" onPress={handleEdit} color="#9F86C0" />
+            <Button title="Edit" onPress={handleEdit} color="#F14242" />
           </View>
       ) : null}
         </View>
@@ -248,7 +248,7 @@ console.log(userDetails);
       />
 
       <View style={styles.buttonContainer}>
-        <Button title="Submit" onPress={handleSubmit} color="#9F86C0" />
+        <Button title="Submit" onPress={handleSubmit} color="#F14242" />
       </View>
     </ScrollView>
   );
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     alignSelf: 'center',
-    color: '#9F86C0',
+    color: '#F14242',
   },
   label: {
     marginBottom: 6,
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 2,
     borderLeftWidth: 4,
-    borderLeftColor: '#9F86C0',
+    borderLeftColor: '#F14242',
   },
   value: {
     fontSize: 16,

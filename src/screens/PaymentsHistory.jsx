@@ -70,7 +70,7 @@ const PaymentsHistory = ({ navigation }) => {
       <View style={styles.container}>
         {loading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#0000ff" />
+            <ActivityIndicator size="large" color="#F14242" />
           </View>
         ) : (
           <>
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
-    backgroundColor:'#007bff',
+    backgroundColor:'#F14242',
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: 'center',

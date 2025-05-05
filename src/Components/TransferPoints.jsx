@@ -192,7 +192,9 @@ console.log('terminal id',terminalId);
   
             console.log('res', response);
             if (response?.message) {
-              Alert.alert("Success", response.message, [
+              Alert.alert("Success", 
+                response.message,
+                 [
                 { text: "OK", onPress: navigateToHome }
               ]);
             }
@@ -224,7 +226,8 @@ console.log('terminal id',terminalId);
           
             console.log("Transfer response:", response);
             if (response.message) {
-              Alert.alert(response.message || "Points awarded successfully");
+              Alert.alert(response.message 
+                || "Points awarded successfully");
             }
           }
            else if ((userCategory === 'merchant' && fromSelectUser) || (userCategory === 'merchant' && fromTransferHome)  ) {
@@ -253,7 +256,8 @@ console.log('terminal id',terminalId);
   
             console.log("Transfer response:", response);
             if(response.message) {
-              Alert.alert(response.message || 'Points transferred successfullyyy')
+              Alert.alert(response.message 
+                || 'Points transferred successfullyyy')
             }
           }
   
@@ -379,7 +383,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#6A1B9A",
+    color: "#F14242",
     marginBottom: 20,
     textAlign: "center",
   },
@@ -411,7 +415,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
   },
   transferButton: {
-    backgroundColor: "#6A1B9A",
+    backgroundColor: "#F14242",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
@@ -427,10 +431,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#6A1B9A",
+    borderColor: "#F14242",
   },
   cancelButtonText: {
-    color: "#6A1B9A",
+    color: "#F14242",
     fontSize: 16,
     fontWeight: "bold",
   },

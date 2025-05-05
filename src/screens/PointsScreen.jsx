@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 40,
-        backgroundColor: '#6A1B9A',
+        backgroundColor: '#F14242',
     },
     tickText: {
         fontSize: 30,
