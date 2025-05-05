@@ -127,7 +127,7 @@ console.log('logged user',loggedInUser);
     <View style={{ flex: 1, padding: 16 }}>
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="#F14242" />
         </View>
       ) : (
         <>
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9', // Alternating row color
   },
   header: {
-    backgroundColor: '#9F86C0', // Green header background
+    backgroundColor: '#F14242', // Green header background
   },
   cell: {
     padding: 10,

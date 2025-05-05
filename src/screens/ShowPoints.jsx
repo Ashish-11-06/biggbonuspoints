@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
         width: 24, // To balance the back button
     },
     totalPointsContainer: {
-        backgroundColor: '#4e73df',
+        backgroundColor: '#F14242',
         borderRadius: 12,
         padding: 20,
         margin: 20,
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#4e73df',
+        backgroundColor: '#F14242',
         padding: 12,
         borderRadius: 8,
         marginVertical: 8,

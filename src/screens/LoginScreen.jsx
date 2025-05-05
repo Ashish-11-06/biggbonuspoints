@@ -25,6 +25,15 @@ const LoginScreen = ({ navigation }) => {
         setSnackbarVisible(true);
     };
 
+    const handleUserTypeChange = (itemValue) => {
+        setSelectedUserType(itemValue);
+        setMobile("");
+        setMerchantId("");
+        setTerminal("");
+        setPin("");
+        setChoice("");
+    };
+
     const handleLogin = async () => {
         console.log('login clicked');
         
@@ -199,7 +208,7 @@ console.log('storageeee ',storageData);
                 <View style={styles.pickerContainer}>
                     <Picker
                         selectedValue={selectedUserType}
-                        onValueChange={(itemValue) => setSelectedUserType(itemValue)}
+                        onValueChange={handleUserTypeChange} // Updated to use the new handler
                         style={styles.picker}
                     >
                         <Picker.Item label="Select a user type" value="" />
@@ -215,6 +224,7 @@ console.log('storageeee ',storageData);
             value="mobile"
             status={choice === 'mobile' ? 'checked' : 'unchecked'}
             onPress={() => setChoice('mobile')}
+            color="#F14242" // Updated checked color
           />
           <Text 
             style={styles.radioLabel} 
@@ -227,6 +237,7 @@ console.log('storageeee ',storageData);
             value="Merchant_id"
             status={choice === 'merchant_id' ? 'checked' : 'unchecked'}
             onPress={() => setChoice('merchant_id')}
+            color="#F14242" // Updated checked color
           />
           <Text 
             style={styles.radioLabel} 
@@ -375,10 +386,11 @@ const styles = StyleSheet.create({
     input: {
         marginBottom: 15,
         backgroundColor: "white",
+        borderColor: "#F14242",
     },
     pickerContainer: {
         borderWidth: 1,
-        borderColor: "#ccc",
+        borderColor: "#F14242",
         borderRadius: 4,
         marginBottom: 15,
         overflow: "hidden",
@@ -391,6 +403,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         paddingVertical: 5,
         borderRadius: 4,
+        backgroundColor:'#F14242'
     },
     buttonLabel: {
         fontSize: 16,

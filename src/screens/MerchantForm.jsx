@@ -49,7 +49,8 @@ const MerchantForm = () => {
           setLoggedInUser(user);
           const category = user.user_category || 'User';
           setUserCategory(category);
-
+          console.log('userrrrr 52',user);
+          
           const initialDetails = {
             user_category: category,
             first_name: user.first_name || '',
@@ -82,6 +83,59 @@ const MerchantForm = () => {
       }
     };
 
+//     const fetchAdditinalDetails = async () => {
+//       const userId = userDetails?.customer_id || userDetails?.merchant_id || userDetails?.corporate_id || 'N/A';
+//      let response = null;
+//       if(userDetails?.user_category === 'customer') {
+//         console.log('cust');
+        
+//          response = await dispatch(fetchAdditionalDetails(userId));
+//       } else if(userDetails?.user_category === 'merchant') {
+//         console.log('merchant');
+        
+//           response = await dispatch(fetchAdditionalDetailsMerchant(userId));
+//       }
+//       console.log('res',response);
+      
+//       console.log('Fetched additional details:', response?.payload.profile_data);
+      
+//       const fetchedData = response?.payload.profile_data;
+//       setProfileData(fetchedData); // Set fetched data to profileData
+//       console.log('fetched Data 109:', fetchedData);
+      
+//       if (fetchedData) {
+//         const initialDetails  = {
+//           user_category: loggedInUser?.user_category || 'User',
+//           first_name: fetchedData.first_name || '', // Separate first_name
+//           last_name: fetchedData.last_name || '', // Separate last_name
+//           id: fetchedData.customer_id || fetchedData.merchant_id || fetchedData.corporate_id || 'N/A',
+//           age: fetchedData.age?.toString() || '', // Ensure age is converted to string
+//           gender: fetchedData.gender || '',
+//           city: fetchedData.city || '',
+//           state: fetchedData.state || '',
+//           country: fetchedData.country || '',
+//           pincode: fetchedData.pincode?.toString() || '', // Ensure pincode is converted to string
+//           address: fetchedData.address || '',
+//           aadhaar_number: fetchedData.aadhaar_number || '',
+//           pan_number: fetchedData.pan_number || '',
+//           shop_name: fetchedData.shop_name || '',
+//           // registershop_name: fetchedData.registershop_name || 'Shop Name',
+//           gst_number: fetchedData.gst_number || '',
+//         };
+//         setUserDetails(initialDetails);
+// // console.log('update data payload',updatedUserDetails)
+// //         setUserDetails(updatedUserDetails); // Update userDetails using profileData
+
+//         // Pre-fill form fields if profile is updated
+//         // if (loggedInUser?.is_profile_updated) {
+//         //   Object.keys(updatedUserDetails).forEach((key) => {
+//         //     setValue(key, updatedUserDetails[key]);
+//         //   });
+//         // }
+//       }
+//     };
+//     fetchAdditinalDetails();
+
     fetchUserDetails();
   }, []);
 // console.log(loggedInUser.id);
@@ -93,6 +147,8 @@ const navigateToHome = () => {
 };
 
   useEffect(() => {
+    console.log('user category',loggedInUser?.user_category);
+    
     const fetchAdditinalDetails = async () => {
       const userId = loggedInUser?.customer_id || loggedInUser?.merchant_id || loggedInUser?.corporate_id || 'N/A';
      let response = null;
@@ -105,36 +161,62 @@ const navigateToHome = () => {
       
       const fetchedData = response?.payload.profile_data;
       setProfileData(fetchedData); // Set fetched data to profileData
+      console.log('fetched Data 109:', fetchedData);
+      
+//       if (fetchedData) {
+//         const updatedUserDetails = {
+//           user_category: loggedInUser?.user_category || 'User',
+//           first_name: fetchedData.first_name || '', // Separate first_name
+//           last_name: fetchedData.last_name || '', // Separate last_name
+//           id: fetchedData.customer_id || fetchedData.merchant_id || fetchedData.corporate_id || 'N/A',
+//           age: fetchedData.age?.toString() || '', // Ensure age is converted to string
+//           gender: fetchedData.gender || '',
+//           city: fetchedData.city || '',
+//           state: fetchedData.state || '',
+//           country: fetchedData.country || '',
+//           pincode: fetchedData.pincode?.toString() || '', // Ensure pincode is converted to string
+//           address: fetchedData.address || '',
+//           aadhaar_number: fetchedData.aadhaar_number || '',
+//           pan_number: fetchedData.pan_number || '',
+//           shop_name: fetchedData.shop_name || '',
+//           // registershop_name: fetchedData.registershop_name || 'Shop Name',
+//           gst_number: fetchedData.gst_number || '',
+//         };
+// console.log('update data payload',updatedUserDetails)
+//         setUserDetails(updatedUserDetails); // Update userDetails using profileData
 
-      if (fetchedData) {
-        const updatedUserDetails = {
-          user_category: loggedInUser?.user_category || 'User',
-          first_name: fetchedData.first_name || '', // Separate first_name
-          last_name: fetchedData.last_name || '', // Separate last_name
-          id: fetchedData.customer_id || fetchedData.merchant_id || fetchedData.corporate_id || 'N/A',
-          age: fetchedData.age?.toString() || '', // Ensure age is converted to string
-          gender: fetchedData.gender || '',
-          city: fetchedData.city || '',
-          state: fetchedData.state || '',
-          country: fetchedData.country || '',
-          pincode: fetchedData.pincode?.toString() || '', // Ensure pincode is converted to string
-          address: fetchedData.address || '',
-          aadhaar_number: fetchedData.aadhaar_number || '',
-          pan_number: fetchedData.pan_number || '',
-          shop_name: fetchedData.shop_name || '',
-          // registershop_name: fetchedData.registershop_name || 'Shop Name',
-          gst_number: fetchedData.gst_number || '',
-        };
-console.log('update data payload',updatedUserDetails)
-        setUserDetails(updatedUserDetails); // Update userDetails using profileData
+
+// if (fetchedData) {
+  const initialDetails  = {
+    user_category: loggedInUser?.user_category || 'User',
+    first_name: fetchedData.first_name || '', // Separate first_name
+    last_name: fetchedData.last_name || '', // Separate last_name
+    id: fetchedData.customer_id || fetchedData.merchant_id || fetchedData.corporate_id || 'N/A',
+    age: fetchedData.age?.toString() || '', // Ensure age is converted to string
+    gender: fetchedData.gender || '',
+    city: fetchedData.city || '',
+    state: fetchedData.state || '',
+    country: fetchedData.country || '',
+    pincode: fetchedData.pincode?.toString() || '', // Ensure pincode is converted to string
+    address: fetchedData.address || '',
+    aadhaar_number: fetchedData.aadhaar_number || '',
+    pan_number: fetchedData.pan_number || '',
+    shop_name: fetchedData.shop_name || '',
+    // registershop_name: fetchedData.registershop_name || 'Shop Name',
+    gst_number: fetchedData.gst_number || '',
+  };
+
+  console.log('initial details',initialDetails);
+  
+  setUserDetails(initialDetails);
 
         // Pre-fill form fields if profile is updated
-        if (loggedInUser?.is_profile_updated) {
-          Object.keys(updatedUserDetails).forEach((key) => {
-            setValue(key, updatedUserDetails[key]);
-          });
-        }
-      }
+        // if (loggedInUser?.is_profile_updated) {
+        //   Object.keys(updatedUserDetails).forEach((key) => {
+        //     setValue(key, updatedUserDetails[key]);
+        //   });
+        // }
+      
     };
     fetchAdditinalDetails();
   }, [loggedInUser, dispatch]);
@@ -200,7 +282,7 @@ console.log('hiii');
     }
   };
 
-console.log(loggedInUser);
+console.log('profile data',profileData);
 
 const handleEdit = () => {
   Object.keys(userDetails).forEach((key) => {
@@ -231,7 +313,7 @@ const handleEdit = () => {
                 <View key={key} style={styles.halfWidthContainer}>
                   <Text>{fieldLabels[key] || key}</Text>
                   <TextInput
-                    style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#9F86C0' }]}
+                    style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#F14242' }]}
                     value={userDetails[key]}
                     editable={false}
                   />
@@ -240,7 +322,7 @@ const handleEdit = () => {
           </View>
           
           ))}
-          <Button title="Edit" onPress={handleEdit} color="#9F86C0" />
+          <Button title="Edit" onPress={handleEdit} color="#F14242" />
         </>
       ) : (
         // Show form for input or editing
@@ -250,7 +332,7 @@ const handleEdit = () => {
               <Text>{fieldLabels[key] || key}</Text>
               {key === 'user_category' ? (
                 <TextInput
-                  style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#9F86C0' }]}
+                  style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#F14242' }]}
                   value={userDetails[key]}
                   editable={false} // Make user_category non-editable
                 />
@@ -328,7 +410,7 @@ const handleEdit = () => {
               )}
             </View>
           ))}
-          <Button title="Submit" onPress={handleSubmit(onSubmit)} color="#9F86C0" />
+          <Button title="Submit" onPress={handleSubmit(onSubmit)} color="#F14242" />
         </>
       )}
     </ScrollView>
@@ -344,7 +426,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
-    color: '#9F86C0',
+    color: '#F14242',
   },
   rowContainer: {
     flexDirection: 'row',
@@ -361,14 +443,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderRadius: 8,
-    borderColor: '#9F86C0',
+    borderColor: '#F14242',
     backgroundColor: '#f9f9f9',
     marginTop: 5,
   },
   picker: {
     height: 50, // Adjust height for better alignment
     borderWidth: 1,
-    borderColor: '#9F86C0',
+    borderColor: '#F14242',
     borderRadius: 8,
     backgroundColor: '#f9f9f9',
   },
