@@ -1,21 +1,42 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // Example icon libraries
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import profile from '../../assets/profile.png';
-const Header = ({ username = "User Name",user, location = "Location", avatarUrl, onNotificationsPress, onSettingsPress }) => {
-  console.log(user);
-    const navigation = useNavigation();
+const Header = ({ location = "Location", avatarUrl, onNotificationsPress, onSettingsPress }) => {
+ 
+  const [user, setUser] = useState(null);
+  const navigation = useNavigation();
   
   const onClickProfile =()=> {
     navigation.navigate('Profile');
 // console.log('pressed')
   }
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const userString = await AsyncStorage.getItem('user');
+        // console.log("User data from AsyncStorage:", userString);
+        if (userString) {
+          const user = JSON.parse(userString);
+          // console.log("Parsed user data:", user);
+          setUser(user);       
+          // console.log("User data set in state:", user);  
+        }
+      } catch (error) {
+        console.error('Error fetching user details from AsyncStorage:', error);
+      }
+    };
+    fetchUserDetails();
+  }, []);
+
+
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgb(255,0,0)' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgb(241, 66, 66)' }}>
       {/* Avatar */}
       <TouchableOpacity onPress={onClickProfile}>
       <Image
@@ -25,7 +46,7 @@ const Header = ({ username = "User Name",user, location = "Location", avatarUrl,
        </TouchableOpacity>
       {/* User Info */}
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}>{username}</Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}>{user ? `${user.first_name} ${user.last_name}` : ''}</Text>
         <Text style={{ fontSize: 14, color: 'white' }}>{location}</Text>
       </View>
       

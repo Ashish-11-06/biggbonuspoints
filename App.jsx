@@ -81,7 +81,8 @@ function App() {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <Stack.Navigator initialRouteName="Login">
+      {/* <Stack.Navigator initialRouteName="Login"> */}
+      <Stack.Navigator initialRouteName={initialRoute}>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />

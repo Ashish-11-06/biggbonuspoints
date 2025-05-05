@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, Button, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState('Samruddhi Manikeri');
-  const [email, setEmail] = useState('samruddhi@example.com');
-  const [phone, setPhone] = useState('9876543210');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [user, setUser] = useState(null);
 
   const handleEditToggle = () => {
     if (isEditing) {
@@ -13,6 +16,25 @@ const Profile = () => {
     }
     setIsEditing(!isEditing);
   };
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const userString = await AsyncStorage.getItem('user');
+        if (userString) {
+          const user = JSON.parse(userString);
+          setUser(user);
+          setFirstName(user.first_name);
+          setLastName(user.last_name);
+          setEmail(user.email);
+          setPhone(user.phone);
+        }
+      } catch (error) {
+        console.error('Error fetching user details from AsyncStorage:', error);
+      }
+    };
+    fetchUserDetails();
+  }, []);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -23,11 +45,28 @@ const Profile = () => {
       <Text style={styles.title}>Profile</Text>
 
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Name</Text>
+        <Text style={styles.label}>First Name</Text>
         {isEditing ? (
-          <TextInput style={styles.input} value={name} onChangeText={setName} />
+          <TextInput
+            style={styles.input}
+            value={firstName}
+            onChangeText={setFirstName}
+          />
         ) : (
-          <Text style={styles.value}>{name}</Text>
+          <Text style={styles.value}>{firstName}</Text>
+        )}
+      </View>
+
+      <View style={styles.fieldContainer}>
+        <Text style={styles.label}>Last Name</Text>
+        {isEditing ? (
+          <TextInput
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+          />
+        ) : (
+          <Text style={styles.value}>{lastName}</Text>
         )}
       </View>
 
