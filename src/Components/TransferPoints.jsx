@@ -21,7 +21,7 @@ import { Picker } from "@react-native-picker/picker";
 
 const TransferPoints = ({ route, navigation }) => {
   // Get both merchantId and merchantName from route params
-  const { merchantId, merchantName,fromTransferHome, fromSelectUser } = route.params;
+  const { merchantId, merchantName, fromTransferHome, fromSelectUser } = route.params;
   console.log(fromSelectUser);
   console.log('merchant id',merchantId);
   console.log('merchant name',merchantName);
@@ -37,7 +37,7 @@ const TransferPoints = ({ route, navigation }) => {
   });
   const [customerId, setCustomerId] = useState(null);
   const [terminalId,setTerminalId] = useState(null);
-  const receiverId=merchantId;
+  const receiverId = merchantId;
   const [merchant_Id,setMerchantId] =useState(null);
   console.log("Merchant ID:", receiverId);
   console.log("Merchant Name:", merchantName);

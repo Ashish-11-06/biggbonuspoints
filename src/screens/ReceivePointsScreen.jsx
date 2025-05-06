@@ -6,11 +6,13 @@ import QRCode from 'react-native-qrcode-svg';
 import { useDispatch } from 'react-redux';
 
 const ReceivePointsScreen = ({ route }) => {
+  
   const userId = route?.params?.userId || 'N/A';
-  const qrValue = `receive:${userId}`;
+  // const qrValue = `receive:${userId}`;
 
   const [loggedInUserId,setLoggedInUserId]=useState(null);
   const [user,setUser]=useState(null);
+  const [qrValue, setQrValue] = useState(`receive:${userId}`);
 
 
   useEffect(() => {
@@ -22,15 +24,9 @@ const ReceivePointsScreen = ({ route }) => {
           const user = JSON.parse(userString);
           console.log("Parsed user data:", user);
           setUser(user);
-          if(user.user_category === 'customer') {
-            setLoggedInUserId(user.customer_id);
-          }
-          if(user.user_category === 'merchant') {
-            setLoggedInUserId(user.merchant_id);
-          }
-          if(user.user_category === 'terminal') {
-            setLoggedInUserId(user.terminal_id);
-          }
+          setQrValue(`receive:${user.merchant_id || user.customer_id}`);
+          console.log("User data set in state:", user);
+          console.log("QR Value set in state:", qrValue);
         }
       } catch (error) {
         console.error('Error fetching user details from AsyncStorage:', error);
@@ -39,14 +35,17 @@ const ReceivePointsScreen = ({ route }) => {
     fetchUserDetails();
   }, []);
 
+  console.log("User data from dddd AsyncStorage:", user);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Scan this QR to Receive Points</Text>
+      <Text style={styles.title}>Scan this QR</Text>
       <QRCode
         value={qrValue}
         size={200}
       />
-      <Text style={styles.userId}>User ID: {loggedInUserId}</Text>
+      <Text style={styles.userId}>User ID: {user ? user.merchant_id || user.customer_id : ''}</Text>
+      <Text style={styles.userId}>User name: {user ? `${user.first_name} ${user.last_name} `: ''}</Text>
     </View>
   );
 };

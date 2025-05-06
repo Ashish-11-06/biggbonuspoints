@@ -168,6 +168,7 @@ const handleScanSuccess = async (qrData) => {
       }
     }
 
+    console.log('extractedData', extractedData);
     navigation.navigate("TransferPoints", {
       merchantId: extractedData,
       customerId: userDetails.id,
