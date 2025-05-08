@@ -70,7 +70,7 @@ const PaymentsHistory = ({ navigation }) => {
       <View style={styles.container}>
         {loading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#F14242" />
+            <ActivityIndicator size="large" color="#004BFF" />
           </View>
         ) : (
           <>
@@ -80,6 +80,7 @@ const PaymentsHistory = ({ navigation }) => {
                 <View style={[styles.row, styles.headerRow]}>
                   <Text style={styles.headerCell}>Merchant ID</Text>
                   <Text style={styles.headerCell}>Paid Amount</Text>
+                  <Text style={styles.headerCell}>Plan Type</Text>
                   <Text style={styles.headerCell}>Transaction ID</Text>
                   <Text style={styles.headerCell}>Payment Mode</Text>
                   <Text style={styles.headerCell}>Date</Text>
@@ -91,6 +92,11 @@ const PaymentsHistory = ({ navigation }) => {
                       <View key={index} style={styles.row}>
                         <Text style={styles.cell}>{item.merchant}</Text>
                         <Text style={styles.cell}>{item.paid_amount}</Text>
+                        <Text style={styles.cell}>
+  {item.plan_type === '2' ? 'Prepaid' : item.plan_type === '1' ? 'Rental' : 'N/A'}
+</Text>
+
+                        
                         <Text style={styles.cell}>{item.transaction_id}</Text>
                         <Text style={styles.cell}>{item.payment_mode}</Text>
                         <Text style={[styles.cell, styles.colCreatedAt]}>
@@ -157,7 +163,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
-    backgroundColor:'#F14242',
+    backgroundColor:'#004BFF',
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: 'center',

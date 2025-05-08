@@ -19,7 +19,11 @@ const ChangeMobileNo = () => {
   const [pin, setPin] = useState('');
   const [securityQuestion, setSecurityQuestion] = useState('');
   const [securityAnswer, setSecurityAnswer] = useState('');
-const [newMobile, setNewMobile] = useState('');
+  const [newMobile, setNewMobile] = useState('');
+  const [resendOtpVisible, setResendOtpVisible] = useState(false);
+  const [countdown, setCountdown] = useState(0); // Add countdown state
+  const [verifyLoading, setVerifyLoading] = useState(false); // Add loading state for OTP verification
+
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -54,6 +58,29 @@ const [newMobile, setNewMobile] = useState('');
   }, []);
 console.log('user',userDetails);
 
+  useEffect(() => {
+    if (isOtpSent) {
+      const timer = setTimeout(() => {
+        setResendOtpVisible(true);
+      }, 60000); // 1 minute
+
+      return () => clearTimeout(timer);
+    }
+  }, [isOtpSent]);
+
+  const startCountdown = () => {
+    setCountdown(30); // Set countdown to 30 seconds
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   const handleUpdate = async () => {
     if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
       Alert.alert("Invalid Number", "Please enter a valid 10-digit mobile number.");
@@ -85,47 +112,67 @@ console.log('user',userDetails);
     }
   
     setIsOtpSent(true);
-    Alert.alert("OTP Sent", "An OTP has been sent to your mobile number.");
+    // Alert.alert("OTP Sent", "An OTP has been sent to your mobile number.");
   };
 
-  const handleVerifyOtp =async () => {
+  const handleVerifyOtp = async () => {
     if (otp.length !== 6 || !/^\d+$/.test(otp)) {
       Alert.alert("Invalid OTP", "Please enter a valid 6-digit OTP.");
       return;
     }
+  
+    setVerifyLoading(true); // Start loader
     let data;
     if (userDetails.user_category === 'customer') {
-     data={
-      // request_id:requestId,
-      customer:userDetails.id,
-      new_mobile:newMobile,
-      new_mobile_otp:otp,
+      data = {
+        customer_id: userDetails.id,
+        new_mobile: newMobile,
+        new_mobile_otp: otp,
+      };
+    } else if (userDetails.user_category === 'merchant') {
+      data = {
+        new_mobile: Number(newMobile),
+        new_mobile_otp: Number(otp),
+        merchant_id: userDetails.id,
+      };
     }
-  } else if (userDetails.user_category === 'merchant') {
-    data={
-      new_mobile:newMobile,
-      new_mobile_otp:otp,
-      merchant:userDetails.id,
+  
+    const res = await dispatch(verifyNewNumber(data));
+    setVerifyLoading(false); // Stop loader
+  
+    if (res.message) {
+      Alert.alert('Success', res.message);
+      setIsOtpSent(false);
+      setMobile('');
+      setOtp('');
     }
-  }
+  
+    if (res.error) {
+      Alert.alert(res.error);
+      setIsOtpSent(false);
+      setMobile('');
+      setOtp('');
+      return;
+    }
+  };
 
-const res=await dispatch(verifyNewNumber(data));
-console.log('res',res);
-if(res.message) {
-  Alert.alert(res.message);
-  setIsOtpSent(false);
-  setMobile('');
-  setOtp('');
-}
-if(res.error) {
-  Alert.alert(res.error);
-  setIsOtpSent(false);
-  setMobile('');
-  setOtp('');
-  return;
-}
-    // Alert.alert("Success", `Your mobile number ${mobile} has been updated successfully.`);
-   
+  const handleResendOtp = async () => {
+    if (countdown > 0) return; // Prevent resending if countdown is active
+
+    let data = {
+      new_mobile: newMobile,
+      ...(userDetails.user_category === 'customer' ? { customer: userDetails.id } : { merchant: userDetails.id }),
+    };
+  
+    const res = await dispatch(addNewNumber(data));
+    console.log('Resend OTP response:', res);
+  
+    if (res?.payload.message) {
+      Alert.alert(res.payload.message);
+      startCountdown(); // Start countdown after resending OTP
+    }
+  
+    setResendOtpVisible(false);
   };
 
   return (
@@ -213,10 +260,31 @@ if(res.error) {
               maxLength={6}
             />
             <View style={styles.button}>
-              <TouchableOpacity style={styles.buttonBackground} onPress={handleVerifyOtp}>
-                <Text style={styles.buttonText}>Verify OTP</Text>
+              <TouchableOpacity
+                style={styles.buttonBackground}
+                onPress={handleVerifyOtp}
+                disabled={verifyLoading} // Disable button while loading
+              >
+                {verifyLoading ? (
+                  <Text style={styles.buttonText}>Verifying...</Text>
+                ) : (
+                  <Text style={styles.buttonText}>Verify OTP</Text>
+                )}
               </TouchableOpacity>
             </View>
+            {resendOtpVisible && (
+              <View style={styles.button}>
+                <TouchableOpacity
+                  style={styles.buttonBackground}
+                  onPress={handleResendOtp}
+                  disabled={countdown > 0} // Disable button during countdown
+                >
+                  <Text style={styles.buttonText}>
+                    {countdown > 0 ? `Resend OTP in ${countdown}s` : 'Resend OTP'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </>
         )}
 
@@ -274,7 +342,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   buttonBackground: {
-    backgroundColor: '#F14242',
+    backgroundColor: '#004BFF',
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',

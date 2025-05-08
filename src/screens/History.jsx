@@ -127,11 +127,11 @@ console.log('logged user',loggedInUser);
     <View style={{ flex: 1, padding: 16 }}>
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#F14242" />
+          <ActivityIndicator size="large" color="#004BFF" />
         </View>
       ) : (
         <>
-          <Text style={{ fontSize: 18, marginBottom: 10, textAlign: 'center' }}>
+          <Text style={{ fontSize: 22, marginBottom: 10, textAlign: 'center', color:'#F14242', fontWeight:'700' }}>
             Transaction History
           </Text>
           <ScrollView horizontal>
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9', // Alternating row color
   },
   header: {
-    backgroundColor: '#F14242', // Green header background
+    backgroundColor: '#004BFF', // Green header background
   },
   cell: {
     padding: 10,

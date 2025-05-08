@@ -13,6 +13,9 @@ const transferPointsApi = {
     merchantToMerchant:(transferData) => {
         return axiosInstance.post(`redeemAwardPoints/merchant-transfer/`, transferData);
     },
+    terminalToCust:(transferData) => {
+        return axiosInstance.post(`redeemAwardPoints/terminal-transfer-points/`,transferData)
+    }
 
 
 };

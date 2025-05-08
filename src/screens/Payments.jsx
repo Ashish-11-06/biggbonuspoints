@@ -96,13 +96,21 @@ import { RadioButton } from 'react-native-paper';
         return;
       }
   
-      const data = {
-        merchant:loggedInUser?.merchant_id,
-        paid_amount:paidAmount,
-        transaction_id:transactionId,
-        payment_mode:paymentMethod,
-        plan_type:choice
+      let plan_type;
+      if (choice === 'rental') {
+        plan_type = 1;
+      } else {
+        plan_type = 2;
       }
+      
+      const data = {
+        merchant: loggedInUser?.merchant_id,
+        paid_amount: paidAmount,
+        transaction_id: transactionId,
+        payment_mode: paymentMethod,
+        plan_type: plan_type,
+      };
+      
 
       console.log('data ', data);
 
@@ -240,7 +248,7 @@ import { RadioButton } from 'react-native-paper';
     },
     submitButton: {
       marginTop: 24,
-      backgroundColor: '#F14242',
+      backgroundColor: '#004BFF',
       paddingVertical: 12,
       borderRadius: 6,
       alignItems: 'center',

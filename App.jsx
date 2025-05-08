@@ -38,6 +38,7 @@ import Profile from './src/screens/Profile';
 import Payments from './src/screens/Payments';
 import PaymentsHistory from './src/screens/PaymentsHistory';
 import Cashout from './src/screens/Cashout';
+import Notifications from './src/screens/Notifications';
 const Stack = createStackNavigator();
 
 function App() {
@@ -107,6 +108,7 @@ function App() {
         <Stack.Screen name="Payments" component={Payments} options={{ headerShown: false }} />
         <Stack.Screen name="PaymentsHistory" component={PaymentsHistory} options={{ headerShown: false }} />
         <Stack.Screen name="Cashout" component={Cashout} options={{ headerShown: false }} />
+        <Stack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
 
       </Stack.Navigator>
     </NavigationContainer>

@@ -198,7 +198,7 @@ renderActionButton(
   }}>
     {userCategory !== 'terminal' &&
             renderActionButton(
-              require('../../assets/bank1.png'), // Updated to blue theme
+              require('../../assets/yourDetails.png'), // Updated to blue theme
               'Your Details',
               () => navigation.navigate("MerchantForm"),
               { width: 35, height: 35 } // Custom dimensions
@@ -220,7 +220,7 @@ renderActionButton(
 
 { userCategory === 'customer'  && (
   renderActionButton(
-    require('../../assets/bank1.png'), // Updated to blue theme
+    require('../../assets/cashout.png'), // Updated to blue theme
     'Cashout Points',
     () => navigation.navigate('Cashout'),
     { width: 35, height: 35 } // Custom dimensions
