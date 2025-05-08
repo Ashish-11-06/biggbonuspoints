@@ -34,8 +34,9 @@ import BankDetails from './src/screens/BankDetails';
 import HelpSection from './src/screens/HelpSection';
 import ChangeMobileNo from './src/screens/ChangeMobileNo';
 import ReceivePointsScreen from './src/screens/ReceivePointsScreen';
-import selectuser from './src/screens/selectuser';
-
+import selectuser from './src/screens/SelectUser';
+import paymentsHistory from './src/screens/paymentsHistory';
+import Payments from './src/screens/Payments';
 const Stack = createStackNavigator();
 
 function App() {
@@ -92,8 +93,17 @@ function App() {
             <Stack.Screen name="MerchantForm" component={MerchantForm} options={{ headerShown: false }} />
             <Stack.Screen name="RedeemPoints" component={RedeemPoints} options={{ headerShown: false }} />
             <Stack.Screen name="TransferPoints" component={TransferPoints} options={{ headerShown: false }} />
-            <Stack.Screen name="ReceivePoints" component={ReceivePointsScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="SelectUser" component={selectuser} options={{ headerShown: false }} />
+            <Stack.Screen name="ReceivePointsScreen" component={ReceivePointsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="SelectUser" component={SelectUser} options={{ headerShown: false }} />
+            <Stack.Screen name="HelpSection" component={HelpSection} options={{ headerShown: false }} />
+            <Stack.Screen name="ChangeMobileNo" component={ChangeMobileNo} options={{ headerShown: false }} />
+            <Stack.Screen name="BankDetails" component={BankDetails} options={{ headerShown: false }} />
+            <Stack.Screen name="transfer" component={transfer} options={{ headerShown: false }} />
+            <Stack.Screen name="Transferpointstomerchant" component={Transferpointstomerchant} options={{ headerShown: false }} />
+            <Stack.Screen name="History" component={History} options={{ headerShown: false }} />
+            {/* <Stack.Screen name="SelectUser" component={SelectUser} options={{ headerShown: false }} /> */}
+            <Stack.Screen name="Payments" component={Payments} options={{ headerShown: false }} />
+            <Stack.Screen name="paymentsHistory" component={paymentsHistory} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>

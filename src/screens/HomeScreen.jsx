@@ -182,9 +182,17 @@ console.log(userDetails);
               'Additional Details',
               () => navigation.navigate("MerchantForm"),
               { width: 35, height: 35 } // Custom dimensions
+            )} 
+            {renderActionButton(
+              require('../../assets/bank1.png'), // Updated to blue theme
+              'Payments',
+              () => navigation.navigate("paymentsHistory"),
+              { width: 35, height: 35 } // Custom dimensions
             )}
-          </View>
+          </View>    
         </View>
+         
+        
       </Card>
     </ScrollView>
   );
