@@ -6,13 +6,17 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
 
 import profile from '../../assets/profile.png';
-const Header = ({ username = "User Name",user, location = "Location", avatarUrl, onNotificationsPress, onSettingsPress }) => {
+const Header = ({ username = "User Name",user, location = "Location", avatarUrl, onSettingsPress }) => {
   console.log(user);
     const navigation = useNavigation();
   
   const onClickProfile =()=> {
     navigation.navigate('Profile');
 // console.log('pressed')
+  }
+
+  const onNotificationsPress = () => {
+    navigation.navigate('Notifications');
   }
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgb(255,0,0)' }}>
@@ -30,10 +34,10 @@ const Header = ({ username = "User Name",user, location = "Location", avatarUrl,
       </View>
       
       {/* Notification Icon */}
-      {/* <TouchableOpacity onPress={onNotificationsPress} style={{ marginHorizontal: 10 }}>
+      <TouchableOpacity onPress={onNotificationsPress} style={{ marginHorizontal: 10 }}>
       <Image source={require('../../assets/notification.png')} style={{ width: 24, height: 24 }} />
-      {/* <MaterialIcons name="../../assets/notification.png" size={24} color="white" /> Change icon here */}
-      {/* </TouchableOpacity> */} 
+       {/* <MaterialIcons name="../../assets/notification.png" size={24} color="white" />  */}
+      </TouchableOpacity> 
       
       {/* Settings Icon */}
       {/* <TouchableOpacity onPress={onSettingsPress}>

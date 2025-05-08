@@ -313,7 +313,7 @@ const handleEdit = () => {
                 <View key={key} style={styles.halfWidthContainer}>
                   <Text>{fieldLabels[key] || key}</Text>
                   <TextInput
-                    style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#F14242' }]}
+                    style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#004BFF' }]}
                     value={userDetails[key]}
                     editable={false}
                   />
@@ -322,7 +322,7 @@ const handleEdit = () => {
           </View>
           
           ))}
-          <Button title="Edit" onPress={handleEdit} color="#F14242" />
+          <Button title="Edit" onPress={handleEdit} color="#004BFF" />
         </>
       ) : (
         // Show form for input or editing
@@ -332,7 +332,7 @@ const handleEdit = () => {
               <Text>{fieldLabels[key] || key}</Text>
               {key === 'user_category' ? (
                 <TextInput
-                  style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#F14242' }]}
+                  style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#004BFF' }]}
                   value={userDetails[key]}
                   editable={false} // Make user_category non-editable
                 />
@@ -410,7 +410,7 @@ const handleEdit = () => {
               )}
             </View>
           ))}
-          <Button title="Submit" onPress={handleSubmit(onSubmit)} color="#F14242" />
+          <Button title="Submit" onPress={handleSubmit(onSubmit)} color="#004BFF" />
         </>
       )}
     </ScrollView>
@@ -443,14 +443,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderRadius: 8,
-    borderColor: '#F14242',
+    borderColor: '#004BFF',
     backgroundColor: '#f9f9f9',
     marginTop: 5,
   },
   picker: {
     height: 50, // Adjust height for better alignment
     borderWidth: 1,
-    borderColor: '#F14242',
+    borderColor: '#004BFF',
     borderRadius: 8,
     backgroundColor: '#f9f9f9',
   },

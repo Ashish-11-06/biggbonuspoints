@@ -224,7 +224,7 @@ console.log('storageeee ',storageData);
             value="mobile"
             status={choice === 'mobile' ? 'checked' : 'unchecked'}
             onPress={() => setChoice('mobile')}
-            color="#F14242" // Updated checked color
+            color="#004BFF" // Updated checked color
           />
           <Text 
             style={styles.radioLabel} 
@@ -237,7 +237,7 @@ console.log('storageeee ',storageData);
             value="Merchant_id"
             status={choice === 'merchant_id' ? 'checked' : 'unchecked'}
             onPress={() => setChoice('merchant_id')}
-            color="#F14242" // Updated checked color
+            color="#004BFF" // Updated checked color
           />
           <Text 
             style={styles.radioLabel} 
@@ -294,8 +294,7 @@ console.log('storageeee ',storageData);
         value={terminal}
         onChangeText={(text) => setTerminal(text.replace(/[^a-zA-Z0-9]/g, ""))}
         // maxLength={10}
-        style={styles.input}
-    />
+        style={[styles.input, { borderColor: "#F14242" }]}    />
 )}
 
 
@@ -386,11 +385,11 @@ const styles = StyleSheet.create({
     input: {
         marginBottom: 15,
         backgroundColor: "white",
-        borderColor: "#F14242",
+        borderColor: "#004BFF !importatnt",
     },
     pickerContainer: {
         borderWidth: 1,
-        borderColor: "#F14242",
+        borderColor: "#004BFF",
         borderRadius: 4,
         marginBottom: 15,
         overflow: "hidden",
@@ -403,7 +402,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         paddingVertical: 5,
         borderRadius: 4,
-        backgroundColor:'#F14242'
+        backgroundColor:'#004BFF'
     },
     buttonLabel: {
         fontSize: 16,

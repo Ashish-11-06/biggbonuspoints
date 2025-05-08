@@ -67,6 +67,27 @@ export const merchantToCustomerPoints = createAsyncThunk(
     }
   }
 );
+export const terminalToCustomerPoints = createAsyncThunk(
+  "points/transferTerminal",
+  async (transferData, { rejectWithValue }) => {
+    console.log("Transfer data terminal to cust:", transferData);
+    
+    try {
+      const response = await transferPointsApi.terminalToCust(transferData);
+      
+      console.log("Transfer response terminal to cust:", response);
+
+      if (response.status === 200 && response.data) {
+        return response.data;
+    } else if (response.status === 400) {
+        console.log("Transfer error:", response.data.error);
+        return rejectWithValue(response.data.error || "transfer failed!"); 
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
 export const merchantToMerchantPoints = createAsyncThunk(
   "points/transferMerchant",

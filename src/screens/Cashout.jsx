@@ -272,7 +272,7 @@ const handleCashoutMerchant = () => {
 
       {/* Total Points */}
       <View style={styles.totalPointsContainer}>
-        <Text style={styles.totalPointsLabel}>Total Available Points</Text>
+        <Text style={styles.totalPointsLabel}>Your Eligible Points Balance</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
   <Text style={styles.totalPointsValue}>
     {userCategory === 'customer'
@@ -368,7 +368,7 @@ const handleCashoutMerchant = () => {
       <Button onPress={handleCancelModal} textColor="#e53e3e">
         Cancel
       </Button>
-      <Button onPress={submitCashout} mode="contained" buttonColor="#F14242">
+      <Button onPress={submitCashout} mode="contained" buttonColor="#004BFF">
         Submit
       </Button>
     </Dialog.Actions>
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
       width: 24,
     },
     totalPointsContainer: {
-      backgroundColor: '#F14242',
+      backgroundColor: '#004BFF',
       borderRadius: 12,
       padding: 20,
       margin: 20,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: '#F14242',
+      backgroundColor: '#004BFF',
       padding: 12,
       borderRadius: 8,
       marginVertical: 8,
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
           fontSize: 16,
         },
         submitButton: {
-          backgroundColor: '#F14242',
+          backgroundColor: '#004BFF',
           padding: 14,
           borderRadius: 8,
           alignItems: 'center',

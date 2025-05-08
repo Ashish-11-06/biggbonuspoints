@@ -13,7 +13,7 @@ const PointsApi = {
     } ,
     viewTerminalPoints:(id) => {
         console.log('data in api',id); 
-        return axiosInstance.get(`api/redeemAwardPoints/terminal-customer-points/?terminal_id=${id}`)
+        return axiosInstance.get(`redeemAwardPoints/terminal-customer-points/?terminal_id=${id}`)
     }
 };
 

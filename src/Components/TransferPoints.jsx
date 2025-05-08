@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from "react-redux";
-import { customerToCustomerPoints, customerToMerchantPoints, merchantToCustomerPoints, merchantToMerchantPoints, resetTransferState } from "../Redux/slices/TransferPointsSlice";
+import { customerToCustomerPoints, customerToMerchantPoints, merchantToCustomerPoints, merchantToMerchantPoints, resetTransferState, terminalToCustomerPoints } from "../Redux/slices/TransferPointsSlice";
 import { useNavigation } from '@react-navigation/native';
 import { fetchCustomerPoints, fetchMerchantPoints } from "../Redux/slices/pointsSlice";
 import { Picker } from "@react-native-picker/picker";
@@ -32,6 +32,7 @@ const TransferPoints = ({ route, navigation }) => {
   const [userDetails, setUserDetails] = useState({});
   const [pointsData,setPointsData]=useState([]);
   const [terminalMerchant,setTerminalMerchant] = useState(null);
+  const [corporateId,setCorporateId] = useState(null);
   const [merchantDetails, setMerchantDetails] = useState({
     name: merchantName || `Merchant ${receiverId}` // Use passed name or fallback
   });
@@ -46,7 +47,46 @@ const TransferPoints = ({ route, navigation }) => {
   const nav = useNavigation();
   const [user,setUser]=useState(null);
 
+  const fetchDetails = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('user');
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        console.log("Parsed user data:", parsedData);
+        if (parsedData.user_category === 'customer') {
+          setCustomerId(parsedData.customer_id);
+        }
+        if (parsedData.user_category === 'merchant') {
+          setMerchantId(parsedData.merchant_id);
+        } 
+        if (parsedData.user_category === 'merchant' && parsedData.user_type === "corporate") {
+          setMerchantId(parsedData.merchant_id);
+          setCorporateId(parsedData.corporate_id)
+        } 
+       
+        if (parsedData.user_category === 'terminal') {
+          setTerminalId(parsedData.terminal_id);
+          console.log('terminal merchantt', parsedData.merchant_id);
+          setTerminalMerchant(parsedData.merchant_id);
+        }
+        setUserCategory(parsedData.user_category);
+        setUserDetails({
+          name: `Customer ${parsedData.customer_id}`,
+          pin: parsedData.pin
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching details:", error);
+    }
+  };
 
+  useEffect(() => {
+    fetchDetails(); // Call fetchDetails on page load
+
+    return () => {
+      dispatch(resetTransferState());
+    };
+  }, []);
   // Set header options
   useEffect(() => {
     nav.setOptions({
@@ -116,45 +156,7 @@ const merchantSections = Object.values(merchantData).map(merchant => ({
 console.log('user data',userDetails);
 console.log('merchant section',merchantSections)
 
-  useEffect(() => {
-    const fetchDetails = async () => {
-      try {
-        const userData = await AsyncStorage.getItem('user');
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          console.log("Parsed user data:", parsedData);
-          if(parsedData.user_category === 'customer') { 
-            setCustomerId(parsedData.customer_id);
-          }
-          if(parsedData.user_category === 'merchant') { 
-            setMerchantId(parsedData.merchant_id);
-          } 
-          if(parsedData.user_category === 'terminal') { 
-            setTerminalId(parsedData.terminal_id);
-            console.log('terminal merchantt',parsedData.merchant_id);
-            setTerminalMerchant(parsedData.merchant_id);
-          }
-          setUserCategory(parsedData.user_category);
-            setUserDetails({
-              name: `Customer ${parsedData.customer_id}`,
-              pin:parsedData.pin
-            });
-          }
-        }
-        
-        // No need to set merchant name here as we're using the passed value
-       catch (error) {
-        console.error("Error fetching details:", error);
-        // Alert.alert("Error", "Failed to load user data");
-      }
-    };
-    
-    fetchDetails();
-
-    return () => {
-      dispatch(resetTransferState());
-    };
-  }, [receiverId, dispatch]);
+ 
 
   const navigateToHome = () => {
     navigation.navigate('Home');
@@ -202,33 +204,59 @@ console.log('terminal id',terminalId);
           } else if ((userCategory === 'merchant' || userCategory === 'terminal') && !fromTransferHome && !fromSelectUser) {
             console.log('hello merchant to customer');
            let requestData;
-            if(userCategory === 'merchant') {
-               requestData = {
-                customer_id: receiverId,
+           let response;
+            if(userCategory === 'merchant' ) {
+              console.log();
+              
+              if(corporateId) {
+                requestData = {
+                  customer_id: receiverId,
                 merchant_id: merchant_Id,
-                pin,
-                points: parseInt(points),
-                ...(user?.corporate_id && { corporate_id: user.corporate_id })  // Add only if exists
-              };
+                corporate_id:corporateId,
+                purchased_amt:parseInt(points),
+                pin:pin
+
+                }
+              } else {
+                requestData = {
+                 customer_id: receiverId,
+                 merchant_id: merchant_Id,
+                 pin,
+                 purchased_amt: parseInt(points),
+                //  ...(user?.corporate_id && { corporate_id: user.corporate_id })  // Add only if exists
+               };
+              }
+              console.log('request data');
+              
+               response = await dispatch(merchantToCustomerPoints(requestData)).unwrap();
+              console.log('response merchant to cust', response);
+              
             } else {
               requestData = {
                 customer_id: receiverId,
                 merchant_id: terminalMerchant,
                 terminal_id:terminalId,
-                pin,
+                tid_pin:pin,
                 points: parseInt(points),
               }
+              response = await dispatch(terminalToCustomerPoints(requestData)).unwrap();
             }
            
           console.log('request data',requestData);
           
-            const response = await dispatch(merchantToCustomerPoints(requestData)).unwrap();
           
             console.log("Transfer response:", response);
             if (response.message) {
-              Alert.alert(response.message 
-                || "Points awarded successfully");
+              Alert.alert(
+                'Success',
+                response.message || "Points awarded successfully",
+                 // This is the alert body; leave empty or customize
+                [
+                  { text: 'OK', onPress: navigateToHome }
+                ]
+              );
             }
+            
           }
            else if ((userCategory === 'merchant' && fromSelectUser) || (userCategory === 'merchant' && fromTransferHome)  ) {
             const response = await dispatch(merchantToMerchantPoints({
@@ -242,9 +270,14 @@ console.log('terminal id',terminalId);
   
             console.log("Transfer response:", response);
             Alert.alert(
-              "Success", // title (safe to be static)
-              response.message || "Points transferred successfullyyy" // message
+              'Success',
+              response.message || "Points transferred successfully",
+               // This is the alert body; leave empty or customize
+              [
+                { text: 'OK', onPress: navigateToHome }
+              ]
             );
+            
           } else if ((userCategory === 'customer' && fromSelectUser) || (userCategory === 'customer' && fromTransferHome)) {
             const response = await dispatch(customerToCustomerPoints({
               receiver_customer_id: receiverId,
@@ -256,7 +289,9 @@ console.log('terminal id',terminalId);
   
             console.log("Transfer response:", response);
             if(response.message) {
-              Alert.alert(response.message 
+              Alert.alert(
+                "success",
+                response.message 
                 || 'Points transferred successfullyyy')
             }
           }
@@ -415,7 +450,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
   },
   transferButton: {
-    backgroundColor: "#F14242",
+    backgroundColor: "#004BFF",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
@@ -431,10 +466,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#F14242",
+    borderColor: "#004BFF",
   },
   cancelButtonText: {
-    color: "#F14242",
+    color: "#004BFF",
     fontSize: 16,
     fontWeight: "bold",
   },

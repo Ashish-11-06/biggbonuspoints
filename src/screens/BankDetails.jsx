@@ -151,16 +151,30 @@ console.log(userDetails);
     Alert.alert("Bank Details Updated", `Account Holder: ${formData.accountHolder}`);
   };
 
-  if (!isEditing && bankData) {
-    return (
-      <View style={styles.container}>
+console.log('form dataaa',formData);
+console.log('bank data',bankData);
+console.log('bank details',bankDetails)
+
+if (!isEditing && bankData) {
+  return (
+    <View style={styles.container}>
       <Text style={styles.heading}>Bank Details</Text>
 
       {loading ? (
         // Show loader while loading
         <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#F14242" />
+          <ActivityIndicator size="large" color="#004BFF" />
         </View>
+      ) : Object.values(formData).every((value) => value === '') ? (
+        // Show message if formData is empty
+       
+        <View style={styles.noDataContainer}>
+          <Text style={styles.noDataText}>No bank details available.</Text>
+        {userCategory !== 'terminal' && 
+           <Button title="Add Details" onPress={handleEdit} color="#004BFF" />
+        }
+        </View>
+     
       ) : (
         // Show bank details after loading
         <View>
@@ -168,7 +182,6 @@ console.log(userDetails);
             <Text style={styles.label}>Account Holder:</Text>
             <Text style={styles.value}>{bankData.accountHolder}</Text>
           </View>
-
           <View style={styles.detailContainer}>
             <Text style={styles.label}>Account Number:</Text>
             <Text style={styles.value}>{bankData.accountNumber}</Text>
@@ -191,7 +204,7 @@ console.log(userDetails);
 
         {userCategory !== 'terminal' ? (
           <View style={styles.buttonContainer}>
-            <Button title="Edit" onPress={handleEdit} color="#F14242" />
+            <Button title="Edit" onPress={handleEdit} color="#004BFF" />
           </View>
       ) : null}
         </View>
@@ -200,8 +213,7 @@ console.log(userDetails);
   
     );
   }
-
-  return (
+ return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.heading}>Bank Details</Text>
 
@@ -248,7 +260,7 @@ console.log(userDetails);
       />
 
       <View style={styles.buttonContainer}>
-        <Button title="Submit" onPress={handleSubmit} color="#F14242" />
+        <Button title="Submit" onPress={handleSubmit} color="#004BFF" />
       </View>
     </ScrollView>
   );
@@ -296,7 +308,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 2,
     borderLeftWidth: 4,
-    borderLeftColor: '#F14242',
+    borderLeftColor: '#004BFF',
   },
   value: {
     fontSize: 16,
@@ -307,6 +319,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignSelf: 'center',
     width: '60%',
+  },
+  noDataContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  noDataText: {
+    fontSize: 18,
+    color: '#888',
+    marginBottom:'120px'
   },
 });
 

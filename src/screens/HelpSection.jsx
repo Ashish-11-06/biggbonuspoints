@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     height: 100, // Increased height for the input box
   },
   button: {
-    backgroundColor: '#F14242',
+    backgroundColor: '#004BFF',
     padding: 12,
     borderRadius: 10,
     alignItems: 'center',

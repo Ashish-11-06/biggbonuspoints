@@ -167,7 +167,7 @@ console.log('Logged PIN:', loggedPin, typeof loggedPin);
                 try {
                     const response = await dispatch(fetchTerminalPoints(terminalId)).unwrap();
                     console.log(response);
-                    if (fromChooseMerchant && userCategory === 'merchant') {
+                    if (fromChooseMerchant && userCategory === 'terminal') {
                         navigation.navigate('TransferPoints', {
                             merchantId: userId, // Pass userId as merchantId
                             merchantName: userName, // Pass userName as merchantName
@@ -182,12 +182,14 @@ console.log('Logged PIN:', loggedPin, typeof loggedPin);
                     //     });
                     // }
                      else {
-                        console.log('pointsssss',response.points_data);
+                        console.log('pointsssss',response.total_points);
                         
                         navigation.navigate('ShowPoints', {
-                            points: response.points_data,
+                            points: response.total_points,
                             merchantId: null,
                             merchantName: null,
+                            fromTerminal:true,
+                            userCategory :userCategory
                         });
                     }
                     console.log("Fetched points:", response.merchant_points);
@@ -321,7 +323,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 40,
-        backgroundColor: '#F14242',
+        backgroundColor: '#004BFF',
     },
     tickText: {
         fontSize: 30,

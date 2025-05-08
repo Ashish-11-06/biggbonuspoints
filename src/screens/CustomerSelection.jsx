@@ -74,7 +74,7 @@ console.log('user category',userCategory);
   if (status === "loading") {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#F14242"/>
+        <ActivityIndicator size="large" color="#004BFF"/>
         <Text>{userCategory === "merchant" ? "Loading customers..." : "Loading merchants..."}</Text>
       </View>
     );
@@ -122,9 +122,9 @@ console.log('user category',userCategory);
           <TouchableOpacity
             style={{ padding: 15, borderBottomWidth: 1, borderColor: "#ccc" }}
             onPress={() =>
-              navigation.navigate("PointsScreen", {
-                userId: item.user_id,
-                userName: `${item.first_name || ''} ${item.last_name || ''}`.trim(), // Correctly pass userName
+              navigation.navigate("TransferPoints", {
+                merchantId: item.user_id,
+                merchantName: `${item.first_name || ''} ${item.last_name || ''}`.trim(), // Correctly pass userName
                 userMobile: item.mobile || 'No phone',
                 userShop: item.shop_name || null,
                 fromChooseMerchant: true // Custom variable
@@ -156,7 +156,7 @@ console.log('user category',userCategory);
           style={{
             padding: 15,
             marginTop: 10,
-            backgroundColor: "#F14242",
+            backgroundColor: "#004BFF",
             borderRadius: 10,
           }}
           onPress={() =>
