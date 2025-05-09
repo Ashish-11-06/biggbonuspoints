@@ -2,25 +2,17 @@ import React, { useState,useEffect } from "react";
 import { View, TextInput, FlatList, Text, TouchableOpacity } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllCustomers, getAllMerchants } from "../Redux/slices/userSlice";
+import { getAllCustomers, getAllMerchants, getAllCorporateMerchants } from "../Redux/slices/userSlice";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
-const contacts = [
-  { id: "1", name: "customer1", phone: "8080252251" },
-  { id: "2", name: "customer2", phone: "9764181163" },
-  { id: "3", name: "customer3", phone: "9822878861" },
-  { id: "4", name: "customer4", phone: "9422204705" },
-  { id: "5", name: "customer5", phone: "1234567890" },
-  { id: "6", name: "customer6", phone: "7840910538" },
-  { id: "7", name: "customer7", phone: "8999649495" },
-];
+
 
 const CustomerSelection = ({ navigation }) => {
   const dispatch = useDispatch();
   const [searchText, setSearchText] = useState("");
   const [filteredContacts, setFilteredContacts] = useState([]);
   const route = useRoute();
-  const { userCategory } = route.params;
+  const { userCategory, chooseCorporateMerchant } = route.params;
   // Get merchants and customers from Redux state with default empty arrays
   const { merchants = [], customers = [], status, error } = useSelector((state) => state.user);
 console.log('user category',userCategory);
@@ -33,19 +25,26 @@ console.log('user category',userCategory);
     const fetchData = async () => {
       try {
         if (userCategory === "customer") {
-          const res = dispatch(getAllMerchants());
-          // const res = dispatch(getAllCustomers());
-          console.log("Fetched Merchants:", res);
+          if (!chooseCorporateMerchant) {
+            const res = await dispatch(getAllMerchants());
+            console.log(`fetched merchants ${res}`);
+          } else {
+            const res = await dispatch(getAllCorporateMerchants());
+            console.log(`fetched merchants ${res}`);
+          }
+         
         } else {
-          const res = dispatch(getAllCustomers());
-          console.log("Fetched Customers:", res);
+          await dispatch(getAllCustomers());
+          console.log("Fetched Customers");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
+  
     fetchData();
   }, [dispatch, userCategory]);
+  
 
   const handleSearch = (text) => {
     setSearchText(text);

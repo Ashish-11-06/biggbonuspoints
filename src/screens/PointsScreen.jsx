@@ -10,7 +10,7 @@ const PointsScreen = ({ route }) => {
     const [loggedInUserId, setLoggedInUserId] = useState(null);
     const navigation = useNavigation();
     const dispatch = useDispatch();
-    const { customerPoints, status, error } = useSelector(state => state.customerPoints);
+    const { status, error } = useSelector(state => state.customerPoints);
     const { merchantId, merchantName, fromChooseMerchant, userName, userMobile, userShop, fromRedeem, onPinEntered, fromHomeScreen} = route.params;
     const userId = route.params.userId; // Extract userId from route params
     const [userCategory, setUserCategory] = useState(null);

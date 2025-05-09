@@ -6,12 +6,12 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
 
 import profile from '../../assets/profile.png';
-const Header = ({ username = "User Name",user, location = "Location", avatarUrl, onSettingsPress }) => {
+const Header = ({ user, location = "Location", avatarUrl, onSettingsPress }) => {
   console.log(user);
     const navigation = useNavigation();
   
   const onClickProfile =()=> {
-    navigation.navigate('Profile');
+    navigation.navigate('MerchantForm');
 // console.log('pressed')
   }
 

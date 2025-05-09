@@ -2,7 +2,7 @@ import { create } from 'apisauce';
 import Reactotron from 'reactotron-react-native';
 
 const axiosInstance = create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: 'http://192.168.1.62:8000/api',
   headers: {
     'Content-Type': 'application/json',
 },

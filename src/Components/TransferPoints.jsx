@@ -14,14 +14,14 @@ import {
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from "react-redux";
-import { customerToCustomerPoints, customerToMerchantPoints, merchantToCustomerPoints, merchantToMerchantPoints, resetTransferState, terminalToCustomerPoints } from "../Redux/slices/TransferPointsSlice";
+import { customerToCustomerPoints, customerToMerchantPoints, merchantToCustomerPoints, merchantToMerchantPoints, resetTransferState, terminalToCustomerPoints, customerToCorporatePoints } from "../Redux/slices/TransferPointsSlice";
 import { useNavigation } from '@react-navigation/native';
 import { fetchCustomerPoints, fetchMerchantPoints } from "../Redux/slices/pointsSlice";
 import { Picker } from "@react-native-picker/picker";
 
 const TransferPoints = ({ route, navigation }) => {
   // Get both merchantId and merchantName from route params
-  const { merchantId, merchantName, fromTransferHome, fromSelectUser } = route.params;
+  const { merchantId, merchantName, fromTransferHome, fromSelectUser, fromCorporateQR } = route.params;
   console.log(fromSelectUser);
   console.log('merchant id',merchantId);
   console.log('merchant name',merchantName);
@@ -184,7 +184,7 @@ console.log('terminal id',terminalId);
         try {
           console.log("PIN entered:", pin);
   
-          if (userCategory === 'customer' && !fromTransferHome && !fromSelectUser) {
+          if (userCategory === 'customer' && !fromTransferHome && !fromSelectUser && !fromCorporateQR) {
             const response = await dispatch(customerToMerchantPoints({
               customer_id: customerId,
               merchant_id: receiverId,
@@ -293,6 +293,37 @@ console.log('terminal id',terminalId);
                 "success",
                 response.message 
                 || 'Points transferred successfullyyy')
+            }
+          }
+          else if (userCategory === 'customer' && fromCorporateQR) {
+            // Check if the customer_id starts with "C"
+            if (receiverId.startsWith('C')) {
+              Alert.alert(
+                "Error",
+                "Please scan a valid QR code. If you want to transfer points to a customer, then select the 'Transfer Points' option from the home screen.",
+                [
+                  {
+                    text: "OK",
+                    onPress: () => navigation.navigate('Home') // Navigate to the home screen
+                  }
+                ]
+              );
+              return; // Prevent further execution
+            }
+          
+            const response = await dispatch(customerToCorporatePoints({
+              merchant_id: receiverId,
+              customer_id: customerId,
+              pin,
+              points: parseInt(points),
+            })).unwrap();
+          
+            console.log("Transfer response:", response);
+            if (response.message) {
+              Alert.alert(
+                "Success",
+                response.message || 'Points transferred successfully'
+              );
             }
           }
   

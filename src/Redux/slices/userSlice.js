@@ -74,6 +74,23 @@ export const getAllMerchants = createAsyncThunk(
   }
 );
 
+export const getAllCorporateMerchants = createAsyncThunk(
+  "user/getAllCorporateMerchants",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await userApi.getAllCorporateMerchants();
+      console.log('get all merchants',response);
+      
+      if (response.status === 200 && response.data) {
+        return response.data;
+      }
+      return rejectWithValue(response.data.error || "Failed to fetch merchants");
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message || "An error occurred");
+    }
+  }
+);
+
 export const getAllCustomers = createAsyncThunk(
   "user/getAllCustomers",
   async (_, { rejectWithValue }) => {
@@ -168,7 +185,21 @@ const userSlice = createSlice({
         state.status = "failed";
         state.error = action.payload;
       })
-      
+
+       // Get All Merchants
+       .addCase(getAllCorporateMerchants.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(getAllCorporateMerchants.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.merchants = action.payload.users;
+      })
+      .addCase(getAllCorporateMerchants.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+
       // Get All Customers
       .addCase(getAllCustomers.pending, (state) => {
         state.status = "loading";

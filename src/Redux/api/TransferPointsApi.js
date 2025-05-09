@@ -15,9 +15,10 @@ const transferPointsApi = {
     },
     terminalToCust:(transferData) => {
         return axiosInstance.post(`redeemAwardPoints/terminal-transfer-points/`,transferData)
+    },
+    customerToCorporate:(transferData) => {
+        return axiosInstance.post(`redeemAwardPoints/corporate/redeem/`, transferData);
     }
-
-
 };
 
 export default transferPointsApi;

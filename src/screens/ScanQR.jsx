@@ -28,6 +28,7 @@ const ScanQR = () => {
   const route = useRoute();
   const fromTransferHome = route.params?.fromTransferHome;
   const fromScanQR = route.params?.fromScanQR;
+  const fromCorporateQR = route.params?.fromCorporateQR;
 
   console.log('from fromScanQRe',fromScanQR);
   console.log('from transfer homee',fromTransferHome);
@@ -167,12 +168,13 @@ const handleScanSuccess = async (qrData) => {
         return;
       }
     }
-
+    
     console.log('extractedData', extractedData);
     navigation.navigate("TransferPoints", {
       merchantId: extractedData,
       customerId: userDetails.id,
-      fromTransferHome: fromTransferHome
+      fromTransferHome: fromTransferHome,
+      fromCorporateQR: fromCorporateQR,
     });
 
     setScannedData(null);

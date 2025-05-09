@@ -19,6 +19,9 @@ const userApi = {
     getAllMerchants: () => {
         return axiosInstance.get('fetch-users/?user_type=merchant');
     },
+    getAllCorporateMerchants: () => {
+        return axiosInstance.get('fetch-users/?user_type=corporate');
+    },
     getAllCustomers: () => {
         return axiosInstance.get('fetch-users/?user_type=customer');
     },
