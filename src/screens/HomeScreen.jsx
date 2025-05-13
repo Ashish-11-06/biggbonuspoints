@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { Avatar, Text, Button, Card, IconButton, BottomNavigation } from 'react-native-paper';
@@ -78,7 +76,7 @@ const HomeScreen = () => {
       </View>
 
       {/* Award Points Section */}
-      <Card style={{ margin: 10, marginBottom: 2, padding: 10, marginTop: 90 }}>
+      <Card style={{ margin: 10, marginBottom: 2, padding: 10, marginTop: 90, backgroundColor: '#fff5f5' }}>
         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
           {userCategory === 'customer' ? 'Redeem Points' : 'Award Points'}
         </Text>
@@ -96,8 +94,8 @@ const HomeScreen = () => {
             {renderActionButton(
               require('../../assets/chooseMerchant.png'), // Updated to blue theme
               userCategory === 'customer' ? 'Choose Merchant' : 'Choose Customer',
-              () => navigation.navigate('CustomerSelection', { 
-                  userCategory 
+              () => navigation.navigate('CustomerSelection', {
+                userCategory
               }),
               { width: 35, height: 35 }
             )}
@@ -116,13 +114,10 @@ const HomeScreen = () => {
             )}
           </View>
         </View>
-        {/* <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
-          <Text style={{ textAlign: 'center' }}>My ID: {userDetails.id}</Text>
-        </View> */}
       </Card>
 
       {userCategory === 'customer' && (
-        <Card style={{ margin: 10, marginBottom: 20, padding: 10 }}>
+        <Card style={{ margin: 10, marginBottom: 20, padding: 10, backgroundColor: '#fff5f5' }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Redeem Corporate Points</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             {renderActionButton(
@@ -137,9 +132,50 @@ const HomeScreen = () => {
             {renderActionButton(
               require('../../assets/chooseMerchant.png'), // Updated to blue theme
               'Choose Co. Merchant',
-              () => navigation.navigate('CustomerSelection', { userCategory,
-                 chooseCorporateMerchant: 'true'
-               }),
+              () => navigation.navigate('CustomerSelection', {
+                userCategory,
+                chooseCorporateMerchant: 'true'
+              }),
+              { width: 35, height: 35 }
+            )}
+
+          </View>
+        </Card>
+      )}
+
+      {userCategory === 'customer' && (
+        <Card style={{ margin: 10, marginBottom: 20, padding: 10, backgroundColor: '#fff5f5' }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Redeem Global Points</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {renderActionButton(
+              require('../../assets/scanner.png'), // Updated to red theme
+              'Reedem G BBP',
+              () => navigation.navigate('ScanQR', {
+                fromGlobalQR: 'true'
+              }),
+              { width: 35, height: 35 }
+            )}
+
+            {renderActionButton(
+              require('../../assets/chooseMerchant.png'), // Updated to blue theme
+              'Choose Merchant',
+              () => navigation.navigate('CustomerSelection', {
+                userCategory,
+                chooseCorporateMerchant: 'true'
+              }),
+              { width: 35, height: 35 }
+            )}
+
+            {renderActionButton(
+              require('../../assets/points1.png'), // Updated to red theme
+              'G Points',
+              () => navigation.navigate('PointsScreen',
+                {
+                  merchantId: null,
+                  merchantName: null,
+                  fromHomeScreen: 'true',
+                }
+              ),
               { width: 35, height: 35 }
             )}
 
@@ -149,7 +185,7 @@ const HomeScreen = () => {
 
       {/* Transfer Points Section */}
       {userCategory !== 'terminal' &&
-        <Card style={{ margin: 10, marginBottom: 20, padding: 10 }}>
+        <Card style={{ margin: 10, marginBottom: 20, padding: 10, backgroundColor: '#fff5f5' }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text>
           <View style={{ padding: 10 }}>
 
@@ -181,108 +217,83 @@ const HomeScreen = () => {
         </Card>
       }
 
-
-      <Card style={{ margin: 10, marginBottom: 20, padding: 10 }}>
-        {/* <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text> */}
-        <View style={{ padding: 10 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            {renderActionButton(
-              require('../../assets/bank.png'), // Updated to red theme
+      <Card style={{ margin: 10, padding: 15, borderRadius: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3, backgroundColor: '#fff5f5' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10 }}>
+          {userCategory === 'merchant' && (
+            renderActionButton(
+              require('../../assets/bank.png'),
               'Bank Details',
               () => navigation.navigate("BankDetails"),
-              { width: 35, height: 35 } // Custom dimensions
-            )}
+              { width: 25, height: 25 } // Smaller icon dimensions
+            )
+          )}
 
-            {renderActionButton(
-              require('../../assets/help.png'), // Updated to blue theme
-              'Help Section',
-              () => navigation.navigate('HelpSection'),
-              { width: 35, height: 35 } // Custom dimensions
-            )}
+          {renderActionButton(
+            require('../../assets/help.png'),
+            'Help Section',
+            () => navigation.navigate('HelpSection'),
+            { width: 25, height: 25 } // Smaller icon dimensions
+          )}
 
-            {userCategory !== 'terminal' &&
-              renderActionButton(
-                require('../../assets/mobile.png'), // Updated to red theme
-                'Mobile No.',
-                () => navigation.navigate('ChangeMobileNo', { userId: userDetails.id }),
-                { width: 35, height: 35 } // Custom dimensions
-              )
-            }
+          {userCategory !== 'terminal' &&
+            renderActionButton(
+              require('../../assets/mobile.png'),
+              'Change Mobile no.',
+              () => navigation.navigate('ChangeMobileNo', { userId: userDetails.id }),
+              { width: 25, height: 25 } // Smaller icon dimensions
+            )
+          }
 
-            {userCategory === 'terminal' &&
-              renderActionButton(
-                require('../../assets/receive.png'), // Updated to blue theme
-                'Your QR',
-                () => navigation.navigate('ReceivePointsScreen', { userId: userDetails.id }),
-                { width: 35, height: 35 } // Custom dimensions
-              )}
-          </View>
+          {userCategory === 'terminal' &&
+            renderActionButton(
+              require('../../assets/receive.png'),
+              'Your QR',
+              () => navigation.navigate('ReceivePointsScreen', { userId: userDetails.id }),
+              { width: 25, height: 25 } // Smaller icon dimensions
+            )
+          }
         </View>
-        <View style={{ padding: 10 }}>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between'
-            // justifyContent: loggedInUser?.user_category === 'merchant' ? 'space-between' : 'flex-start' 
-          }}>
-            {userCategory !== 'terminal' &&
-              renderActionButton(
-                require('../../assets/yourDetails.png'), // Updated to blue theme
-                'Your Details',
-                () => navigation.navigate("MerchantForm"),
-                { width: 35, height: 35 } // Custom dimensions
-              )}
-            {renderActionButton(
-              require('../../assets/bank1.png'), // Updated to blue theme
-              'History',
-              () => navigation.navigate("History"),
-              { width: 35, height: 35 } // Custom dimensions
-            )}
-            {userCategory !== 'terminal' && userCategory !== 'customer' && (
-              renderActionButton(
-                require('../../assets/bank1.png'), // Updated to blue theme
-                'Payment',
-                () => navigation.navigate('PaymentsHistory'),
-                { width: 35, height: 35 } // Custom dimensions
-              )
-            )}
 
-            {userCategory === 'customer' && (
-              renderActionButton(
-                require('../../assets/cashout.png'), // Updated to blue theme
-                'Cashout Points',
-                () => navigation.navigate('Cashout'),
-                { width: 35, height: 35 } // Custom dimensions
-              )
-            )}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>
+          {userCategory !== 'terminal' &&
+            renderActionButton(
+              require('../../assets/yourDetails.png'),
+              'Your Details',
+              () => navigation.navigate("MerchantForm"),
+              { width: 25, height: 25 } // Smaller icon dimensions
+            )
+          }
 
+          {renderActionButton(
+            require('../../assets/bank1.png'),
+            'TransactionHistory',
+            () => navigation.navigate("History"),
+            { width: 25, height: 25 } // Smaller icon dimensions
+          )}
 
-          </View>
+          {userCategory !== 'terminal' && userCategory !== 'customer' &&
+            renderActionButton(
+              require('../../assets/bank1.png'),
+              'Payment',
+              () => navigation.navigate('PaymentsHistory'),
+              { width: 25, height: 25 } // Smaller icon dimensions
+            )
+          }
         </View>
-        <View style={{ padding: 10 }}>
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between'
-            // justifyContent: loggedInUser?.user_category === 'merchant' ? 'space-between' : 'flex-start' 
-          }}>
-            {userCategory === 'merchant' && (
-              renderActionButton(
-                require('../../assets/bank1.png'), // Updated to blue theme
-                'Cashout Points',
-                () => navigation.navigate('Cashout'),
-                { width: 35, height: 35 } // Custom dimensions
-              )
-            )}
-          </View>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>
+          {userCategory === 'merchant' &&
+            renderActionButton(
+              require('../../assets/bank1.png'),
+              'Cashout Points',
+              () => navigation.navigate('Cashout'),
+              { width: 25, height: 25 } // Smaller icon dimensions
+            )
+          }
         </View>
       </Card>
-
-
-
-
     </ScrollView>
   );
 };
 
-
-export default HomeScreen
-  ;
+export default HomeScreen;
