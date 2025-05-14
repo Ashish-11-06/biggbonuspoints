@@ -10,6 +10,10 @@ const transferPointsApi = {
     customerToCustomer:(transferData) => {
         return axiosInstance.post(`redeemAwardPoints/customer-transfer/`, transferData);
     },
+    customerToGlobal:(transferData) => {
+        return axiosInstance.post(`redeemAwardPoints/global-redeem/`, transferData);
+    },
+
     merchantToMerchant:(transferData) => {
         return axiosInstance.post(`redeemAwardPoints/merchant-transfer/`, transferData);
     },

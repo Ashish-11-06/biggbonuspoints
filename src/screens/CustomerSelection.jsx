@@ -2,8 +2,9 @@ import React, { useState,useEffect } from "react";
 import { View, TextInput, FlatList, Text, TouchableOpacity } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllCustomers, getAllMerchants, getAllCorporateMerchants } from "../Redux/slices/userSlice";
+import { getAllCustomers, getAllMerchants, getAllCorporateMerchants, getAllPrepaidMerchant } from "../Redux/slices/userSlice";
 import { useNavigation, useRoute } from "@react-navigation/native";
+
 
 
 
@@ -12,10 +13,14 @@ const CustomerSelection = ({ navigation }) => {
   const [searchText, setSearchText] = useState("");
   const [filteredContacts, setFilteredContacts] = useState([]);
   const route = useRoute();
-  const { userCategory, chooseCorporateMerchant } = route.params;
+  const { userCategory, chooseCorporateMerchant,chooseGlobalMerchant } = route.params;
   // Get merchants and customers from Redux state with default empty arrays
   const { merchants = [], customers = [], status, error } = useSelector((state) => state.user);
 console.log('user category',userCategory);
+console.log('metchants',merchants);
+console.log('customers',customers);
+const [prepaidMerchants, setPrepaidMerchants] = useState([]);
+console.log('chooseGlobalMerchant',chooseGlobalMerchant);
 
   // Assume userCategory is passed as a prop or fetched from Redux
   // const userCategory = useSelector((state) => state.auth.userCategory); // Example: "merchant" or "customer"
@@ -25,14 +30,18 @@ console.log('user category',userCategory);
     const fetchData = async () => {
       try {
         if (userCategory === "customer") {
-          if (!chooseCorporateMerchant) {
+          if (!chooseCorporateMerchant && !chooseGlobalMerchant) {
             const res = await dispatch(getAllMerchants());
             console.log(`fetched merchants ${res}`);
+          } else if(chooseGlobalMerchant) {
+            const res = await dispatch(getAllPrepaidMerchant());
+            console.log('prepaid merchants',res?.payload.merchants);
+            setPrepaidMerchants(res?.payload.merchants);
+            console.log(`fetched prepaid merchants ${res}`);
           } else {
             const res = await dispatch(getAllCorporateMerchants());
             console.log(`fetched merchants ${res}`);
           }
-         
         } else {
           await dispatch(getAllCustomers());
           console.log("Fetched Customers");
@@ -97,6 +106,7 @@ console.log('user category',userCategory);
     );
   }
   // console.log(user)
+console.log('prepaid merchants',prepaidMerchants);
 
   return (
     <View style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}>
@@ -116,7 +126,15 @@ console.log('user category',userCategory);
 
       {/* List of Filtered Contacts */}
       <FlatList
-        data={searchText.length > 0 ? filteredContacts : (userCategory === "customer" ? merchants : customers)}
+        data={
+          searchText.length > 0
+            ? filteredContacts
+            : (
+                userCategory === "customer"
+                  ? (chooseGlobalMerchant ? prepaidMerchants : merchants)
+                  : customers
+              )
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             style={{ padding: 15, borderBottomWidth: 1, borderColor: "#ccc" }}
@@ -126,7 +144,9 @@ console.log('user category',userCategory);
                 merchantName: `${item.first_name || ''} ${item.last_name || ''}`.trim(), // Correctly pass userName
                 userMobile: item.mobile || 'No phone',
                 userShop: item.shop_name || null,
-                fromChooseMerchant: true // Custom variable
+                fromChooseMerchant: true ,// Custom variable
+                chooseGlobalMerchant: chooseGlobalMerchant,
+                
               })
             }
           >
@@ -134,6 +154,7 @@ console.log('user category',userCategory);
               <Text style={{ fontWeight: 'bold' }}>
                 {`${item.first_name || ''} ${item.last_name || ''}`.trim() || 'No name'}
               </Text>
+              <Text>{item.user_id}</Text>
               <Text>{item.mobile || 'No phone'}</Text>
               {item.shop_name && <Text>Shop: {item.shop_name}</Text>}
             </View>
@@ -143,6 +164,7 @@ console.log('user category',userCategory);
         ListEmptyComponent={
           <View style={{ padding: 15 }}>
             <Text style={{ textAlign: 'center' }}>No {userCategory === "merchant" ? "customers" : "merchants"} found</Text>
+           {/* <Text>{item.user_id}</Text> */}
           </View>
         }
         keyboardShouldPersistTaps="handled"

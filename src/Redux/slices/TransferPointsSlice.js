@@ -70,6 +70,27 @@ export const customerToCustomerPoints = createAsyncThunk(
     }
   }
 );
+export const customerToGlobalPoints = createAsyncThunk(
+  "points/customerToGlobalPoints",
+  async (transferData, { rejectWithValue }) => {
+    console.log("Transfer data cust to customer:", transferData);
+    
+    try {
+      const response = await transferPointsApi.customerToGlobal(transferData);
+      
+      console.log("Transfer response:", response);
+
+      if (response.status === 200 && response.data) {
+        return response.data;
+    } else if (response.status === 400) {
+        console.log("Transfer error:", response.data.error);
+        return rejectWithValue(response.data.error || "transfer failed!"); 
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
 export const merchantToCustomerPoints = createAsyncThunk(
   "points/transfer",
@@ -174,6 +195,18 @@ const transferPointsSlice = createSlice({
         state.error = null;
       })
       .addCase(customerToCustomerPoints.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(customerToGlobalPoints.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(customerToGlobalPoints.fulfilled, (state) => {
+        state.status = "succeeded";
+        state.error = null;
+      })
+      .addCase(customerToGlobalPoints.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       })

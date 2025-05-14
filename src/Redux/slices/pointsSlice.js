@@ -76,6 +76,27 @@ export const fetchTerminalPoints = createAsyncThunk(
       }
     }
   );
+
+export const fetchCustGlobalPoints = createAsyncThunk(
+    "points/fetchCustGlobalPoints",
+    async (data, { rejectWithValue }) => {
+      try {
+        console.log('fetch global points');
+        
+        const response = await PointsApi.viewCustomerGlobalPoints(data);
+        console.log(response);
+        
+        console.log("Response from API view g points:", response.data);
+        
+        if (response.status === 200 && response.data) {
+          return response.data;
+        }
+        return rejectWithValue(response.data.error || "Failed to fetch points");
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message || "An error occurred");
+      }
+    }
+  );
   
 
 const customerPointsSlice = createSlice({
@@ -84,6 +105,7 @@ const customerPointsSlice = createSlice({
     customerPoints: [], // Changed to match what you use in reducers
     merchantPoints: [],
     terminalPoints:[],
+    globalPoints: [],
     status: "idle",
     error: null,
   },
@@ -123,6 +145,18 @@ const customerPointsSlice = createSlice({
         state.terminalPoints = action.payload; 
       })
       .addCase(fetchTerminalPoints.rejected, (state, action) => { // Changed to fetchCustomerPoints
+        state.status = "failed";
+        state.error = action.payload || "Failed to fetch data";
+      })
+      .addCase(fetchCustGlobalPoints.pending, (state) => { // Changed to fetchCustGlobalPoints
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchCustGlobalPoints.fulfilled, (state, action) => { // Changed to fetchCustGlobalPoints
+        state.status = "succeeded";
+        state.globalPoints = action.payload; 
+      })
+      .addCase(fetchCustGlobalPoints.rejected, (state, action) => { // Changed to fetchCustomerPoints
         state.status = "failed";
         state.error = action.payload || "Failed to fetch data";
       });

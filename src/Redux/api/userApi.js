@@ -25,6 +25,9 @@ const userApi = {
     getAllCustomers: () => {
         return axiosInstance.get('fetch-users/?user_type=customer');
     },
+    getAllPrepaidMerchant: () => {
+        return axiosInstance.get('redeemAwardPoints/getPrepaidMerchants/');
+    },
 
 };
 

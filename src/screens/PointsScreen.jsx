@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCustomerPoints, fetchMerchantPoints, fetchTerminalPoints } from '../Redux/slices/pointsSlice';
+import { fetchCustGlobalPoints, fetchCustomerPoints, fetchMerchantPoints, fetchTerminalPoints } from '../Redux/slices/pointsSlice';
 
 const PointsScreen = ({ route }) => {
     const [pin, setPin] = useState('');
@@ -11,13 +11,14 @@ const PointsScreen = ({ route }) => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
     const { status, error } = useSelector(state => state.customerPoints);
-    const { merchantId, merchantName, fromChooseMerchant, userName, userMobile, userShop, fromRedeem, onPinEntered, fromHomeScreen} = route.params;
+    const { merchantId, merchantName, fromChooseMerchant, userName, userMobile, userShop, fromRedeem, onPinEntered, fromHomeScreen,fromGPoints,chooseGlobalMerchant} = route.params;
     const userId = route.params.userId; // Extract userId from route params
     const [userCategory, setUserCategory] = useState(null);
     const [terminalMerchant,setTerminalMerchant] = useState('');
     const [loggedPin,setLoggedPin] = useState('');
     console.log(merchantName, merchantId, fromChooseMerchant);
-console.log('from home screen',fromHomeScreen);
+console.log('from  G Points',fromGPoints);
+console.log('merchant id',merchantId);
 
     // console.log(userName, userId); // Correctly log userName and userId
     // Fetch user ID from AsyncStorage on component mount
@@ -84,7 +85,7 @@ console.log('Logged PIN:', loggedPin, typeof loggedPin);
             if (fromRedeem && onPinEntered) {
                 onPinEntered(pin); // Pass the entered PIN back to TransferPoints
                 navigation.goBack(); // Navigate back to TransferPoints
-            } else if(userCategory === 'customer'){ 
+            } else if(userCategory === 'customer' && !fromGPoints){ 
                 // Existing behavior for non-redeem flow
                 const requestData = {
                     customer_id: loggedInUserId,
@@ -110,7 +111,40 @@ console.log('Logged PIN:', loggedPin, typeof loggedPin);
                 } catch (err) {
                     Alert.alert(err || 'Failed to fetch points');
                 }
-            } else if(userCategory === 'merchant'){
+            } 
+            else if(userCategory === 'customer' && fromGPoints){ 
+                // Existing behavior for non-redeem flow
+                const requestData = {
+                    customer_id: loggedInUserId,
+                    pin: Number(pin),
+                };
+
+                try {
+                    const response = await dispatch(fetchCustGlobalPoints(requestData)).unwrap();
+                   console.log('user id',userId);
+                   
+                    if (chooseGlobalMerchant) {
+                        navigation.navigate('TransferPoints', {
+                            merchantId: userId, // Pass userId as merchantId
+                            merchantName: userName, // Pass userName as merchantName
+                            chooseGlobalMerchant: chooseGlobalMerchant,
+                        });
+                    } else {
+                        navigation.navigate('ShowPoints', {
+                            points: response.points,
+                            merchantId: null,
+                            merchantName: null,
+                            fromGPoints:true
+                        });
+                    }
+                    console.log('response G points',response);
+                    
+                    console.log("Fetched points:", response.points);
+                } catch (err) {
+                    Alert.alert(err || 'Failed to fetch points');
+                }
+            } 
+            else if(userCategory === 'merchant'){
                 // const requestData = {
                 //     merchant_id: loggedInUserId,
                 //     pin: pin,

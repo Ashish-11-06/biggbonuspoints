@@ -102,7 +102,9 @@ console.log('userrrr',user);
     //   }
     // })
     // Safely get and filter valid points data
+    const fromGPoints = route?.params?.fromGPoints || false;
     let pointsDataTerminal;
+    let globalPoints;
     let pointsData;
     let totalPoints;
 console.log('routee',route?.params);
@@ -120,7 +122,15 @@ console.log('routee',route?.params);
       // totalPoints = pointsDataTerminal.reduce((sum, item) => {
       //   return sum + parseInt(item.points || 0);
       // }, 0);
-    } else {
+    }  else if (route?.params?.fromGPoints) {
+       console.log('pointsssss',route?.params?.points);
+      
+       globalPoints= route?.params?.points || 0;
+      // Array.isArray(route?.params?.points) ? route.params.points : [];
+      console.log('points data globall',globalPoints);
+      
+    }
+     else {
          pointsData = Array.isArray(route?.params?.points) ? route.params.points : [];
         totalPoints = pointsData.reduce((sum, item) => {
           return sum + parseInt(item.points || 0);
@@ -229,16 +239,19 @@ console.log('points dataaa',pointsData)
             </View>
 
             {/* Total Points */}
-            <View style={styles.totalPointsContainer}>
+ <View style={styles.totalPointsContainer}>
   <Text style={styles.totalPointsLabel}>Total Available Points</Text>
   <Text style={styles.totalPointsValue}>
-    {(userCategory === 'terminal' ? pointsDataTerminal : totalPoints).toLocaleString()} BBP
+    {fromGPoints
+      ? globalPoints.toLocaleString()
+      : (userCategory === 'terminal' ? pointsDataTerminal : totalPoints).toLocaleString()} BBP
   </Text>
 </View>
 
 
+
             {/* Points by Merchant */}
-            {userCategory === 'customer' &&
+            {userCategory === 'customer' && !globalPoints &&
             <>
             <Text style={styles.sectionHeader}>{loggedInUser?.user_category === 'customer' ? 'Points by Merchant' : 'Points to Customer'}</Text>
             {dataToRender.length > 0 ? (

@@ -14,7 +14,11 @@ const PointsApi = {
     viewTerminalPoints:(id) => {
         console.log('data in api',id); 
         return axiosInstance.get(`redeemAwardPoints/terminal-customer-points/?terminal_id=${id}`)
-    }
+    },
+    viewCustomerGlobalPoints: (data) => {
+        console.log('data in api',data); 
+        return axiosInstance.post(`redeemAwardPoints/get-GlobalCustomerPoints/`,data)
+    },
 };
 
 export default PointsApi;

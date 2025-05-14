@@ -161,6 +161,46 @@ const HomeScreen = () => {
               'Choose Merchant',
               () => navigation.navigate('CustomerSelection', {
                 userCategory,
+                chooseGlobalMerchant: 'true'
+              }),
+              { width: 35, height: 35 }
+            )}
+
+            {renderActionButton(
+              require('../../assets/points1.png'), // Updated to red theme
+              'G Points',
+              () => navigation.navigate('PointsScreen',
+                {
+                  merchantId: null,
+                  merchantName: null,
+                  fromGPoints: 'true',
+                }
+              ),
+              { width: 35, height: 35 }
+            )}
+
+          </View>
+        </Card>
+      )}
+{/*       
+      {userCategory === 'customer' && (
+        <Card style={{ margin: 10, marginBottom: 20, padding: 10, backgroundColor: '#fff5f5' }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Redeem Global Points</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {renderActionButton(
+              require('../../assets/scanner.png'), // Updated to red theme
+              'Reedem G BBP',
+              () => navigation.navigate('ScanQR', {
+                fromGlobalQR: 'true'
+              }),
+              { width: 35, height: 35 }
+            )}
+
+            {renderActionButton(
+              require('../../assets/chooseMerchant.png'), // Updated to blue theme
+              'Choose Merchant',
+              () => navigation.navigate('CustomerSelection', {
+                userCategory,
                 chooseCorporateMerchant: 'true'
               }),
               { width: 35, height: 35 }
@@ -181,7 +221,7 @@ const HomeScreen = () => {
 
           </View>
         </Card>
-      )}
+      )} */}
 
       {/* Transfer Points Section */}
       {userCategory !== 'terminal' &&

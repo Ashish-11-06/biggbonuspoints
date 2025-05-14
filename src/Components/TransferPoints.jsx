@@ -14,17 +14,19 @@ import {
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from "react-redux";
-import { customerToCustomerPoints, customerToMerchantPoints, merchantToCustomerPoints, merchantToMerchantPoints, resetTransferState, terminalToCustomerPoints, customerToCorporatePoints } from "../Redux/slices/TransferPointsSlice";
+import { customerToCustomerPoints, customerToMerchantPoints, merchantToCustomerPoints, merchantToMerchantPoints, resetTransferState, terminalToCustomerPoints, customerToCorporatePoints, customerToGlobalPoints } from "../Redux/slices/TransferPointsSlice";
 import { useNavigation } from '@react-navigation/native';
 import { fetchCustomerPoints, fetchMerchantPoints } from "../Redux/slices/pointsSlice";
 import { Picker } from "@react-native-picker/picker";
 
 const TransferPoints = ({ route, navigation }) => {
   // Get both merchantId and merchantName from route params
-  const { merchantId, merchantName, fromTransferHome, fromSelectUser, fromCorporateQR } = route.params;
+  const { merchantId, merchantName, fromTransferHome, fromSelectUser, fromCorporateQR ,chooseGlobalMerchant} = route.params;
   console.log(fromSelectUser);
   console.log('merchant id',merchantId);
   console.log('merchant name',merchantName);
+  
+  console.log('from global',chooseGlobalMerchant);
   
   
   const [points, setPoints] = useState("");
@@ -184,7 +186,7 @@ console.log('terminal id',terminalId);
         try {
           console.log("PIN entered:", pin);
   
-          if (userCategory === 'customer' && !fromTransferHome && !fromSelectUser && !fromCorporateQR) {
+          if (userCategory === 'customer' && !fromTransferHome && !fromSelectUser && !fromCorporateQR && !chooseGlobalMerchant) {
             const response = await dispatch(customerToMerchantPoints({
               customer_id: customerId,
               merchant_id: receiverId,
@@ -278,11 +280,29 @@ console.log('terminal id',terminalId);
               ]
             );
             
-          } else if ((userCategory === 'customer' && fromSelectUser) || (userCategory === 'customer' && fromTransferHome)) {
+          } else if ((userCategory === 'customer' && fromSelectUser) || (userCategory === 'customer' && fromTransferHome) || (userCategory === 'customer' && !chooseGlobalMerchant)) {
             const response = await dispatch(customerToCustomerPoints({
               receiver_customer_id: receiverId,
               sender_customer_id: customerId,
               merchant_id:selectedMerchant,
+              pin,
+              points: parseInt(points),
+            })).unwrap();
+  
+            console.log("Transfer response:", response);
+            if(response.message) {
+              Alert.alert(
+                "success",
+                response.message 
+                || 'Points transferred successfullyyy')
+            }
+          } else if ((userCategory === 'customer' && chooseGlobalMerchant)) {
+            const response = await dispatch(customerToGlobalPoints({
+              // receiver_customer_id: receiverId,
+              customer_id: customerId, 
+              merchant_id: receiverId,
+              // merchantSelected: selectedMerchant,
+              merchant:merchantId,
               pin,
               points: parseInt(points),
             })).unwrap();
