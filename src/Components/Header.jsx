@@ -6,6 +6,8 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
 
 import profile from '../../assets/profile.png';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { IconButton } from 'react-native-paper';
 const Header = ({ user, location = "Location", avatarUrl, onSettingsPress }) => {
   console.log(user);
     const navigation = useNavigation();
@@ -17,6 +19,12 @@ const Header = ({ user, location = "Location", avatarUrl, onSettingsPress }) => 
 
   const onNotificationsPress = () => {
     navigation.navigate('Notifications');
+  }
+
+  const onLogoutPress =async () => {
+    await AsyncStorage.clear();
+    console.log('All AsyncStorage data cleared!');
+    navigation.navigate('Login');
   }
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgb(241, 66, 66)' }}>
@@ -40,10 +48,16 @@ const Header = ({ user, location = "Location", avatarUrl, onSettingsPress }) => 
       </TouchableOpacity> 
       
       {/* Settings Icon */}
-      {/* <TouchableOpacity onPress={onSettingsPress}>
-      <Image source={require('../../assets/setting.png')} style={{ width: 21, height: 21 }} /> */}
+      <TouchableOpacity onPress={onLogoutPress} style={{ marginHorizontal: 10 }}>
+      <Image source={require('../../assets/setting.png')} style={{ width: 21, height: 21 }} /> 
         {/* <FontAwesome name="cog" size={24} color="white" /> Change icon here */}
-      {/* </TouchableOpacity> */}
+       </TouchableOpacity>
+
+       {/* <IconButton
+    icon="logout"
+    size={24}
+    onPress={() => console.log('Logout pressed')}
+  /> */}
     </View>
   );
 };
