@@ -25,6 +25,7 @@ const HomeScreen = () => {
         if (userString) {
           const user = JSON.parse(userString);
           console.log("Parsed user data:", user);
+
           setUser(user);
           setUserCategory(user?.user_category)
           if (user.user_category === 'customer') {
@@ -182,46 +183,7 @@ const HomeScreen = () => {
           </View>
         </Card>
       )}
-{/*       
-      {userCategory === 'customer' && (
-        <Card style={{ margin: 10, marginBottom: 20, padding: 10, backgroundColor: '#fff5f5' }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Redeem Global Points</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            {renderActionButton(
-              require('../../assets/scanner.png'), // Updated to red theme
-              'Reedem G BBP',
-              () => navigation.navigate('ScanQR', {
-                fromGlobalQR: 'true'
-              }),
-              { width: 35, height: 35 }
-            )}
 
-            {renderActionButton(
-              require('../../assets/chooseMerchant.png'), // Updated to blue theme
-              'Choose Merchant',
-              () => navigation.navigate('CustomerSelection', {
-                userCategory,
-                chooseCorporateMerchant: 'true'
-              }),
-              { width: 35, height: 35 }
-            )}
-
-            {renderActionButton(
-              require('../../assets/points1.png'), // Updated to red theme
-              'G Points',
-              () => navigation.navigate('PointsScreen',
-                {
-                  merchantId: null,
-                  merchantName: null,
-                  fromHomeScreen: 'true',
-                }
-              ),
-              { width: 35, height: 35 }
-            )}
-
-          </View>
-        </Card>
-      )} */}
 
       {/* Transfer Points Section */}
       {userCategory !== 'terminal' &&
@@ -321,7 +283,7 @@ const HomeScreen = () => {
           }
         </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>
+        {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>
           {userCategory === 'merchant' &&
             renderActionButton(
               require('../../assets/bank1.png'),
@@ -330,7 +292,7 @@ const HomeScreen = () => {
               { width: 25, height: 25 } // Smaller icon dimensions
             )
           }
-        </View>
+        </View> */}
       </Card>
     </ScrollView>
   );

@@ -32,7 +32,6 @@ const MerchantForm = () => {
     aadhaar_number: 'Aadhar Number',
     pan_number: 'PAN Number',
     shop_name: 'Shop Name',
-    // registershop_name: 'Registered Shop Name',
     gst_number: 'GST Number',
   };
 
@@ -69,6 +68,7 @@ const MerchantForm = () => {
             shop_name: user.shop_name || '',
             // registershop_name: user.registershop_name || '',
             gst_number: user.gst_number || '',
+            logo: user.logo || '',
           };
 
           setUserDetails(initialDetails);
@@ -237,17 +237,22 @@ const navigateToHome = () => {
      
     }
     console.log(res);
-    if(res?.payload.message) {
+    // if(res?.payload.message) {
 
-      Alert.alert('success',res?.payload.message, [
-       { text:"OK", onPress: navigateToHome}
-      ]);
-    }
+    //   Alert.alert('success',res?.payload.message, [
+    //    { text:"OK", onPress: navigateToHome}
+    //   ]);
+    // }
     setIsEditing(false); // Exit edit mode after submission
 
     // Fetch updated details
     const userId = loggedInUser?.customer_id || loggedInUser?.merchant_id || loggedInUser?.corporate_id || 'N/A';
-    const response = await dispatch(fetchAdditionalDetails(userId));
+    let response ;
+    if(loggedInUser?.user_category === 'merchant') {
+      response = await dispatch(fetchAdditionalDetailsMerchant(userId));
+    } else if(loggedInUser?.user_category === 'customer') {
+      response = await dispatch(fetchAdditionalDetails(userId));
+    }
     console.log('Updated additional details:', response?.payload.profile_data);
     setProfileData(response?.payload.profile_data);
 
@@ -280,6 +285,12 @@ console.log('hiii');
         setValue(key, updatedUserDetails[key]);
       });
     }
+     if(res?.payload.message) {
+
+      Alert.alert('success',res?.payload.message, [
+       { text:"OK", onPress: navigateToHome}
+      ]);
+    }
   };
 
 console.log('profile data',profileData);
@@ -308,7 +319,13 @@ const handleEdit = () => {
           }, []).map((row, rowIndex) => (
             <View key={rowIndex} style={styles.rowContainer}>
             {row
-              .filter((key) => !(key === 'shop_name' && userCategory === 'customer')) // hide shop_name for customers
+              // Hide shop_name and gst_number for customers
+              .filter((key) => {
+                if (userCategory === 'customer' && (key === 'shop_name' || key === 'gst_number' || key === 'logo')) {
+                  return false;
+                }
+                return !(key === 'shop_name' && userCategory === 'customer');
+              })
               .map((key) => (
                 <View key={key} style={styles.halfWidthContainer}>
                   <Text>{fieldLabels[key] || key}</Text>
@@ -320,14 +337,21 @@ const handleEdit = () => {
                 </View>
               ))}
           </View>
-          
           ))}
           <Button title="Edit" onPress={handleEdit} color="#004BFF" />
         </>
       ) : (
         // Show form for input or editing
         <>
-          {Object.keys(userDetails).map((key) => (
+          {Object.keys(userDetails)
+            // Hide shop_name and gst_number for customers
+            .filter((key) => {
+              if (userCategory === 'customer' && (key === 'shop_name' || key === 'gst_number')) {
+                return false;
+              }
+              return true;
+            })
+            .map((key) => (
             <View key={key} style={styles.inputContainer}>
               <Text>{fieldLabels[key] || key}</Text>
               {key === 'user_category' ? (

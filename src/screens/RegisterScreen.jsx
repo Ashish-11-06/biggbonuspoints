@@ -364,9 +364,9 @@ const RegisterScreen = ({ navigation }) => {
                             style={styles.picker}
                         >
                             <Picker.Item label="Select a security question" value="" />
-                            <Picker.Item label="What is your pet's name?" value="pet_name" />
-                            <Picker.Item label="What is your mother's maiden name?" value="mother_maiden" />
-                            <Picker.Item label="What was your first school?" value="first_school" />
+                            <Picker.Item label="What is your pet's name?" value="1" />
+                            <Picker.Item label="What is your mother's maiden name?" value="2" />
+                            <Picker.Item label="What was your first school?" value="3" />
                         </Picker>
                         {securityQuestionError ? <Text style={styles.errorText}>{securityQuestionError}</Text> : null}
 

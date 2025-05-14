@@ -55,6 +55,8 @@ export const fetchAdditionalDetails = createAsyncThunk(
     "details/addDetails",
     async (data, { rejectWithValue }) => {
       try {
+        console.log('data in fetchAdditionalDetails get method',data);
+        
         const response = await additinalDetailsApi.getAdditionalDetails(data);
         console.log("Response from API:", response);
         if (response.status === 200 && response.data) {

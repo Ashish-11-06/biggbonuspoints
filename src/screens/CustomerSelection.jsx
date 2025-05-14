@@ -140,7 +140,7 @@ console.log('prepaid merchants',prepaidMerchants);
             style={{ padding: 15, borderBottomWidth: 1, borderColor: "#ccc" }}
             onPress={() =>
               navigation.navigate("TransferPoints", {
-                merchantId: item.user_id,
+                merchantId: chooseGlobalMerchant ? item.merchant_id : item.user_id,
                 merchantName: `${item.first_name || ''} ${item.last_name || ''}`.trim(), // Correctly pass userName
                 userMobile: item.mobile || 'No phone',
                 userShop: item.shop_name || null,
@@ -154,13 +154,17 @@ console.log('prepaid merchants',prepaidMerchants);
               <Text style={{ fontWeight: 'bold' }}>
                 {`${item.first_name || ''} ${item.last_name || ''}`.trim() || 'No name'}
               </Text>
-              <Text>{item.user_id}</Text>
+              {/* No user_id shown for any case */}
               <Text>{item.mobile || 'No phone'}</Text>
               {item.shop_name && <Text>Shop: {item.shop_name}</Text>}
             </View>
           </TouchableOpacity>
         )}
-        keyExtractor={(item, index) => item.user_id || item.mobile || `user-${index}`}
+        keyExtractor={(item, index) =>
+          chooseGlobalMerchant
+            ? item.merchant_id || item.mobile || `user-${index}`
+            : item.user_id || item.mobile || `user-${index}`
+        }
         ListEmptyComponent={
           <View style={{ padding: 15 }}>
             <Text style={{ textAlign: 'center' }}>No {userCategory === "merchant" ? "customers" : "merchants"} found</Text>

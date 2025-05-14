@@ -12,6 +12,7 @@ const additinalDetailsApi = {
     },
     getAdditionalDetailsMerchant: (userId) => {
         console.log('heloo');
+        console.log('userId in api',userId);
         
         return axiosInstance.get(`redeemAwardPoints/merchant/profile/${userId}/`);
     },

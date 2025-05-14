@@ -97,18 +97,18 @@ import { RadioButton } from 'react-native-paper';
       }
   
       let plan_type;
-      if (choice === 'rental') {
-        plan_type = 1;
-      } else {
-        plan_type = 2;
-      }
+      // if (choice === 'rental') {
+      //   plan_type = 1;
+      // } else {
+      //   plan_type = 2;
+      // }
       
       const data = {
         merchant: loggedInUser?.merchant_id,
         paid_amount: paidAmount,
         transaction_id: transactionId,
         payment_mode: paymentMethod,
-        plan_type: plan_type,
+        plan_type: 2,
       };
       
 
@@ -180,7 +180,7 @@ import { RadioButton } from 'react-native-paper';
         </View>
 
        
-        <Text style={styles.label}>Select Plan Type:</Text>
+        {/* <Text style={styles.label}>Select Plan Type:</Text>
         <View style={styles.radioRow}>
           <RadioButton
             value="rental"
@@ -205,7 +205,7 @@ import { RadioButton } from 'react-native-paper';
           >
             Prepaid
           </Text>
-        </View>
+        </View> */}
   
         {/* Submit Button */}
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>

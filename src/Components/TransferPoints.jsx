@@ -21,7 +21,7 @@ import { Picker } from "@react-native-picker/picker";
 
 const TransferPoints = ({ route, navigation }) => {
   // Get both merchantId and merchantName from route params
-  const { merchantId, merchantName, fromTransferHome, fromSelectUser, fromCorporateQR ,chooseGlobalMerchant} = route.params;
+  const { merchantId, merchantName, fromTransferHome, fromSelectUser, fromCorporateQR ,chooseGlobalMerchant,fromGlobalQR} = route.params;
   console.log(fromSelectUser);
   console.log('merchant id',merchantId);
   console.log('merchant name',merchantName);
@@ -186,7 +186,7 @@ console.log('terminal id',terminalId);
         try {
           console.log("PIN entered:", pin);
   
-          if (userCategory === 'customer' && !fromTransferHome && !fromSelectUser && !fromCorporateQR && !chooseGlobalMerchant) {
+          if (userCategory === 'customer' && !fromTransferHome && !fromSelectUser && !fromCorporateQR && !chooseGlobalMerchant && !fromGlobalQR) {
             const response = await dispatch(customerToMerchantPoints({
               customer_id: customerId,
               merchant_id: receiverId,
@@ -280,7 +280,7 @@ console.log('terminal id',terminalId);
               ]
             );
             
-          } else if ((userCategory === 'customer' && fromSelectUser) || (userCategory === 'customer' && fromTransferHome) || (userCategory === 'customer' && !chooseGlobalMerchant)) {
+          } else if ((userCategory === 'customer' && fromSelectUser) || (userCategory === 'customer' && fromTransferHome) || (userCategory === 'customer' && !chooseGlobalMerchant) || (userCategory === 'customer' && !fromGlobalQR)) {
             const response = await dispatch(customerToCustomerPoints({
               receiver_customer_id: receiverId,
               sender_customer_id: customerId,
@@ -296,13 +296,13 @@ console.log('terminal id',terminalId);
                 response.message 
                 || 'Points transferred successfullyyy')
             }
-          } else if ((userCategory === 'customer' && chooseGlobalMerchant)) {
+          } else if ((userCategory === 'customer' && chooseGlobalMerchant) || (userCategory === 'customer' && fromGlobalQR)) {
             const response = await dispatch(customerToGlobalPoints({
               // receiver_customer_id: receiverId,
               customer_id: customerId, 
               merchant_id: receiverId,
               // merchantSelected: selectedMerchant,
-              merchant:merchantId,
+              // merchant:merchantId,
               pin,
               points: parseInt(points),
             })).unwrap();
@@ -312,7 +312,12 @@ console.log('terminal id',terminalId);
               Alert.alert(
                 "success",
                 response.message 
-                || 'Points transferred successfullyyy')
+                || 'Points transferred successfullyyy',
+              [{
+                text: "OK",
+                onPress: () => navigation.navigate('Home') // Navigate to the home screen
+              }]
+              )
             }
           }
           else if (userCategory === 'customer' && fromCorporateQR) {

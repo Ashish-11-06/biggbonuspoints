@@ -148,6 +148,7 @@ const LoginScreen = ({ navigation }) => {
                     is_profile_updated: res.is_profile_updated,
                     first_name: res.first_name,
                     last_name: res.last_name,
+                    logo_base64: res.logo_base64,
                 };
 
                 if (res.user_category === "customer") {

@@ -29,6 +29,7 @@ const ScanQR = () => {
   const fromTransferHome = route.params?.fromTransferHome;
   const fromScanQR = route.params?.fromScanQR;
   const fromCorporateQR = route.params?.fromCorporateQR;
+  const fromGlobalQR = route.params?.fromGlobalQR;
 
   console.log('from fromScanQRe',fromScanQR);
   console.log('from transfer homee',fromTransferHome);
@@ -175,6 +176,7 @@ const handleScanSuccess = async (qrData) => {
       customerId: userDetails.id,
       fromTransferHome: fromTransferHome,
       fromCorporateQR: fromCorporateQR,
+      fromGlobalQR: fromGlobalQR,
     });
 
     setScannedData(null);
