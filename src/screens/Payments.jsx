@@ -5,6 +5,7 @@ import {
     TextInput,
     TouchableOpacity,
     Alert,
+    BackHandler,
   } from 'react-native';
   import React, { useEffect, useState } from 'react';
   import { Picker } from '@react-native-picker/picker';
@@ -33,6 +34,25 @@ import { RadioButton } from 'react-native-paper';
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [userCategory, setUserCategory] = useState(null);
     const [choice,setChoice] = useState(null);
+
+  useEffect(() => {
+    const backAction = () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
+
+
     useEffect(() => {
       const fetchUserDetails = async () => {
         try {

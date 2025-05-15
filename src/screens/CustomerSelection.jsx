@@ -1,12 +1,9 @@
 import React, { useState,useEffect } from "react";
-import { View, TextInput, FlatList, Text, TouchableOpacity } from "react-native";
+import { View, TextInput, FlatList, Text, TouchableOpacity, BackHandler } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllCustomers, getAllMerchants, getAllCorporateMerchants, getAllPrepaidMerchant } from "../Redux/slices/userSlice";
 import { useNavigation, useRoute } from "@react-navigation/native";
-
-
-
 
 const CustomerSelection = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -14,46 +11,42 @@ const CustomerSelection = ({ navigation }) => {
   const [filteredContacts, setFilteredContacts] = useState([]);
   const route = useRoute();
   const { userCategory, chooseCorporateMerchant,chooseGlobalMerchant } = route.params;
-  // Get merchants and customers from Redux state with default empty arrays
   const { merchants = [], customers = [], status, error } = useSelector((state) => state.user);
-console.log('user category',userCategory);
-console.log('metchants',merchants);
-console.log('customers',customers);
-const [prepaidMerchants, setPrepaidMerchants] = useState([]);
-console.log('chooseGlobalMerchant',chooseGlobalMerchant);
+  const [prepaidMerchants, setPrepaidMerchants] = useState([]);
 
-  // Assume userCategory is passed as a prop or fetched from Redux
-  // const userCategory = useSelector((state) => state.auth.userCategory); // Example: "merchant" or "customer"
-
-  // Fetch merchants or customers when component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (userCategory === "customer") {
           if (!chooseCorporateMerchant && !chooseGlobalMerchant) {
             const res = await dispatch(getAllMerchants());
-            console.log(`fetched merchants ${res}`);
           } else if(chooseGlobalMerchant) {
             const res = await dispatch(getAllPrepaidMerchant());
-            console.log('prepaid merchants',res?.payload.merchants);
             setPrepaidMerchants(res?.payload.merchants);
-            console.log(`fetched prepaid merchants ${res}`);
           } else {
             const res = await dispatch(getAllCorporateMerchants());
-            console.log(`fetched merchants ${res}`);
           }
         } else {
           await dispatch(getAllCustomers());
-          console.log("Fetched Customers");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-  
     fetchData();
   }, [dispatch, userCategory]);
-  
+
+  useEffect(() => {
+    const backAction = () => {
+      navigation.navigate('Home');
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+    return () => backHandler.remove();
+  }, [navigation]);
 
   const handleSearch = (text) => {
     setSearchText(text);
@@ -73,12 +66,11 @@ console.log('chooseGlobalMerchant',chooseGlobalMerchant);
           phone.includes(text)
         );
       })
-      .slice(0, 10); // Limit to 10 entries
+      .slice(0, 10);
 
     setFilteredContacts(filtered);
   };
 
-  // Loading state
   if (status === "loading") {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -88,10 +80,6 @@ console.log('chooseGlobalMerchant',chooseGlobalMerchant);
     );
   }
 
-  console.log(userCategory === "merchant" ? "Customers:" : "Merchants:", userCategory === "merchant" ? customers : merchants);
-  console.log("Filtered Contacts:", filteredContacts);
-
-  // Error state
   if (error) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -105,8 +93,6 @@ console.log('chooseGlobalMerchant',chooseGlobalMerchant);
       </View>
     );
   }
-  // console.log(user)
-console.log('prepaid merchants',prepaidMerchants);
 
   return (
     <View style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}>
@@ -124,7 +110,6 @@ console.log('prepaid merchants',prepaidMerchants);
         }}
       />
 
-      {/* List of Filtered Contacts */}
       <FlatList
         data={
           searchText.length > 0
@@ -141,12 +126,12 @@ console.log('prepaid merchants',prepaidMerchants);
             onPress={() =>
               navigation.navigate("TransferPoints", {
                 merchantId: chooseGlobalMerchant ? item.merchant_id : item.user_id,
-                merchantName: `${item.first_name || ''} ${item.last_name || ''}`.trim(), // Correctly pass userName
+                merchantName: `${item.first_name || ''} ${item.last_name || ''}`.trim(),
                 userMobile: item.mobile || 'No phone',
                 userShop: item.shop_name || null,
-                fromChooseMerchant: true ,// Custom variable
+                fromChooseMerchant: true,
                 chooseGlobalMerchant: chooseGlobalMerchant,
-                
+                chooseGlobal : true
               })
             }
           >
@@ -154,7 +139,6 @@ console.log('prepaid merchants',prepaidMerchants);
               <Text style={{ fontWeight: 'bold' }}>
                 {`${item.first_name || ''} ${item.last_name || ''}`.trim() || 'No name'}
               </Text>
-              {/* No user_id shown for any case */}
               <Text>{item.mobile || 'No phone'}</Text>
               {item.shop_name && <Text>Shop: {item.shop_name}</Text>}
             </View>
@@ -168,14 +152,12 @@ console.log('prepaid merchants',prepaidMerchants);
         ListEmptyComponent={
           <View style={{ padding: 15 }}>
             <Text style={{ textAlign: 'center' }}>No {userCategory === "merchant" ? "customers" : "merchants"} found</Text>
-           {/* <Text>{item.user_id}</Text> */}
           </View>
         }
         keyboardShouldPersistTaps="handled"
         extraData={searchText}
       />
 
-      {/* Add New Number button */}
       {searchText.length > 0 && filteredContacts.length === 0 && userCategory === 'merchant' && (
         <TouchableOpacity
           style={{

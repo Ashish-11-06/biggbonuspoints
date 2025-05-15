@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Button, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, Button, Alert, BackHandler } from 'react-native';
 import { fetchBankDetails, fetchBankDetailsById } from '../Redux/slices/bankDetailsSlice';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
 const BankDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -16,6 +17,25 @@ const BankDetails = () => {
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [userCategory, setUserCategory] = useState(null);
   const [bankData, setBankData] = useState({});
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const backAction = () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
+
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {

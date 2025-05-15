@@ -26,11 +26,11 @@ const SelectUser = ({ navigation }) => {
     const fetchUserDetails = async () => {
       try {
         const userString = await AsyncStorage.getItem('user');
-        console.log("User data from AsyncStorage:", userString);
+        // console.log("User data from AsyncStorage:", userString);
         
         if (userString) {
           const user = JSON.parse(userString);
-          console.log("Parsed user data:", user);
+          // console.log("Parsed user data:", user);
 
           // Set the loggedInUser state
           setLoggedInUser(user);

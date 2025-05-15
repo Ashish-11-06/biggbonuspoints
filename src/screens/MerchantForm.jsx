@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, Alert, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, Alert, ScrollView, StyleSheet, Image, TouchableOpacity, BackHandler } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { addAdditinalDetails, addAdditinalDetailsMerchant, fetchAdditionalDetails, fetchAdditionalDetailsMerchant} from '../Redux/slices/additionalDetailsSlice';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const MerchantForm = () => {
   const { control, handleSubmit, formState: { errors }, setValue } = useForm();
@@ -33,7 +34,25 @@ const MerchantForm = () => {
     pan_number: 'PAN Number',
     shop_name: 'Shop Name',
     gst_number: 'GST Number',
+    logo:'Logo',
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -157,7 +176,7 @@ const navigateToHome = () => {
       } else if(loggedInUser?.user_category === 'merchant') {
           response = await dispatch(fetchAdditionalDetailsMerchant(userId));
       }
-      console.log('Fetched additional details:', response?.payload.profile_data);
+      console.log('Fetched additional details: 162', response?.payload.profile_data);
       
       const fetchedData = response?.payload.profile_data;
       setProfileData(fetchedData); // Set fetched data to profileData
@@ -204,6 +223,7 @@ const navigateToHome = () => {
     shop_name: fetchedData.shop_name || '',
     // registershop_name: fetchedData.registershop_name || 'Shop Name',
     gst_number: fetchedData.gst_number || '',
+    logo: fetchedData.logo || '',
   };
 
   console.log('initial details',initialDetails);
@@ -221,6 +241,19 @@ const navigateToHome = () => {
     fetchAdditinalDetails();
   }, [loggedInUser, dispatch]);
   
+const storeMerchantLogo = async (logo) => {
+  try {
+    if (logo) {
+      await AsyncStorage.setItem('merchant_logo', logo);
+      console.log('Merchant logo saved!');
+    } else {
+      console.warn('No logo found to save');
+    }
+  } catch (error) {
+    console.error('Error saving merchant logo:', error);
+  }
+};
+
   const onSubmit = async (data) => {
     console.log('hello');
     
@@ -275,7 +308,9 @@ const navigateToHome = () => {
         shop_name: updatedData.shop_name || '',
         // registershop_name: updatedData.registershop_name || '',
         gst_number: updatedData.gst_number || '',
+        logo: updatedData.logo || '',
       };
+console.log('update data payload 283',updatedUserDetails);
 
       setUserDetails(updatedUserDetails);
 console.log('hiii');
@@ -284,6 +319,11 @@ console.log('hiii');
       Object.keys(updatedUserDetails).forEach((key) => {
         setValue(key, updatedUserDetails[key]);
       });
+
+      // Save merchant logo if merchant
+      if (loggedInUser?.user_category === 'merchant') {
+        await storeMerchantLogo(updatedUserDetails.logo);
+      }
     }
      if(res?.payload.message) {
 
@@ -295,6 +335,21 @@ console.log('hiii');
 
 console.log('profile data',profileData);
 
+// const storeMerchantLogo = async () => {
+//   try {
+//     const logo = profileData?.logo;
+//     if (logo) {
+//       await AsyncStorage.setItem('merchant_logo', logo);
+//       console.log('Merchant logo saved!');
+//     } else {
+//       console.warn('No logo found in profileData');
+//     }
+//   } catch (error) {
+//     console.error('Error saving merchant logo:', error);
+//   }
+// };
+;
+
 const handleEdit = () => {
   Object.keys(userDetails).forEach((key) => {
     setValue(key, userDetails[key]); // Pre-fill form fields with existing data
@@ -302,9 +357,34 @@ const handleEdit = () => {
   setIsEditing(true);
 };
 
+  // Handler for picking logo image
+  const handlePickLogo = async (onChange) => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.7,
+      includeBase64: true, // <-- Add this line
+    });
+    if (result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
+      if (asset.base64) {
+        const base64String = `data:${asset.type};base64,${asset.base64}`;
+        console.log('Selected logo base64:', base64String);
+        onChange(base64String);
+      } else if (asset.uri) {
+        // fallback if base64 not available
+        onChange(asset.uri);
+      }
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Additional Information</Text>
+{/* <Image
+  source={{ uri: imageUrl }}
+  style={{ width: 100, height: 100 }}
+  resizeMode="cover"
+/> */}
 
       {loggedInUser?.is_profile_updated && !isEditing ? (
         // Display user details in text fields
@@ -347,6 +427,10 @@ const handleEdit = () => {
             // Hide shop_name and gst_number for customers
             .filter((key) => {
               if (userCategory === 'customer' && (key === 'shop_name' || key === 'gst_number')) {
+                return false;
+              }
+              // Hide logo for customers
+              if (key === 'logo' && userCategory === 'customer') {
                 return false;
               }
               return true;
@@ -402,6 +486,31 @@ const handleEdit = () => {
                     </Picker>
                   )}
                   name={key}
+                />
+              ) : key === 'logo' && userCategory === 'merchant' ? (
+                <Controller
+                  control={control}
+                  name="logo"
+                  render={({ field: { onChange, value } }) => (
+                    <>
+                      <TouchableOpacity
+                        style={styles.logoPickerButton}
+                        onPress={() => handlePickLogo(onChange)}
+                        disabled={!(isEditing || !loggedInUser?.is_profile_updated)}
+                      >
+                        <Text style={{ color: '#004BFF' }}>
+                          {value ? 'Change Logo' : 'Upload Logo'}
+                        </Text>
+                      </TouchableOpacity>
+                      {value && typeof value === 'string' ? (
+                        <Image
+                          source={{ uri: value }}
+                          style={styles.logoPreview}
+                          resizeMode="contain"
+                        />
+                      ) : null}
+                    </>
+                  )}
                 />
               ) : (
                 <Controller
@@ -481,6 +590,24 @@ const styles = StyleSheet.create({
   error: {
     color: 'red',
     fontSize: 12,
+  },
+  logoPickerButton: {
+    borderWidth: 1,
+    borderColor: '#004BFF',
+    borderRadius: 8,
+    padding: 10,
+    alignItems: 'center',
+    marginTop: 5,
+    backgroundColor: '#f9f9f9',
+  },
+  logoPreview: {
+    width: 100,
+    height: 100,
+    marginTop: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#004BFF',
+    alignSelf: 'center',
   },
 });
 

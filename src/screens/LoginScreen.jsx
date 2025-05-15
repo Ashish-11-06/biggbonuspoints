@@ -110,25 +110,25 @@ const LoginScreen = ({ navigation }) => {
             if (selectedUserType === 'customer') {
                 userData = {
                     mobile,
-                    pin,
+                    pin:Number(pin),
                     user_category: selectedUserType,
                 };
             } else if (selectedUserType === 'merchant' && choice === 'mobile') {
                 userData = {
                     mobile,
-                    pin,
+                    pin:Number(pin),
                     user_category: selectedUserType,
                 };
             } else if (selectedUserType === 'merchant' && choice === 'merchant_id') {
                 userData = {
                     merchant_id: merchantId,
-                    pin,
+                    pin:Number(pin),
                     user_category: selectedUserType,
                 };
             } else if (selectedUserType === 'terminal') {
                 userData = {
                     terminal_id: terminal,
-                    pin,
+                    pin:Number(pin),
                     user_category: selectedUserType,
                 };
             }

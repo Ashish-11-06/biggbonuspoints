@@ -10,23 +10,29 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   ScrollView,
-  Platform
+  Platform,
+  BackHandler
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from "react-redux";
-import { customerToCustomerPoints, customerToMerchantPoints, merchantToCustomerPoints, merchantToMerchantPoints, resetTransferState, terminalToCustomerPoints, customerToCorporatePoints, customerToGlobalPoints } from "../Redux/slices/TransferPointsSlice";
+import { customerToCustomerPoints, customerToMerchantPoints, merchantToCustomerPoints, merchantToMerchantPoints, resetTransferState, terminalToCustomerPoints, customerToCorporatePoints, customerToGlobalPoints,chooseGlobal } from "../Redux/slices/TransferPointsSlice";
 import { useNavigation } from '@react-navigation/native';
 import { fetchCustomerPoints, fetchMerchantPoints } from "../Redux/slices/pointsSlice";
 import { Picker } from "@react-native-picker/picker";
 
 const TransferPoints = ({ route, navigation }) => {
   // Get both merchantId and merchantName from route params
-  const { merchantId, merchantName, fromTransferHome, fromSelectUser, fromCorporateQR ,chooseGlobalMerchant,fromGlobalQR} = route.params;
+  const { merchantId, merchantName,fromScanQR, fromTransferHome, fromSelectUser, fromCorporateQR ,chooseGlobalMerchant,fromGlobalQR,fromChooseMerchant} = route.params;
   console.log(fromSelectUser);
-  console.log('merchant id',merchantId);
-  console.log('merchant name',merchantName);
+  // console.log('merchant id',merchantId);
+  // console.log('merchant name',merchantName);
   
-  console.log('from global',chooseGlobalMerchant);
+  // console.log('from choose global',chooseGlobalMerchant);
+  // console.log('from global ',chooseGlobal);
+  console.log('fromChooseMerchant',fromChooseMerchant);
+  console.log('from transfer home',fromTransferHome);
+  console.log('from select user',fromSelectUser);
+  
   
   
   const [points, setPoints] = useState("");
@@ -54,7 +60,7 @@ const TransferPoints = ({ route, navigation }) => {
       const userData = await AsyncStorage.getItem('user');
       if (userData) {
         const parsedData = JSON.parse(userData);
-        console.log("Parsed user data:", parsedData);
+        // console.log("Parsed user data:", parsedData);
         if (parsedData.user_category === 'customer') {
           setCustomerId(parsedData.customer_id);
         }
@@ -102,6 +108,32 @@ const TransferPoints = ({ route, navigation }) => {
       ),
     });
   }, []);
+
+  // Use navigation.reset to go directly to HomeScreen and clear stack
+  useEffect(() => {
+    const backAction = () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
+
+  // Update navigateToHome to also use reset
+  const navigateToHome = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'HomeScreen' }],
+    });
+  };
 
 useEffect(()=>{
   if(userCategory === 'customer') {
@@ -160,9 +192,6 @@ console.log('merchant section',merchantSections)
 
  
 
-  const navigateToHome = () => {
-    navigation.navigate('Home');
-  };
 // console.log('terminal user',userCategory)
 console.log('terminal merchant',terminalMerchant);
 console.log('terminal id',terminalId);
@@ -182,6 +211,7 @@ console.log('terminal id',terminalId);
       merchantName,
       fromHomeScreen: false, // Indicate not from HomeScreen
       fromRedeem: true, // Indicate redeem flow
+      ...(chooseGlobalMerchant ? { chooseGlobalMerchant: true } : {}),
       onPinEntered: async (pin) => {
         try {
           console.log("PIN entered:", pin);
@@ -280,7 +310,11 @@ console.log('terminal id',terminalId);
               ]
             );
             
-          } else if ((userCategory === 'customer' && fromSelectUser) || (userCategory === 'customer' && fromTransferHome) || (userCategory === 'customer' && !chooseGlobalMerchant) || (userCategory === 'customer' && !fromGlobalQR)) {
+          } else if ((userCategory === 'customer' && fromSelectUser && (!chooseGlobalMerchant || !fromGlobalQR)) || (userCategory === 'customer' && fromTransferHome && (!chooseGlobalMerchant || !fromGlobalQR)) ) {
+            console.log('customer to customer points');
+            console.log('choose global merchant',chooseGlobalMerchant);
+            console.log('global',chooseGlobal);
+            
             const response = await dispatch(customerToCustomerPoints({
               receiver_customer_id: receiverId,
               sender_customer_id: customerId,
@@ -297,6 +331,7 @@ console.log('terminal id',terminalId);
                 || 'Points transferred successfullyyy')
             }
           } else if ((userCategory === 'customer' && chooseGlobalMerchant) || (userCategory === 'customer' && fromGlobalQR)) {
+            console.log('customer to merchant global points');         
             const response = await dispatch(customerToGlobalPoints({
               // receiver_customer_id: receiverId,
               customer_id: customerId, 
@@ -415,13 +450,18 @@ console.log('terminal id',terminalId);
       </>
       ):null}
           <TextInput
-            style={styles.input}
-            placeholder="Enter points to transfer"
-            keyboardType="numeric"
-            value={points}
-            onChangeText={setPoints}
-            autoFocus={true}
-          />
+  style={styles.input}
+  placeholder={
+    (fromChooseMerchant || fromScanQR) && userCategory === 'merchant'
+      ? 'Enter purchased amount'
+      : 'Enter points to transfer'
+  }
+  keyboardType="numeric"
+  value={points}
+  onChangeText={setPoints}
+  autoFocus={true}
+/>
+
           
           <TouchableOpacity
             style={styles.transferButton}

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SectionList, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, SectionList, TouchableOpacity, Alert, BackHandler } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -46,6 +46,23 @@ const ShowPoints = ({ route }) => {
 
       fetchUserId();
   }, []);
+
+  useEffect(() => {
+    const backAction = () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
 useEffect(() => {
     if (route?.params?.userCategory) {

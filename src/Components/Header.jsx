@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; // Example icon libraries
+import { MaterialIcons } from '@expo/vector-icons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
 // import logout from '../../assets/logout.png';
@@ -8,7 +8,8 @@ import profile from '../../assets/profile.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IconButton } from 'react-native-paper';
 const Header = ({ user, location = "Location", avatarUrl, onSettingsPress }) => {
-  console.log(user);
+  // console.log(user);
+  const [merchantLogo, setMerchantLogo] = useState(null);
   const logo=user?.logo_base64;
     const navigation = useNavigation();
   
@@ -21,6 +22,28 @@ const Header = ({ user, location = "Location", avatarUrl, onSettingsPress }) => 
     navigation.navigate('Notifications');
   }
 
+  useEffect(() => {
+    const getMerchantLogo = async () => {
+      try {
+        const logo = await AsyncStorage.getItem('merchant_logo');
+        if (logo) {
+          setMerchantLogo(logo);
+        }
+      } catch (error) {
+        console.error('Error retrieving merchant logo:', error);
+      }
+    };
+    if (user?.user_category === 'merchant') {
+      getMerchantLogo();
+    }
+  }, [user?.user_category]);
+
+const API_BASE = 'http://192.168.1.62:8000';
+const logoPath = merchantLogo ;
+// Remove '/api' and join with logo path
+// const imageUrl = logoPath?.startsWith('http') ? logoPath : `${API_BASE}${logoPath}`;
+const imageUrl=merchantLogo
+console.log('image url',imageUrl);
   const onLogoutPress =async () => {
     await AsyncStorage.clear();
     console.log('All AsyncStorage data cleared!');
@@ -43,7 +66,7 @@ const Header = ({ user, location = "Location", avatarUrl, onSettingsPress }) => 
           source={
             user?.user_category === "customer"
               ? (logo ? { uri: logo } : profile)
-              : profile
+              : (imageUrl ? { uri: imageUrl } : profile)
           }
           style={{ width: 30, height: 30 }}
           resizeMode="contain"

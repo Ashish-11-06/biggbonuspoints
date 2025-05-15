@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,7 +28,7 @@ console.log('merchant id',merchantId);
                 const storedUser = await AsyncStorage.getItem('user');
                 if (storedUser) {
                     const parsedUser = JSON.parse(storedUser);
-                    console.log("User data from AsyncStorage:", parsedUser);
+                    // console.log("User data from AsyncStorage:", parsedUser);
                     setLoggedPin(parsedUser?.pin);
                     setUserCategory(parsedUser.user_category);
                     if(parsedUser?.user_category === 'customer') {
@@ -40,7 +40,7 @@ console.log('merchant id',merchantId);
                         setTerminalMerchant(parsedUser?.merchant_id)
                     }
                     // setLoggedInUserId(parsedUser.user_category === 'merchant' ? parsedUser.merchant_id : parsedUser.customer_id);
-                    console.log("Parsed user data:", parsedUser);
+                    // console.log("Parsed user data:", parsedUser);
                 } else {
                     Alert.alert('Error', 'User not found');
                 }
@@ -51,6 +51,27 @@ console.log('merchant id',merchantId);
 
         fetchUserId();
     }, []);
+
+const navigateToHome = () => {
+    navigation.navigate('Home');
+    };
+
+  useEffect(() => {
+    const backAction = () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
     const handlePress = (value) => {
         if (pin.length < 4) {
@@ -121,13 +142,13 @@ console.log('Logged PIN:', loggedPin, typeof loggedPin);
 
                 try {
                     const response = await dispatch(fetchCustGlobalPoints(requestData)).unwrap();
-                   console.log('user id',userId);
+                   console.log('response from G points',response);
                    
                     if (chooseGlobalMerchant) {
                         navigation.navigate('TransferPoints', {
                             merchantId: userId, // Pass userId as merchantId
                             merchantName: userName, // Pass userName as merchantName
-                            chooseGlobalMerchant: chooseGlobalMerchant,
+                            chooseGlobalMerchant: true,
                         });
                     } else {
                         navigation.navigate('ShowPoints', {
@@ -138,10 +159,17 @@ console.log('Logged PIN:', loggedPin, typeof loggedPin);
                         });
                     }
                     console.log('response G points',response);
-                    
+                    // Alert.alert('Success',
+                    //      response.message || 'Points fetched successfully',
+                    //      [{
+                    //         'text': 'OK',
+                    //         onPress:{navigateToHome}
+                    //      }]
+                    //     );
                     console.log("Fetched points:", response.points);
                 } catch (err) {
-                    Alert.alert(err || 'Failed to fetch points');
+                    Alert.alert(err || 'Failed to fetch points',
+                    );
                 }
             } 
             else if(userCategory === 'merchant'){

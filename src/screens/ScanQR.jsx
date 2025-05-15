@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
   Linking,
   PermissionsAndroid,
-  Platform
+  Platform,
+  BackHandler
 } from "react-native";
 import { Camera, CameraType } from 'react-native-camera-kit';
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -37,6 +38,23 @@ const ScanQR = () => {
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [userCategory, setUserCategory] = useState(null);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const backAction = () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -177,6 +195,7 @@ const handleScanSuccess = async (qrData) => {
       fromTransferHome: fromTransferHome,
       fromCorporateQR: fromCorporateQR,
       fromGlobalQR: fromGlobalQR,
+      fromScanQR: fromScanQR,
     });
 
     setScannedData(null);

@@ -93,6 +93,8 @@ export const fetchCustGlobalPoints = createAsyncThunk(
         }
         return rejectWithValue(response.data.error || "Failed to fetch points");
       } catch (error) {
+        console.log('error in G point',error);
+        
         return rejectWithValue(error.response?.data || error.message || "An error occurred");
       }
     }

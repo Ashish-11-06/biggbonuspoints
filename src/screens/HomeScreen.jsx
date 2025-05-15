@@ -21,10 +21,10 @@ const HomeScreen = () => {
     const fetchUserDetails = async () => {
       try {
         const userString = await AsyncStorage.getItem('user');
-        console.log("User data from AsyncStorage:", userString);
+        // console.log("User data from AsyncStorage:", userString);
         if (userString) {
           const user = JSON.parse(userString);
-          console.log("Parsed user data:", user);
+          // console.log("Parsed user data:", user);
 
           setUser(user);
           setUserCategory(user?.user_category)
@@ -45,7 +45,7 @@ const HomeScreen = () => {
     fetchUserDetails();
   }, []);
 
-  console.log('rrrrrr', user);
+  // console.log('rrrrrr', user);
   const renderActionButton = (iconSource, label, onPress, customStyle = {}) => (
     <TouchableOpacity onPress={onPress}>
       <View style={{ alignItems: 'center', flex: 1, padding: 10 }}>
@@ -237,14 +237,14 @@ const HomeScreen = () => {
             { width: 25, height: 25 } // Smaller icon dimensions
           )}
 
-          {userCategory !== 'terminal' &&
+         {userCategory !== 'terminal' && userCategory !== 'merchant' &&
             renderActionButton(
               require('../../assets/mobile.png'),
               'Change Mobile no.',
               () => navigation.navigate('ChangeMobileNo', { userId: userDetails.id }),
               { width: 25, height: 25 } // Smaller icon dimensions
             )
-          }
+          } 
 
           {userCategory === 'terminal' &&
             renderActionButton(
@@ -273,7 +273,20 @@ const HomeScreen = () => {
             { width: 25, height: 25 } // Smaller icon dimensions
           )}
 
-          {userCategory !== 'terminal' && userCategory !== 'customer' &&
+         
+        </View>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>
+     {userCategory !== 'terminal' && userCategory !== 'customer' &&
+            renderActionButton(
+              require('../../assets/mobile.png'),
+              'Change Mobile no.',
+              () => navigation.navigate('ChangeMobileNo', { userId: userDetails.id }),
+              { width: 25, height: 25 } // Smaller icon dimensions
+            )
+          }
+
+           {userCategory !== 'terminal' && userCategory !== 'customer' &&
             renderActionButton(
               require('../../assets/bank1.png'),
               'Payment',
@@ -281,7 +294,7 @@ const HomeScreen = () => {
               { width: 25, height: 25 } // Smaller icon dimensions
             )
           }
-        </View>
+</View>
 
         {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>
           {userCategory === 'merchant' &&
