@@ -58,16 +58,16 @@ const MerchantForm = () => {
     const fetchUserDetails = async () => {
       try {
         const userString = await AsyncStorage.getItem('user');
-        console.log("User data from AsyncStorage:", userString);
+        // console.log("User data from AsyncStorage:", userString);
 
         if (userString) {
           const user = JSON.parse(userString);
-          console.log("Parsed user data:", user);
+          // console.log("Parsed user data:", user);
 
           setLoggedInUser(user);
           const category = user.user_category || 'User';
           setUserCategory(category);
-          console.log('userrrrr 52',user);
+          // console.log('userrrrr 52',user);
           
           const initialDetails = {
             user_category: category,
@@ -158,8 +158,8 @@ const MerchantForm = () => {
     fetchUserDetails();
   }, []);
 // console.log(loggedInUser.id);
-console.log(userDetails.id);
-console.log('gender');
+// console.log(userDetails.id);
+// console.log('gender');
 
 const navigateToHome = () => {
   navigation.navigate('Home');
@@ -180,7 +180,7 @@ const navigateToHome = () => {
       
       const fetchedData = response?.payload.profile_data;
       setProfileData(fetchedData); // Set fetched data to profileData
-      console.log('fetched Data 109:', fetchedData);
+      // console.log('fetched Data 109:', fetchedData);
       
 //       if (fetchedData) {
 //         const updatedUserDetails = {
@@ -226,7 +226,7 @@ const navigateToHome = () => {
     logo: fetchedData.logo || '',
   };
 
-  console.log('initial details',initialDetails);
+  // console.log('initial details',initialDetails);
   
   setUserDetails(initialDetails);
 
@@ -255,16 +255,19 @@ const storeMerchantLogo = async (logo) => {
 };
 
   const onSubmit = async (data) => {
-    console.log('hello');
+    // console.log('hello');
     
     console.log('Form submitted:', data);
     let res=null;
     if(loggedInUser?.user_category === 'customer') {
       res = await dispatch(addAdditinalDetails({ userId: userDetails.id, data }));
-      console.log('customer resonse',res);
+      // console.log('customer resonse',res);
       
     }
     else if(loggedInUser?.user_category === 'merchant') {
+      console.log('merchant logo',data.logo);
+      console.log('data to be sent merchant',data);
+      
      res = await dispatch(addAdditinalDetailsMerchant({ userId: userDetails.id, data }));
      console.log('merchant response',res);
      
@@ -310,15 +313,15 @@ const storeMerchantLogo = async (logo) => {
         gst_number: updatedData.gst_number || '',
         logo: updatedData.logo || '',
       };
-console.log('update data payload 283',updatedUserDetails);
+// console.log('update data payload 283',updatedUserDetails);
 
       setUserDetails(updatedUserDetails);
-console.log('hiii');
-
       // Update form fields with the latest data
       Object.keys(updatedUserDetails).forEach((key) => {
         setValue(key, updatedUserDetails[key]);
       });
+      // Ensure logo field is updated in the form as well
+      setValue('logo', updatedUserDetails.logo);
 
       // Save merchant logo if merchant
       if (loggedInUser?.user_category === 'merchant') {
@@ -333,7 +336,7 @@ console.log('hiii');
     }
   };
 
-console.log('profile data',profileData);
+// console.log('profile data',profileData);
 
 // const storeMerchantLogo = async () => {
 //   try {
@@ -348,7 +351,7 @@ console.log('profile data',profileData);
 //     console.error('Error saving merchant logo:', error);
 //   }
 // };
-;
+
 
 const handleEdit = () => {
   Object.keys(userDetails).forEach((key) => {
@@ -409,11 +412,23 @@ const handleEdit = () => {
               .map((key) => (
                 <View key={key} style={styles.halfWidthContainer}>
                   <Text>{fieldLabels[key] || key}</Text>
-                  <TextInput
-                    style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#004BFF' }]}
-                    value={userDetails[key]}
-                    editable={false}
-                  />
+                  {key === 'logo' && userCategory === 'merchant' && userDetails[key] ? (
+                    <Image
+                      source={
+                        userDetails[key].startsWith('data:')
+                          ? { uri: userDetails[key] }
+                          : { uri: `data:image/png;base64,${userDetails[key]}` }
+                      }
+                      style={styles.logoPreview}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <TextInput
+                      style={[styles.input, { backgroundColor: '#f9f9f9', borderColor: '#004BFF' }]}
+                      value={userDetails[key]}
+                      editable={false}
+                    />
+                  )}
                 </View>
               ))}
           </View>
@@ -504,10 +519,10 @@ const handleEdit = () => {
                       </TouchableOpacity>
                       {value && typeof value === 'string' ? (
                         <Image
-                          source={{ uri: value }}
-                          style={styles.logoPreview}
-                          resizeMode="contain"
-                        />
+  source={{ uri: `data:image/png;base64,${value}` }}
+  style={styles.logoPreview}
+  resizeMode="contain"
+/>
                       ) : null}
                     </>
                   )}

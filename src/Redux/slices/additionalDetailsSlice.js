@@ -23,7 +23,9 @@ export const addAdditinalDetailsMerchant = createAsyncThunk(
       console.log("Data to be sent to API:", data); // Log the data being sent
       try {
         const response = await additinalDetailsApi.addAdditinalDetailsMerchant(data);
-        console.log("Response from API:", response.data);
+        console.log("Response from API addAdditinalDetailsMerchant :", response.data);
+        console.log('logo in addAdditinalDetailsMerchant',response.data.profile_data.logo);
+
         if (response.status === 200 && response.data) {
           return response.data;
         }
@@ -41,7 +43,9 @@ export const fetchAdditionalDetailsMerchant = createAsyncThunk(
         console.log('hiii');
         
         const response = await additinalDetailsApi.getAdditionalDetailsMerchant(data);
-        console.log("Response from API:", response);
+        console.log("Response from API fetchAdditionalDetailsMerchant:", response);
+        console.log('logo in fetchAdditionalDetailsMerchant',response.data.profile_data.logo);
+        
         if (response.status === 200 && response.data) {
           return response.data;
         }

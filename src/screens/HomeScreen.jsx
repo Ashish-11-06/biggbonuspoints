@@ -5,8 +5,10 @@ import Header from '../Components/Header';
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import History from './History';
+import { clearUnreadCount } from '../Redux/slices/notificationSlice';
+import { closeWebSocket, connectWebSocket } from '../Redux/websocket';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -16,7 +18,14 @@ const HomeScreen = () => {
   const [loggedInUserId, setLoggedInUserId] = useState(null);
   const [user, setUser] = useState(null);
   const dispatch = useDispatch();
+  const [userId, setUserId] = useState(null);
+  const [userType, setUserType] = useState(null); // Track user type
+  const [wsConnected, setWsConnected] = useState(false); // Track WebSocket status
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0); // Track unread count
 
+  const unreadCount = useSelector((state) =>
+    userId ? state.notification.unreadCount[userId] || 0 : 0
+  );
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -45,6 +54,67 @@ const HomeScreen = () => {
     fetchUserDetails();
   }, []);
 
+  // Load user info from AsyncStorage and set userId
+  useEffect(() => {
+    const loadUserDetails = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('user');
+        if (userData) {
+          const parsed = JSON.parse(userData);
+          let id = null;
+          let type = null;
+
+          if (parsed.user_category === 'merchant') {
+            id = parsed.merchant_id;
+            type = 'merchant';
+          } else if (parsed.user_category === 'customer') {
+            id = parsed.customer_id;
+            type = 'customer';
+          }
+
+          if (id && type) {
+            setUserId(id);
+            setUserType(type);
+            dispatch(clearUnreadCount(id)); // Clear unread count when screen loads
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load user details:', error);
+      }
+    };
+
+    loadUserDetails();
+  }, [dispatch]);
+
+  // Connect to WebSocket when userId and userType are set
+  useEffect(() => {
+    if (!userId || !userType) return;
+
+    // Callback for incoming messages
+    const handleMessage = (data) => {
+      console.log('📩 Message received:', data);
+      setUnreadNotificationCount(data.unread_count || 0); // Update unread count
+      // Optionally update notifications state here
+    };
+
+    // Connect and set connection status
+    connectWebSocket(
+      userId,
+      userType,
+      handleMessage,
+      () => setWsConnected(true),   // onOpen
+      () => setWsConnected(false)   // onClose
+    );
+
+    return () => {
+      closeWebSocket();
+      setWsConnected(false);
+    };
+  }, [userId, userType]);
+
+
+  console.log("Unread Notification Count:", unreadNotificationCount);
+  
   // console.log('rrrrrr', user);
   const renderActionButton = (iconSource, label, onPress, customStyle = {}) => (
     <TouchableOpacity onPress={onPress}>
@@ -58,7 +128,7 @@ const HomeScreen = () => {
     </TouchableOpacity>
   );
 
-  console.log("User Details:", userDetails);
+  // console.log("User Details:", userDetails);
   console.log("User Category:", userCategory);
   console.log(userDetails);
 
@@ -70,6 +140,7 @@ const HomeScreen = () => {
           username={user?.user_category}
           user={user}
           location={loggedInUserId}
+          unreadNotificationCount={unreadNotificationCount}
           avatarUrl="https://randomuser.me/api/portraits/men/1.jpg"
           onNotificationsPress={() => console.log("Notifications Pressed")}
           onSettingsPress={() => console.log("Settings Pressed")}

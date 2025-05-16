@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import profile from '../../assets/profile.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IconButton } from 'react-native-paper';
-const Header = ({ user, location = "Location", avatarUrl, onSettingsPress }) => {
+const Header = ({ user, location = "Location", avatarUrl, onSettingsPress, unreadNotificationCount }) => {
   // console.log(user);
   const [merchantLogo, setMerchantLogo] = useState(null);
   const logo=user?.logo_base64;
@@ -43,12 +43,29 @@ const logoPath = merchantLogo ;
 // Remove '/api' and join with logo path
 // const imageUrl = logoPath?.startsWith('http') ? logoPath : `${API_BASE}${logoPath}`;
 const imageUrl=merchantLogo
-console.log('image url',imageUrl);
-  const onLogoutPress =async () => {
-    await AsyncStorage.clear();
-    console.log('All AsyncStorage data cleared!');
-    navigation.navigate('Login');
-  }
+// console.log('image url',imageUrl);
+const onLogoutPress = () => {
+  Alert.alert(
+    'Confirm Logout',
+    'Are you sure you want to logout?',
+    [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          await AsyncStorage.clear();
+          console.log('All AsyncStorage data cleared!');
+          navigation.navigate('Login');
+        },
+      },
+    ],
+    { cancelable: false }
+  );
+};
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgb(241, 66, 66)' }}>
       {/* Avatar */}
@@ -66,7 +83,9 @@ console.log('image url',imageUrl);
           source={
             user?.user_category === "customer"
               ? (logo ? { uri: logo } : profile)
-              : (imageUrl ? { uri: imageUrl } : profile)
+              : (merchantLogo
+                  ? { uri: `data:image/png;base64,${merchantLogo}` }
+                  : profile)
           }
           style={{ width: 30, height: 30 }}
           resizeMode="contain"
@@ -79,10 +98,35 @@ console.log('image url',imageUrl);
       </View>
       
       {/* Notification Icon */}
-      <TouchableOpacity onPress={onNotificationsPress} style={{ marginHorizontal: 10 }}>
-      <Image source={require('../../assets/notification.png')} style={{ width: 24, height: 24 }} />
-       {/* <MaterialIcons name="../../assets/notification.png" size={24} color="white" />  */}
-      </TouchableOpacity> 
+<TouchableOpacity onPress={onNotificationsPress} style={{ marginHorizontal: 10 }}>
+  <View style={{ position: 'relative' }}>
+    <Image
+      source={require('../../assets/notification.png')}
+      style={{ width: 24, height: 24 }}
+    />
+
+    {unreadNotificationCount > 0 && (
+      <View
+        style={{
+          position: 'absolute',
+          top: -8,
+          right: -7,
+          backgroundColor: '#004BFF',
+          borderRadius: 10,
+          minWidth: 18,
+          height: 18,
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 2,
+        }}
+      >
+        <Text style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>
+          {unreadNotificationCount}
+        </Text>
+      </View>
+    )}
+  </View>
+</TouchableOpacity>
       
       {/* Settings Icon */}
       <TouchableOpacity onPress={onLogoutPress} style={{ marginHorizontal: 10 }}>

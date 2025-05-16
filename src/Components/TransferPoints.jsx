@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -54,6 +54,7 @@ const TransferPoints = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const nav = useNavigation();
   const [user,setUser]=useState(null);
+  const isMounted = useRef(true);
 
   const fetchDetails = async () => {
     try {
@@ -92,6 +93,7 @@ const TransferPoints = ({ route, navigation }) => {
     fetchDetails(); // Call fetchDetails on page load
 
     return () => {
+      isMounted.current = false;
       dispatch(resetTransferState());
     };
   }, []);
@@ -336,14 +338,12 @@ console.log('terminal id',terminalId);
               // receiver_customer_id: receiverId,
               customer_id: customerId, 
               merchant_id: receiverId,
-              // merchantSelected: selectedMerchant,
-              // merchant:merchantId,
               pin,
               points: parseInt(points),
             })).unwrap();
-  
+
             console.log("Transfer response:", response);
-            if(response.message) {
+            if(response.message && isMounted.current) {
               Alert.alert(
                 "success",
                 response.message 
@@ -388,12 +388,13 @@ console.log('terminal id',terminalId);
           }
   
         } catch (error) {
-          Alert.alert(
-            'Error',
-            error,
-            [{ text: 'OK' }]
-          );
-          
+          if (isMounted.current) {
+            Alert.alert(
+              'Error',
+              error,
+              [{ text: 'OK' }]
+            );
+          }
         }
       },
     });
