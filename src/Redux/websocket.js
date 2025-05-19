@@ -7,7 +7,7 @@ export const connectWebSocket = (userId, userType, onMessageCallback, onOpen, on
     console.error('User ID and type required to connect WebSocket');
     return;
   }
-  const SOCKET_URL = `ws://192.168.1.40:8000/ws/notifications/${userType}_${userId}`;
+  const SOCKET_URL = `ws://192.168.1.62:8000/ws/notifications/${userType}_${userId}`;
 
 
   socket = new WebSocket(SOCKET_URL);

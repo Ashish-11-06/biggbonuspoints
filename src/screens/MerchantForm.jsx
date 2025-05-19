@@ -34,7 +34,7 @@ const MerchantForm = () => {
     pan_number: 'PAN Number',
     shop_name: 'Shop Name',
     gst_number: 'GST Number',
-    logo:'Logo',
+    logo_data:'Logo',
   };
 
   useEffect(() => {
@@ -87,7 +87,7 @@ const MerchantForm = () => {
             shop_name: user.shop_name || '',
             // registershop_name: user.registershop_name || '',
             gst_number: user.gst_number || '',
-            logo: user.logo || '',
+            logo_data: user.logo_data || '',
           };
 
           setUserDetails(initialDetails);
@@ -223,7 +223,7 @@ const navigateToHome = () => {
     shop_name: fetchedData.shop_name || '',
     // registershop_name: fetchedData.registershop_name || 'Shop Name',
     gst_number: fetchedData.gst_number || '',
-    logo: fetchedData.logo || '',
+    logo_data: fetchedData.logo || '',
   };
 
   // console.log('initial details',initialDetails);
@@ -241,10 +241,10 @@ const navigateToHome = () => {
     fetchAdditinalDetails();
   }, [loggedInUser, dispatch]);
   
-const storeMerchantLogo = async (logo) => {
+const storeMerchantLogo = async (logo_data) => {
   try {
-    if (logo) {
-      await AsyncStorage.setItem('merchant_logo', logo);
+    if (logo_data) {
+      await AsyncStorage.setItem('merchant_logo', logo_data);
       console.log('Merchant logo saved!');
     } else {
       console.warn('No logo found to save');
@@ -265,7 +265,7 @@ const storeMerchantLogo = async (logo) => {
       
     }
     else if(loggedInUser?.user_category === 'merchant') {
-      console.log('merchant logo',data.logo);
+      console.log('merchant logo',data.logo_data);
       console.log('data to be sent merchant',data);
       
      res = await dispatch(addAdditinalDetailsMerchant({ userId: userDetails.id, data }));
@@ -311,7 +311,7 @@ const storeMerchantLogo = async (logo) => {
         shop_name: updatedData.shop_name || '',
         // registershop_name: updatedData.registershop_name || '',
         gst_number: updatedData.gst_number || '',
-        logo: updatedData.logo || '',
+        logo_data: updatedData.logo || '',
       };
 // console.log('update data payload 283',updatedUserDetails);
 
@@ -320,12 +320,12 @@ const storeMerchantLogo = async (logo) => {
       Object.keys(updatedUserDetails).forEach((key) => {
         setValue(key, updatedUserDetails[key]);
       });
-      // Ensure logo field is updated in the form as well
-      setValue('logo', updatedUserDetails.logo);
+      // Ensure logo_data field is updated in the form as well
+      setValue('logo_data', updatedUserDetails.logo_data);
 
       // Save merchant logo if merchant
       if (loggedInUser?.user_category === 'merchant') {
-        await storeMerchantLogo(updatedUserDetails.logo);
+        await storeMerchantLogo(updatedUserDetails.logo_data);
       }
     }
      if(res?.payload.message) {
@@ -373,9 +373,10 @@ const handleEdit = () => {
         const base64String = `data:${asset.type};base64,${asset.base64}`;
         console.log('Selected logo base64:', base64String);
         onChange(base64String);
+        setValue('logo_data', base64String); // <-- Ensure preview updates immediately
       } else if (asset.uri) {
-        // fallback if base64 not available
         onChange(asset.uri);
+        setValue('logo_data', asset.uri); // fallback if base64 not available
       }
     }
   };
@@ -404,7 +405,7 @@ const handleEdit = () => {
             {row
               // Hide shop_name and gst_number for customers
               .filter((key) => {
-                if (userCategory === 'customer' && (key === 'shop_name' || key === 'gst_number' || key === 'logo')) {
+                if (userCategory === 'customer' && (key === 'shop_name' || key === 'gst_number' || key === 'logo_data')) {
                   return false;
                 }
                 return !(key === 'shop_name' && userCategory === 'customer');
@@ -412,7 +413,7 @@ const handleEdit = () => {
               .map((key) => (
                 <View key={key} style={styles.halfWidthContainer}>
                   <Text>{fieldLabels[key] || key}</Text>
-                  {key === 'logo' && userCategory === 'merchant' && userDetails[key] ? (
+                  {key === 'logo_data' && userCategory === 'merchant' && userDetails[key] ? (
                     <Image
                       source={
                         userDetails[key].startsWith('data:')
@@ -445,7 +446,7 @@ const handleEdit = () => {
                 return false;
               }
               // Hide logo for customers
-              if (key === 'logo' && userCategory === 'customer') {
+              if (key === 'logo_data' && userCategory === 'customer') {
                 return false;
               }
               return true;
@@ -502,10 +503,10 @@ const handleEdit = () => {
                   )}
                   name={key}
                 />
-              ) : key === 'logo' && userCategory === 'merchant' ? (
+              ) : key === 'logo_data' && userCategory === 'merchant' ? (
                 <Controller
                   control={control}
-                  name="logo"
+                  name="logo_data"
                   render={({ field: { onChange, value } }) => (
                     <>
                       <TouchableOpacity
@@ -519,10 +520,14 @@ const handleEdit = () => {
                       </TouchableOpacity>
                       {value && typeof value === 'string' ? (
                         <Image
-  source={{ uri: `data:image/png;base64,${value}` }}
-  style={styles.logoPreview}
-  resizeMode="contain"
-/>
+                          source={
+                            value.startsWith('data:')
+                              ? { uri: value }
+                              : { uri: `data:image/png;base64,${value}` }
+                          }
+                          style={styles.logoPreview}
+                          resizeMode="contain"
+                        />
                       ) : null}
                     </>
                   )}

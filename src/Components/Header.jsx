@@ -57,7 +57,7 @@ const onLogoutPress = () => {
         text: 'Logout',
         style: 'destructive',
         onPress: async () => {
-          await AsyncStorage.clear();
+            await AsyncStorage.removeItem('user'); // only removes user key
           console.log('All AsyncStorage data cleared!');
           navigation.navigate('Login');
         },

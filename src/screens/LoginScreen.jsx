@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, StatusBar } from "react-native";
 import { Text, TextInput, Button, Snackbar, Provider, RadioButton } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ForgotPinDialog from "../Dialog/ForgotPinDialog";
@@ -203,6 +203,7 @@ console.log('storageeee ',storageData);
 
     return (
         <Provider>
+
             <View style={styles.container}>
                 <Text variant="headlineMedium" style={styles.title}>Login</Text>
 

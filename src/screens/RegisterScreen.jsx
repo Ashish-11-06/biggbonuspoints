@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, StyleSheet, ToastAndroid, ScrollView, Platform } from "react-native";
 import { Text, TextInput, Button, Provider, Portal, ActivityIndicator } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
@@ -6,6 +6,7 @@ import HelpDialog from "../Dialog/HelpDialog";
 import { registerUser, verifyOtp } from "../Redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getSecurityQuestions } from "../Redux/slices/securityQuestionsSlice";
 
 const RegisterScreen = ({ navigation }) => {
     // Refs for form inputs
@@ -30,6 +31,8 @@ const RegisterScreen = ({ navigation }) => {
     const [customerId, setCustomerId] = useState("");
     const [selectedReference, setSelectedReference] = useState(""); // Add state for reference question
     const [userType, setUserType] = useState(""); // Add state for user type
+    const [securityQuestions, setSecurityQuestions] = useState([]); // State to store security questions
+    
 
     // Error states
     const [firstNameError, setFirstNameError] = useState("");
@@ -59,6 +62,18 @@ const RegisterScreen = ({ navigation }) => {
         }
     };
 
+        useEffect(() => {
+            const fetchSecurityQuestions = async () => {
+                try {
+                    const response = await dispatch(getSecurityQuestions());
+                    console.log("Security Questions:", response);
+                    setSecurityQuestions(response?.payload.questions); // Assuming response contains the questions
+                    } catch (error) {
+                    console.error("Error fetching security questions:", error);
+                }
+            };
+            fetchSecurityQuestions();
+        }, []);
     // Validate all form fields
     const validateFields = () => {
         let isValid = true;
@@ -162,7 +177,7 @@ const RegisterScreen = ({ navigation }) => {
                 last_name: lastNameRef.current,
                 mobile: mobileRef.current,
                 pin: pinRef.current,
-                security_question: securityQuestionRef.current,
+                security_question: securityQuestionRef.current, // <-- This is the ID
                 answer: securityAnswerRef.current,
                 user_category: userTypeRef.current,
                 ...(userTypeRef.current === "merchant" && {
@@ -364,9 +379,9 @@ const RegisterScreen = ({ navigation }) => {
                             style={styles.picker}
                         >
                             <Picker.Item label="Select a security question" value="" />
-                            <Picker.Item label="What is your pet's name?" value="1" />
-                            <Picker.Item label="What is your mother's maiden name?" value="2" />
-                            <Picker.Item label="What was your first school?" value="3" />
+                            {securityQuestions && securityQuestions.map((q) => (
+                                <Picker.Item key={q.id} label={q.question} value={q.id.toString()} />
+                            ))}
                         </Picker>
                         {securityQuestionError ? <Text style={styles.errorText}>{securityQuestionError}</Text> : null}
 
