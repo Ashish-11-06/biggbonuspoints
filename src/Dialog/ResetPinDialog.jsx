@@ -28,7 +28,19 @@ const ResetPinDialog = ({ visible, onDismiss, onSubmit }) => {
         if (!confirmPinRef.current) {
             setConfirmPinError("Confirm PIN is required.");
             isValid = false;
-        } else if (confirmPinRef.current !== newPinRef.current) {
+        } else if (confirmPinRef.current.length !== 4) {
+            setConfirmPinError("PIN must be 4 digits.");
+            isValid = false;
+        }
+
+        // Check if both PINs match (only if both are 4 digits)
+        if (
+            newPinRef.current &&
+            confirmPinRef.current &&
+            newPinRef.current.length === 4 &&
+            confirmPinRef.current.length === 4 &&
+            newPinRef.current !== confirmPinRef.current
+        ) {
             setConfirmPinError("PIN and Confirm PIN must match.");
             isValid = false;
         }

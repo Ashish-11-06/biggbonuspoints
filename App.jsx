@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar, useColorScheme, ActivityIndicator, View } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PushNotification from 'react-native-push-notification';
 
 if (__DEV__) {
   require('./ReactotronConfig');
@@ -66,6 +67,20 @@ function App() {
     checkUser();
   }, []);
 
+useEffect(() => {
+    PushNotification.createChannel(
+      {
+        channelId: 'default-channel-id', // required
+        channelName: 'Default Channel', // required
+        channelDescription: 'A default channel for notifications',
+        soundName: 'default', // optional
+        importance: 4, // optional (default is 4: high)
+        vibrate: true, // optional
+      },
+      (created) => console.log(`createChannel returned '${created}'`)
+    );
+  }, []);
+
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -80,7 +95,8 @@ function App() {
     <NavigationContainer>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+        // backgroundColor={backgroundStyle.backgroundColor}
+        backgroundColor="rgb(241, 66, 66)"
       />
       <Stack.Navigator initialRouteName="Login">
       {/* <Stack.Navigator initialRouteName={initialRoute}> */}
