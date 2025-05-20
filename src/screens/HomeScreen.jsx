@@ -339,12 +339,10 @@ const HomeScreen = () => {
 
           {renderActionButton(
             require('../../assets/bank1.png'),
-            'TransactionHistory',
+            'Transaction History',
             () => navigation.navigate("History"),
             { width: 25, height: 25 } // Smaller icon dimensions
-          )}
-
-         
+          )}      
         </View>
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>

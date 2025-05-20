@@ -92,9 +92,11 @@ const PaymentsHistory = ({ navigation }) => {
                       <View key={index} style={styles.row}>
                         <Text style={styles.cell}>{item.merchant}</Text>
                         <Text style={styles.cell}>{item.paid_amount}</Text>
-                        <Text style={styles.cell}>
+                        <Text style={styles.cell}>{item.plan_type === 2 ? 'Prepaid' : 'Rental'}</Text>
+
+                        {/* <Text style={styles.cell}>
   {item.plan_type === '2' ? 'Prepaid' : item.plan_type === '1' ? 'Rental' : 'N/A'}
-</Text>
+</Text> */}
 
                         
                         <Text style={styles.cell}>{item.transaction_id}</Text>

@@ -25,25 +25,21 @@ export const customerToMerchantPoints = createAsyncThunk(
 );
 
 // Async thunk for transferring points
+// asyncThunk (e.g. redux slice or API logic file)
 export const customerToCorporatePoints = createAsyncThunk(
-  "points/transfer",
+  "points/transferToCorporate",
   async (transferData, { rejectWithValue }) => {
-    console.log("Transfer data:", transferData);
-    
     try {
-      console.log("Transfer data cust to corporate:", transferData);
       const response = await transferPointsApi.customerToCorporate(transferData);
-      
       console.log("Transfer response:", response);
-
+      
       if (response.status === 200 && response.data) {
         return response.data;
-    } else if (response.status === 400) {
-        console.log("Transfer error:", response.data.error);
-        return rejectWithValue(response.data.error || "transfer failed!"); 
+      } else {
+        return rejectWithValue(response.data?.error || "Transfer failed!");
       }
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+      return rejectWithValue(error.response?.data?.error || error.message || "Something went wrong.");
     }
   }
 );

@@ -5,6 +5,7 @@ const PointsApi = {
         return axiosInstance.post(`redeemAwardPoints/customer/`, data);
     },
     viewCustomerWisePoints : (merchantId) => {
+        console.log('data in api request',merchantId);
         return axiosInstance.get(`redeemAwardPoints/merchant/${merchantId}/`);
     } ,
     viewPrepaidMerchants :() => {

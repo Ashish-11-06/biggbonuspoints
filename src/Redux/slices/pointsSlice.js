@@ -23,6 +23,8 @@ export const fetchMerchantPoints = createAsyncThunk(
     async (merchantId, { rejectWithValue }) => {
       try {
         const response = await PointsApi.viewCustomerWisePoints(merchantId);
+        console.log('fetch merchant points res',response);
+        
         console.log("Response from API view merchant:", response.data);
         
         if (response.status === 200 && response.data) {

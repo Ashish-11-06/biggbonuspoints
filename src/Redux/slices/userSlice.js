@@ -125,6 +125,23 @@ export const getAllPrepaidMerchant = createAsyncThunk(
   }
 );
 
+export const getCorporateGlobalMerchants = createAsyncThunk(
+  "user/getCorporateGlobalMerchants",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await userApi.getCorporateGlobalMerchants();
+      console.log('getCorporateGlobalMerchants response',response);
+      
+      if (response.status === 200 && response.data) {
+        return response.data;
+      }
+      return rejectWithValue(response.data.error || "Failed to fetch customers");
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message || "An error occurred");
+    }
+  }
+);
+
 // Slice
 const userSlice = createSlice({
   name: "user",
@@ -239,6 +256,18 @@ const userSlice = createSlice({
         state.merchants = action.payload.users;
       })
       .addCase(getAllPrepaidMerchant.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(getCorporateGlobalMerchants.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(getCorporateGlobalMerchants.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.merchants = action.payload.users;
+      })
+      .addCase(getCorporateGlobalMerchants.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });

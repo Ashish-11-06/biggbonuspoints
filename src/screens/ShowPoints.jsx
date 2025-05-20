@@ -24,7 +24,7 @@ const ShowPoints = ({ route }) => {
               const storedUser = await AsyncStorage.getItem('user');
               if (storedUser) {
                   const parsedUser = JSON.parse(storedUser);
-                  console.log("User data from AsyncStorage:", parsedUser);
+                  // console.log("User data from AsyncStorage:", parsedUser);
                   // setUserCategory(parsedUser.user_category);
                   if(parsedUser?.user_category === 'customer') {
                       setLoggedInUserId(parsedUser.customer_id);
@@ -35,7 +35,7 @@ const ShowPoints = ({ route }) => {
                       // setTerminalMerchant(parsedUser?.merchant_id)
                   }
                   // setLoggedInUserId(parsedUser.user_category === 'merchant' ? parsedUser.merchant_id : parsedUser.customer_id);
-                  console.log("Parsed user data:", parsedUser);
+                  // console.log("Parsed user data:", parsedUser);
               } else {
                   Alert.alert('Error', 'User not found');
               }
@@ -79,9 +79,9 @@ useEffect(() => {
           
           if (userString) {
             const user = JSON.parse(userString);
-            console.log("Parsed user data:", user);
+            // console.log("Parsed user data:", user);
             setLoggedInUserId(user.user_category === 'merchant' ? user.merchant_id : user.customer_id);
-console.log('userrrr',user);
+// console.log('userrrr',user);
 
             // Set the loggedInUser state
             setLoggedInUser(user);

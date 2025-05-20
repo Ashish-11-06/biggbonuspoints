@@ -17,12 +17,12 @@ const History = () => {
     const fetchUserDetails = async () => {
       try {
         const userString = await AsyncStorage.getItem('user');
-        console.log('user string',userString);
+        // console.log('user string',userString);
         
         if (userString) {
           const user = JSON.parse(userString);
           setLoggedInUser(user);
-          console.log('user',user);   
+          // console.log('user',user);   
           if(user.user_category === 'terminal') {
             setTerminalMerchant(user.merchant_id);
           }
@@ -33,9 +33,9 @@ const History = () => {
     };
     fetchUserDetails();
   }, []);
-console.log('logged user',loggedInUser);
+// console.log('logged user',loggedInUser);
 
-  console.log('logged user',loggedInUser)
+  // console.log('logged user',loggedInUser)
   useEffect(() => {
     const fetchTransactionHistoryData = async () => {
       if (!loggedInUser) {
@@ -61,9 +61,7 @@ console.log('logged user',loggedInUser);
           fetchTransactionHistory({ user_id, user_category })
         );
         console.log(response);
-        
-
-        setTransactionHistory(response.payload.transaction_history);
+        setTransactionHistory(response.payload.history);
       } catch (error) {
         console.error('Error fetching transaction history:', error);
       } finally {
@@ -102,7 +100,7 @@ console.log('logged user',loggedInUser);
     return isCustomer ? (
       <View style={styles.row}>
         <Text style={[styles.cell, styles.colSr]}>{index + 1}</Text>
-        <Text style={[styles.cell, styles.colMerchantName]}>{item.merchant_name}</Text>
+        {/* <Text style={[styles.cell, styles.colMerchantName]}>{item.merchant_name}</Text> */}
         <Text style={[styles.cell, styles.colMerchant]}>{item.merchant_id}</Text>
         <Text style={pointsStyle}>{pointsText}</Text>
         <Text style={[styles.cell, styles.colCreatedAt]}>
@@ -112,7 +110,7 @@ console.log('logged user',loggedInUser);
     ) : (
       <View style={styles.row}>
         <Text style={[styles.cell, styles.colSr]}>{index + 1}</Text>
-        <Text style={[styles.cell, styles.colMerchantName]}>{item.customer_name}</Text>
+        {/* <Text style={[styles.cell, styles.colMerchantName]}>{item.customer_name}</Text> */}
         <Text style={[styles.cell, styles.colMerchant]}>{item.customer_id}</Text>
         <Text style={pointsStyle}>{pointsText}</Text>
         <Text style={[styles.cell, styles.colCreatedAt]}>
@@ -140,9 +138,9 @@ console.log('logged user',loggedInUser);
               {loggedInUser?.user_category == 'customer' ? (
                 <View style={[styles.row, styles.header]}>
                   <Text style={[styles.headerCell, styles.colSr]}>Sr. No.</Text>
-                  <Text style={[styles.headerCell, styles.colMerchantName]}>
+                  {/* <Text style={[styles.headerCell, styles.colMerchantName]}>
                     Merchant Name
-                  </Text>
+                  </Text> */}
                   <Text style={[styles.headerCell, styles.colMerchant]}>
                     Merchant ID
                   </Text>
@@ -154,9 +152,9 @@ console.log('logged user',loggedInUser);
               ) : (
                 <View style={[styles.row, styles.header]}>
                   <Text style={[styles.headerCell, styles.colSr]}>Sr. No.</Text>
-                  <Text style={[styles.headerCell, styles.colMerchantName]}>
+                  {/* <Text style={[styles.headerCell, styles.colMerchantName]}>
                     Customer Name
-                  </Text>
+                  </Text> */}
                   <Text style={[styles.headerCell, styles.colMerchant]}>
                     Customer ID
                   </Text>
@@ -168,11 +166,15 @@ console.log('logged user',loggedInUser);
               )}
 
               {/* Data Rows */}
-              <FlatList
-                data={transactionHistory}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
-              />
+              {transactionHistory && transactionHistory.length > 0 ? (
+                transactionHistory.map((item, index) => renderItem({ item, index }))
+              ) : (
+                <View style={styles.row}>
+                  <Text style={[styles.cell, { flex: 1, textAlign: 'center' }]} colSpan={5}>
+                    No transaction history found.
+                  </Text>
+                </View>
+              )}
             </View>
           </ScrollView>
         </>
@@ -183,7 +185,7 @@ console.log('logged user',loggedInUser);
 
 const styles = StyleSheet.create({
   tableContainer: {
-    minWidth: 720, // Total width of the table
+    minWidth: 520, // Total width of the table
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,

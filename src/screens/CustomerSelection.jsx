@@ -2,7 +2,7 @@ import React, { useState,useEffect } from "react";
 import { View, TextInput, FlatList, Text, TouchableOpacity, BackHandler } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllCustomers, getAllMerchants, getAllCorporateMerchants, getAllPrepaidMerchant } from "../Redux/slices/userSlice";
+import { getAllCustomers, getAllMerchants, getAllCorporateMerchants, getAllPrepaidMerchant, getCorporateGlobalMerchants } from "../Redux/slices/userSlice";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 const CustomerSelection = ({ navigation }) => {
@@ -13,6 +13,8 @@ const CustomerSelection = ({ navigation }) => {
   const { userCategory, chooseCorporateMerchant,chooseGlobalMerchant } = route.params;
   const { merchants = [], customers = [], status, error } = useSelector((state) => state.user);
   const [prepaidMerchants, setPrepaidMerchants] = useState([]);
+// console.log('choose global merchant',chooseGlobalMerchant);
+console.log('choose corporate merchant',chooseCorporateMerchant);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +23,7 @@ const CustomerSelection = ({ navigation }) => {
           if (!chooseCorporateMerchant && !chooseGlobalMerchant) {
             const res = await dispatch(getAllMerchants());
           } else if(chooseGlobalMerchant) {
-            const res = await dispatch(getAllPrepaidMerchant());
+            const res = await dispatch(getCorporateGlobalMerchants());
             setPrepaidMerchants(res?.payload.merchants);
           } else {
             const res = await dispatch(getAllCorporateMerchants());
@@ -131,7 +133,8 @@ const CustomerSelection = ({ navigation }) => {
                 userShop: item.shop_name || null,
                 fromChooseMerchant: true,
                 chooseGlobalMerchant: chooseGlobalMerchant,
-                chooseGlobal : true
+                chooseGlobal : true,
+                chooseCorporateMerchant: chooseCorporateMerchant,
               })
             }
           >

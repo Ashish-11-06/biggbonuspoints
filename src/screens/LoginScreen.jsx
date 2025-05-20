@@ -203,7 +203,10 @@ console.log('storageeee ',storageData);
 
     return (
         <Provider>
-
+            <StatusBar
+                barStyle="light-content"
+                backgroundColor="#004BFF"
+            />
             <View style={styles.container}>
                 <Text variant="headlineMedium" style={styles.title}>Login</Text>
 

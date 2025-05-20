@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './ReactotronConfig';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StatusBar, useColorScheme, ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, StatusBar, useColorScheme, View } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotification from 'react-native-push-notification';
@@ -46,6 +46,8 @@ function App() {
   const isDarkMode = useColorScheme() === 'dark';
   const [initialRoute, setInitialRoute] = useState('Login');
   const [isLoading, setIsLoading] = useState(true);
+  const [currentRoute, setCurrentRoute] = useState('Login');
+  const navigationRef = useRef();
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -67,7 +69,7 @@ function App() {
     checkUser();
   }, []);
 
-useEffect(() => {
+  useEffect(() => {
     PushNotification.createChannel(
       {
         channelId: 'default-channel-id', // required
@@ -91,44 +93,50 @@ useEffect(() => {
 
   return (
     <Provider store={store}>
-       <PaperProvider>
-    <NavigationContainer>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        // backgroundColor={backgroundStyle.backgroundColor}
-        backgroundColor="rgb(241, 66, 66)"
-      />
-      <Stack.Navigator initialRouteName="Login">
-      {/* <Stack.Navigator initialRouteName={initialRoute}> */}
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Details" component={DetailsScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="CustomerSelection" component={CustomerSelection} options={{ headerShown: false }} />
-        <Stack.Screen name="ScanQR" component={ScanQR} options={{ headerShown: false }} />
-        <Stack.Screen name="PointsScreen" component={PointsScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="ShowPoints" component={ShowPoints} options={{ headerShown: false }} />
-        <Stack.Screen name="Awards" component={Awards} options={{ headerShown: false }} />
-        <Stack.Screen name="MerchantForm" component={MerchantForm} options={{ headerShown: false }} />
-        <Stack.Screen name="RedeemPoints" component={RedeemPoints} options={{ headerShown: false }} />
-        <Stack.Screen name="transfer" component={transfer} options={{ headerShown: false }} />
-        <Stack.Screen name="Transferpointstomerchant" component={Transferpointstomerchant} options={{ headerShown: false }} />
-        <Stack.Screen name="History" component={History} options={{ headerShown: false }} />
-        <Stack.Screen name="TransferPoints" component={TransferPoints} options={{ headerShown: false }} />
-        <Stack.Screen name="SelectUser" component={SelectUser} options={{ headerShown: false }} />
-        <Stack.Screen name="BankDetails" component={BankDetails} options={{ headerShown: false }} />
-        <Stack.Screen name="HelpSection" component={HelpSection} options={{ headerShown: false }} />
-        <Stack.Screen name="ChangeMobileNo" component={ChangeMobileNo} options={{ headerShown: false }} />
-        <Stack.Screen name="ReceivePointsScreen" component={ReceivePointsScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
-        <Stack.Screen name="Payments" component={Payments} options={{ headerShown: false }} />
-        <Stack.Screen name="PaymentsHistory" component={PaymentsHistory} options={{ headerShown: false }} />
-        <Stack.Screen name="Cashout" component={Cashout} options={{ headerShown: false }} />
-        <Stack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
-
-      </Stack.Navigator>
-    </NavigationContainer>
-    </PaperProvider>
+      <PaperProvider>
+        <NavigationContainer
+          ref={navigationRef}
+          onStateChange={() => {
+            const route = navigationRef.current?.getCurrentRoute();
+            setCurrentRoute(route?.name);
+          }}
+        >
+          {/* Show red StatusBar for all screens except Login */}
+          {currentRoute !== 'Login' && (
+            <StatusBar
+              barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+              backgroundColor="rgb(241, 66, 66)"
+            />
+          )}
+          <Stack.Navigator initialRouteName="Login">
+            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Details" component={DetailsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="CustomerSelection" component={CustomerSelection} options={{ headerShown: false }} />
+            <Stack.Screen name="ScanQR" component={ScanQR} options={{ headerShown: false }} />
+            <Stack.Screen name="PointsScreen" component={PointsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="ShowPoints" component={ShowPoints} options={{ headerShown: false }} />
+            <Stack.Screen name="Awards" component={Awards} options={{ headerShown: false }} />
+            <Stack.Screen name="MerchantForm" component={MerchantForm} options={{ headerShown: false }} />
+            <Stack.Screen name="RedeemPoints" component={RedeemPoints} options={{ headerShown: false }} />
+            <Stack.Screen name="transfer" component={transfer} options={{ headerShown: false }} />
+            <Stack.Screen name="Transferpointstomerchant" component={Transferpointstomerchant} options={{ headerShown: false }} />
+            <Stack.Screen name="History" component={History} options={{ headerShown: false }} />
+            <Stack.Screen name="TransferPoints" component={TransferPoints} options={{ headerShown: false }} />
+            <Stack.Screen name="SelectUser" component={SelectUser} options={{ headerShown: false }} />
+            <Stack.Screen name="BankDetails" component={BankDetails} options={{ headerShown: false }} />
+            <Stack.Screen name="HelpSection" component={HelpSection} options={{ headerShown: false }} />
+            <Stack.Screen name="ChangeMobileNo" component={ChangeMobileNo} options={{ headerShown: false }} />
+            <Stack.Screen name="ReceivePointsScreen" component={ReceivePointsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+            <Stack.Screen name="Payments" component={Payments} options={{ headerShown: false }} />
+            <Stack.Screen name="PaymentsHistory" component={PaymentsHistory} options={{ headerShown: false }} />
+            <Stack.Screen name="Cashout" component={Cashout} options={{ headerShown: false }} />
+            <Stack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
     </Provider>
   );
 }

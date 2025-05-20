@@ -28,6 +28,9 @@ const userApi = {
     getAllPrepaidMerchant: () => {
         return axiosInstance.get('redeemAwardPoints/getPrepaidMerchants/');
     },
+    getCorporateGlobalMerchants: () => {
+        return axiosInstance.get('redeemAwardPoints/get-corporate-global-merchant/');
+    }
 
 };
 

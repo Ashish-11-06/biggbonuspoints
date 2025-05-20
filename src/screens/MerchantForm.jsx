@@ -281,7 +281,15 @@ const storeMerchantLogo = async (logo_data) => {
     // }
     setIsEditing(false); // Exit edit mode after submission
 
-    // Fetch updated details
+    // Move navigation to Home here if submission is successful
+    if(res?.payload?.message) {
+      Alert.alert('success', res?.payload.message, [
+        { text: "OK", onPress: navigateToHome }
+      ]);
+      return; // Prevent further code execution after navigation
+    }
+
+    // Fetch updated details (this will run only if navigation didn't happen)
     const userId = loggedInUser?.customer_id || loggedInUser?.merchant_id || loggedInUser?.corporate_id || 'N/A';
     let response ;
     if(loggedInUser?.user_category === 'merchant') {
