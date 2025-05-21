@@ -258,15 +258,18 @@ console.log('storageeee ',storageData);
 
 
 {selectedUserType === "customer" && (
-    <TextInput
-        label="Mobile Number"
-        mode="outlined"
-        keyboardType="phone-pad"
-        value={mobile}
-        onChangeText={(text) => setMobile(text.replace(/[^0-9]/g, ""))}
-        maxLength={10}
-        style={styles.input}
-    />
+  <TextInput
+  label="Mobile Number"
+  mode="outlined"
+  keyboardType="phone-pad"
+  value={mobile}
+  onChangeText={(text) => setMobile(text.replace(/[^0-9]/g, ""))}
+  maxLength={10}
+  style={styles.input}
+  theme={{ colors: { primary: '#004BFF', outline: '#004BFF' } }} // ✅ correct usage
+/>
+
+
 )}
 
                 { (selectedUserType === 'merchant' && choice === 'mobile') && (
@@ -278,6 +281,7 @@ console.log('storageeee ',storageData);
         onChangeText={(text) => setMobile(text.replace(/[^0-9]/g, ""))}
         maxLength={10}
         style={styles.input}
+        theme={{ colors: { primary: '#004BFF', outline: '#004BFF' } }} // ✅ correct usage
     />
 )}
                 { (selectedUserType === 'merchant' && choice === 'merchant_id') && (
@@ -288,6 +292,8 @@ console.log('storageeee ',storageData);
         onChangeText={(text) => setMerchantId(text.replace(/[^a-zA-Z0-9]/g, ""))} // Allow alphanumeric characters
         maxLength={15} // Adjust maxLength if needed
         style={styles.input}
+        theme={{ colors: { primary: '#004BFF', outline: '#004BFF' } }} // ✅ correct usage
+
     />
 )}
 
@@ -299,7 +305,9 @@ console.log('storageeee ',storageData);
         value={terminal}
         onChangeText={(text) => setTerminal(text.replace(/[^a-zA-Z0-9]/g, ""))}
         // maxLength={10}
-        style={[styles.input, { borderColor: "#F14242" }]}    />
+        style={[styles.input, { borderColor: "#F14242" }]}
+          theme={{ colors: { primary: '#004BFF', outline: '#004BFF' } }} // ✅ correct usage
+    />
 )}
 
 
@@ -315,6 +323,8 @@ console.log('storageeee ',storageData);
                     onChangeText={(text) => setPin(text.replace(/[^0-9]/g, ""))}
                     maxLength={4}
                     style={styles.input}
+                      theme={{ colors: { primary: '#004BFF', outline: '#004BFF' } }} // ✅ correct usage
+
                 />
 
 
@@ -391,6 +401,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         backgroundColor: "white",
         borderColor: "#004BFF !importatnt",
+
     },
     pickerContainer: {
         borderWidth: 1,

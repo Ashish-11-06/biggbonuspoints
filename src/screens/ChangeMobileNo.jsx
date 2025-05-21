@@ -126,8 +126,8 @@ console.log('user',userDetails);
     if (userDetails.user_category === 'customer') {
       data = {
         customer_id: userDetails.id,
-        new_mobile: newMobile,
-        new_mobile_otp: otp,
+        new_mobile: Number(newMobile),
+        new_mobile_otp: Number(otp),
       };
     } else if (userDetails.user_category === 'merchant') {
       data = {
@@ -138,6 +138,11 @@ console.log('user',userDetails);
     }
   
     const res = await dispatch(verifyNewNumber(data));
+    console.log('Verify OTP response:', res);
+    if (res?.message) { 
+      Alert.alert('Success', res.message);
+    }
+    
     setVerifyLoading(false); // Stop loader
   
     if (res.message) {

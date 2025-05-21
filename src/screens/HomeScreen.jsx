@@ -289,8 +289,42 @@ const HomeScreen = () => {
           </View>
         </Card>
       }
+      {userCategory === 'terminal' &&
+        <Card style={{ margin: 10, marginBottom: 20, padding: 10, backgroundColor: '#fff5f5' }}>
+          {/* <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transfer Points</Text> */}
+          <View style={{ padding: 10 }}>
 
-      <Card style={{ margin: 10, padding: 15, borderRadius: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3, backgroundColor: '#fff5f5' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+               {renderActionButton(
+            require('../../assets/help.png'),
+            'Help Section',
+            () => navigation.navigate('HelpSection'),
+            { width: 25, height: 25 } // Smaller icon dimensions
+          )}
+ 
+
+               {/* {userCategory === 'terminal' && */}
+            {renderActionButton(
+              require('../../assets/receive.png'),
+              'Your QR',
+              () => navigation.navigate('ReceivePointsScreen', { userId: userDetails.id }),
+              { width: 25, height: 25 } // Smaller icon dimensions
+            )
+          }
+              {renderActionButton(
+            require('../../assets/bank1.png'),
+            'Transaction History',
+            () => navigation.navigate("History"),
+            { width: 25, height: 25 } // Smaller icon dimensions
+          )}  
+            </View>
+          </View>
+        </Card>
+      }
+
+
+{userCategory !== 'terminal' &&
+        <Card style={{ margin: 10, marginBottom: 20, padding: 10, backgroundColor: '#fff5f5' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10 }}>
           {userCategory === 'merchant' && (
             renderActionButton(
@@ -301,13 +335,14 @@ const HomeScreen = () => {
             )
           )}
 
-          {renderActionButton(
+          {userCategory !== 'terminal' && (
+          renderActionButton(
             require('../../assets/help.png'),
             'Help Section',
             () => navigation.navigate('HelpSection'),
             { width: 25, height: 25 } // Smaller icon dimensions
-          )}
-
+          ))}
+ 
          {userCategory !== 'terminal' && userCategory !== 'merchant' &&
             renderActionButton(
               require('../../assets/mobile.png'),
@@ -317,15 +352,10 @@ const HomeScreen = () => {
             )
           } 
 
-          {userCategory === 'terminal' &&
-            renderActionButton(
-              require('../../assets/receive.png'),
-              'Your QR',
-              () => navigation.navigate('ReceivePointsScreen', { userId: userDetails.id }),
-              { width: 25, height: 25 } // Smaller icon dimensions
-            )
-          }
+         
+         
         </View>
+
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>
           {userCategory !== 'terminal' &&
@@ -337,13 +367,16 @@ const HomeScreen = () => {
             )
           }
 
-          {renderActionButton(
+{userCategory !== 'terminal' &&
+          renderActionButton(
             require('../../assets/bank1.png'),
             'Transaction History',
             () => navigation.navigate("History"),
             { width: 25, height: 25 } // Smaller icon dimensions
           )}      
         </View>
+
+
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>
      {userCategory !== 'terminal' && userCategory !== 'customer' &&
@@ -365,7 +398,8 @@ const HomeScreen = () => {
           }
 </View>
 
-        {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', padding: 10, marginTop: 10 }}>
           {userCategory === 'merchant' &&
             renderActionButton(
               require('../../assets/bank1.png'),
@@ -374,8 +408,9 @@ const HomeScreen = () => {
               { width: 25, height: 25 } // Smaller icon dimensions
             )
           }
-        </View> */}
+        </View>
       </Card>
+}
     </ScrollView>
   );
 };

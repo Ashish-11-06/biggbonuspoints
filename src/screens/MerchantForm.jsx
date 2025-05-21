@@ -30,7 +30,7 @@ const MerchantForm = () => {
     country: 'Country',
     pincode: 'Pincode',
     address: 'Address',
-    aadhaar_number: 'Aadhar Number',
+    aadhar_number: 'Aadhar Number',
     pan_number: 'PAN Number',
     shop_name: 'Shop Name',
     gst_number: 'GST Number',
@@ -82,7 +82,7 @@ const MerchantForm = () => {
             country: user.country || '',
             pincode: user.pincode || '',
             address: user.address || '',
-            aadhaar_number: user.aadhaar_number || '',
+            aadhar_number: user.aadhar_number || '',
             pan_number: user.pan_number || '',
             shop_name: user.shop_name || '',
             // registershop_name: user.registershop_name || '',
@@ -135,7 +135,7 @@ const MerchantForm = () => {
 //           country: fetchedData.country || '',
 //           pincode: fetchedData.pincode?.toString() || '', // Ensure pincode is converted to string
 //           address: fetchedData.address || '',
-//           aadhaar_number: fetchedData.aadhaar_number || '',
+//           aadhar_number: fetchedData.aadhar_number || '',
 //           pan_number: fetchedData.pan_number || '',
 //           shop_name: fetchedData.shop_name || '',
 //           // registershop_name: fetchedData.registershop_name || 'Shop Name',
@@ -195,7 +195,7 @@ const navigateToHome = () => {
 //           country: fetchedData.country || '',
 //           pincode: fetchedData.pincode?.toString() || '', // Ensure pincode is converted to string
 //           address: fetchedData.address || '',
-//           aadhaar_number: fetchedData.aadhaar_number || '',
+//           aadhar_number: fetchedData.aadhar_number || '',
 //           pan_number: fetchedData.pan_number || '',
 //           shop_name: fetchedData.shop_name || '',
 //           // registershop_name: fetchedData.registershop_name || 'Shop Name',
@@ -218,7 +218,7 @@ const navigateToHome = () => {
     country: fetchedData.country || '',
     pincode: fetchedData.pincode?.toString() || '', // Ensure pincode is converted to string
     address: fetchedData.address || '',
-    aadhaar_number: fetchedData.aadhaar_number || '',
+    aadhar_number: fetchedData.aadhar_number || '',
     pan_number: fetchedData.pan_number || '',
     shop_name: fetchedData.shop_name || '',
     // registershop_name: fetchedData.registershop_name || 'Shop Name',
@@ -253,10 +253,28 @@ const storeMerchantLogo = async (logo_data) => {
     console.error('Error saving merchant logo:', error);
   }
 };
-
+   useEffect(() => {
+    const getMerchantLogo = async () => {
+      try {
+        const logo = await AsyncStorage.getItem('merchant_logo');
+        if (logo) {
+          console.log('Merchant logo retrieved:', logo);
+          
+          // setMerchantLogo(logo);
+        }
+      } catch (error) {
+        console.error('Error retrieving merchant logo:', error);
+      }
+    };
+    if (loggedInUser?.user_category === 'merchant') {
+      getMerchantLogo();
+    }
+  }, [loggedInUser?.user_category]);
   const onSubmit = async (data) => {
     // console.log('hello');
     
+   
+
     console.log('Form submitted:', data);
     let res=null;
     if(loggedInUser?.user_category === 'customer') {
@@ -314,7 +332,7 @@ const storeMerchantLogo = async (logo_data) => {
         country: updatedData.country || '',
         pincode: updatedData.pincode?.toString() || '', // Ensure pincode is converted to string
         address: updatedData.address || '',
-        aadhaar_number: updatedData.aadhaar_number || '',
+        aadhar_number: updatedData.aadhar_number || '',
         pan_number: updatedData.pan_number || '',
         shop_name: updatedData.shop_name || '',
         // registershop_name: updatedData.registershop_name || '',
@@ -544,8 +562,8 @@ const handleEdit = () => {
                 <Controller
                   control={control}
                   rules={{
-                    required: key !== 'aadhaar_number' && key !== 'pan_number' && key !== 'gst_number',
-                    pattern: key === 'mobile_number' ? /^[0-9]{10}$/ : key === 'aadhaar_number' ? /^[0-9]{12}$/ : undefined, // Validate 10-digit mobile number or 12-digit aadhar
+                    required: key !== 'aadhar_number' && key !== 'pan_number' && key !== 'gst_number',
+                    pattern: key === 'mobile_number' ? /^[0-9]{10}$/ : key === 'aadhar_number' ? /^[0-9]{12}$/ : undefined, // Validate 10-digit mobile number or 12-digit aadhar
                     minLength: key === 'pincode' ? 6 : undefined, // Minimum length for pincode
                     maxLength: key === 'pincode' ? 6 : undefined, // Maximum length for pincode
                   }}
@@ -555,7 +573,7 @@ const handleEdit = () => {
                       onChangeText={onChange}
                       value={value}
                       editable={isEditing || !loggedInUser?.is_profile_updated}
-                      keyboardType={key === 'mobile_number' || key === 'aadhaar_number' || key === 'pincode' || key === 'age' ? 'numeric' : 'default'} // Numeric keyboard for specific fields
+                      keyboardType={key === 'mobile_number' || key === 'aadhar_number' || key === 'pincode' || key === 'age' ? 'numeric' : 'default'} // Numeric keyboard for specific fields
                     />
                   )}
                   name={key}
@@ -565,8 +583,8 @@ const handleEdit = () => {
                 <Text style={styles.error}>
                   {key === 'mobile_number' && 'Mobile number must be 10 digits.'}
                   {key === 'pincode' && 'Pincode must be 6 digits.'}
-                  {key === 'aadhaar_number' && 'Aadhar number must be 12 digits.'}
-                  {key !== 'aadhaar_number' && key !== 'pan_number' && key !== 'gst_number' && `${fieldLabels[key] || key} is required.`}
+                  {key === 'aadhar_number' && 'Aadhar number must be 12 digits.'}
+                  {key !== 'aadhar_number' && key !== 'pan_number' && key !== 'gst_number' && `${fieldLabels[key] || key} is required.`}
                 </Text>
               )}
             </View>

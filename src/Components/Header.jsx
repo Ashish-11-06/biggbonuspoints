@@ -8,7 +8,7 @@ import profile from '../../assets/profile.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IconButton } from 'react-native-paper';
 const Header = ({ user, location = "Location", avatarUrl, onSettingsPress, unreadNotificationCount }) => {
-  // console.log(user);
+  console.log('user',user);
   const [merchantLogo, setMerchantLogo] = useState(null);
   const logo=user?.logo_base64;
     const navigation = useNavigation();
@@ -66,8 +66,13 @@ const onLogoutPress = () => {
     { cancelable: false }
   );
 };
+
+console.log('merchant logo',merchantLogo);
+
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgb(241, 66, 66)' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgb(241, 66, 66)' ,  borderBottomLeftRadius: 10,  borderBottomRightRadius: 10,
+
+    }}>
       {/* Avatar */}
       <TouchableOpacity onPress={onClickProfile} style={{ 
         width: 40, 
@@ -93,7 +98,13 @@ const onLogoutPress = () => {
       </TouchableOpacity>
       {/* User Info */}
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}>{user ? `${user.first_name} ${user.last_name}` : ''}</Text>
+<Text style={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}>
+  {user
+    ? user.user_category === 'terminal'
+      ? 'Terminal'
+      : `${user.first_name} ${user.last_name}`
+    : ''}
+</Text>
         <Text style={{ fontSize: 14, color: 'white' }}>{location}</Text>
       </View>
       

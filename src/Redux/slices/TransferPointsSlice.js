@@ -30,6 +30,8 @@ export const customerToCorporatePoints = createAsyncThunk(
   "points/transferToCorporate",
   async (transferData, { rejectWithValue }) => {
     try {
+      console.log("Transfer data cust to corporate:", transferData);
+      
       const response = await transferPointsApi.customerToCorporate(transferData);
       console.log("Transfer response:", response);
       

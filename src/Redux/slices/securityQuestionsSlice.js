@@ -7,7 +7,7 @@ export const getSecurityQuestions = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await securityQuestionsApi.securityQuestions(data);
-      console.log(response);
+      // console.log(response);
       
       if (response.status === 200 && response.data) {
         return response.data; // Ensure response contains valid data

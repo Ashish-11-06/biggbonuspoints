@@ -457,7 +457,7 @@ const TransferPoints = ({route, navigation}) => {
       customerToCorporatePoints({
         merchant_id: receiverId,
         customer_id: customerId,
-        pin,
+        pin:Number(pin),
         points: parseInt(points),
       })
     ).unwrap();

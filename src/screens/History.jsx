@@ -6,13 +6,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
 import { ActivityIndicator } from 'react-native-paper';
 
+
 const History = () => {
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [transactionHistory, setTransactionHistory] = useState([]);
   const [terminalMerchant,setTerminalMerchant] = useState(null);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
-  
+
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -35,7 +36,7 @@ const History = () => {
   }, []);
 // console.log('logged user',loggedInUser);
 
-  // console.log('logged user',loggedInUser)
+  // console.log('logged user',loggedInUser.user_category);
   useEffect(() => {
     const fetchTransactionHistoryData = async () => {
       if (!loggedInUser) {
@@ -73,13 +74,24 @@ const History = () => {
   }, [loggedInUser, dispatch]);
 
   const renderItem = ({ item, index }) => {
-    const pointsStyle = [
-      styles.cell,
-      styles.colPoints,
-      item.transaction_type === 'award' ? styles.pointsAward : null,
-    ];
+   const pointsStyle = [
+  styles.cell,
+  styles.colPoints,
+  loggedInUser.user_category === 'customer'
+    ? item.transaction_type === 'redeem'
+      ? styles.pointsRedeem
+      : item.transaction_type === 'award'
+      ? styles.pointsAward
+      : null
+    : item.transaction_type === 'award'
+    ? styles.pointsRedeem
+    : item.transaction_type === 'redeem'
+    ? styles.pointsAward
+    : null,
+];
 
-    const pointsText = item.transaction_type === 'award' ? `+${item.points}` : item.points;
+
+    const pointsText = item.transaction_type === 'award' ? `${item.points}` : item.points;
     const convertUTCtoIST = (utcDate) => {
       const date = new Date(utcDate);
       date.setMinutes(date.getMinutes() + 330); // Add 5 hours 30 minutes
@@ -132,7 +144,7 @@ const History = () => {
           <Text style={{ fontSize: 22, marginBottom: 10, textAlign: 'center', color:'#F14242', fontWeight:'700' }}>
             Transaction History
           </Text>
-          <ScrollView horizontal>
+          <ScrollView horizontal style={{ flex: 1 }}>
             <View style={styles.tableContainer}>
               {/* Header Row */}
               {loggedInUser?.user_category == 'customer' ? (
@@ -166,15 +178,17 @@ const History = () => {
               )}
 
               {/* Data Rows */}
-              {transactionHistory && transactionHistory.length > 0 ? (
-                transactionHistory.map((item, index) => renderItem({ item, index }))
-              ) : (
-                <View style={styles.row}>
-                  <Text style={[styles.cell, { flex: 1, textAlign: 'center' }]} colSpan={5}>
-                    No transaction history found.
-                  </Text>
-                </View>
-              )}
+              <ScrollView style={{ flexGrow: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
+                {transactionHistory && transactionHistory.length > 0 ? (
+                  transactionHistory.map((item, index) => renderItem({ item, index }))
+                ) : (
+                  <View style={styles.row}>
+                    <Text style={[styles.cell, { flex: 1, textAlign: 'center' }]} colSpan={5}>
+                      No transaction history found.
+                    </Text>
+                  </View>
+                )}
+              </ScrollView>
             </View>
           </ScrollView>
         </>
@@ -190,6 +204,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 8,
     overflow: 'hidden',
+    flex: 1, // Make table container take available height
   },
   row: {
     flexDirection: 'row',
