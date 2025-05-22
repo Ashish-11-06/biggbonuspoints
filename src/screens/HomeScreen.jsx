@@ -130,7 +130,7 @@ const HomeScreen = () => {
 
   // console.log("User Details:", userDetails);
   console.log("User Category:", userCategory);
-  console.log(userDetails);
+  // console.log(userDetails);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f3f3f3' }}>

@@ -8,7 +8,7 @@ import profile from '../../assets/profile.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IconButton } from 'react-native-paper';
 const Header = ({ user, location = "Location", avatarUrl, onSettingsPress, unreadNotificationCount }) => {
-  console.log('user',user);
+  // console.log('user',user);
   const [merchantLogo, setMerchantLogo] = useState(null);
   const logo=user?.logo_base64;
     const navigation = useNavigation();
@@ -67,7 +67,7 @@ const onLogoutPress = () => {
   );
 };
 
-console.log('merchant logo',merchantLogo);
+// console.log('merchant logo',merchantLogo);
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgb(241, 66, 66)' ,  borderBottomLeftRadius: 10,  borderBottomRightRadius: 10,

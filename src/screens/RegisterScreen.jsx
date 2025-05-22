@@ -380,7 +380,7 @@ const RegisterScreen = ({ navigation }) => {
                         >
                             <Picker.Item label="Select a security question" value="" />
                             {securityQuestions && securityQuestions.map((q) => (
-                                <Picker.Item key={q.id} label={q.question} value={q.id.toString()} />
+                                <Picker.Item key={q.id} label={q.question} value={q.question} />
                             ))}
                         </Picker>
                         {securityQuestionError ? <Text style={styles.errorText}>{securityQuestionError}</Text> : null}

@@ -133,7 +133,7 @@ const LoginScreen = ({ navigation }) => {
                 };
             }
 
-            console.log('login data', userData);
+            // console.log('login data', userData);
 
             const res = await dispatch(loginUser(userData)).unwrap();
             console.log('res', res);
@@ -172,7 +172,7 @@ const LoginScreen = ({ navigation }) => {
                 //     storageData.corporate_id = res.corporate_id;
                 // }
                
-console.log('storageeee ',storageData);
+// console.log('storageeee ',storageData);
 
                 console.log('is profile updated', res.is_profile_updated);
                 await AsyncStorage.setItem("user", JSON.stringify(storageData));
