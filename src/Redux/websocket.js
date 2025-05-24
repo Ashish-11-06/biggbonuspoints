@@ -23,6 +23,7 @@ export const connectWebSocket = (userId, userType, onMessageCallback, onOpen, on
   };
 
   socket.onmessage = (e) => {
+    console.log('📩 Message received:', e.data);
     try {
       const data = JSON.parse(e.data);
       console.log('📩 Message received:', data);

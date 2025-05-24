@@ -153,23 +153,48 @@ function App() {
   }
 
   useEffect(() => {
-    if (userId && userType) {
-      connectWebSocket(
-        userId,
-        userType,
-        (data) => {
-          setUnreadNotificationCount(data.unread_count || 0);
-          if (data.new_notification) {
-            console.log('New notification:', data.new_notification);
+    const connectAndListen = async () => {
+      try {
+        if (userId && userType) {
+          connectWebSocket(
+            userId,
+            userType,
+            (data) => {
+              try {
+                setUnreadNotificationCount(data.unread_count || 0);
+                if (data.new_notification) {
+                  console.log('New notification:', data.new_notification);
 
-            const { title, description } = data.new_notification;
-            showNotificationBanner(title, description);
-          }
-        },
-        () => console.log('WebSocket connected'),
-        () => console.log('WebSocket disconnected')
-      );
-    }
+                  const { title, description } = data.new_notification;
+                  showNotificationBanner(title, description);
+                }
+              } catch (notifErr) {
+                console.error('Error handling notification:', notifErr);
+              }
+            },
+            () => {
+              try {
+                console.log('WebSocket connected');
+                // You can show a notification or update state here if needed
+              } catch (wsConnectErr) {
+                console.error('Error in WebSocket connected callback:', wsConnectErr);
+              }
+            },
+            () => {
+              try {
+                console.log('WebSocket disconnected');
+              } catch (wsDisconnectErr) {
+                console.error('Error in WebSocket disconnected callback:', wsDisconnectErr);
+              }
+            }
+          );
+        }
+      } catch (err) {
+        console.error('Error in WebSocket connection logic:', err);
+      }
+    };
+
+    connectAndListen();
 
     return () => {
       if (!userId || !userType) {
@@ -200,6 +225,10 @@ function App() {
     onClose={() => {
       setShowBanner(false);
       setNotificationMsg('');
+      // Navigate to Notifications screen when banner is pressed
+      if (navigationRef.current) {
+        navigationRef.current.navigate('Notifications');
+      }
     }}
   />
 )}
@@ -214,7 +243,7 @@ function App() {
               setCurrentRoute(route?.name);
             }}
           >
-            {currentRoute !== 'Login' && (
+            {(currentRoute !== 'Login' ) && (
               <StatusBar
                 barStyle={isDarkMode ? 'light-content' : 'dark-content'}
                 backgroundColor="rgb(241, 66, 66)"
@@ -290,4 +319,8 @@ bannerContainer: {
 });
 
 export default App;
+
+
+
+
 

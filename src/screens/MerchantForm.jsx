@@ -160,6 +160,7 @@ const MerchantForm = () => {
 // console.log(loggedInUser.id);
 // console.log(userDetails.id);
 // console.log('gender');
+console.log('loggedInUser',loggedInUser);
 
 const navigateToHome = () => {
   navigation.navigate('Home');
@@ -400,6 +401,19 @@ const handleEdit = () => {
         console.log('Selected logo base64:', base64String);
         onChange(base64String);
         setValue('logo_data', base64String); // <-- Ensure preview updates immediately
+
+        // Update AsyncStorage "user" object with new logo_base64
+        try {
+          const userString = await AsyncStorage.getItem('user');
+          if (userString) {
+            const storageData = JSON.parse(userString);
+            storageData.logo_base64 = base64String;
+            await AsyncStorage.setItem('user', JSON.stringify(storageData));
+            console.log('Updated user.logo_base64 in AsyncStorage');
+          }
+        } catch (err) {
+          console.error('Failed to update user.logo_base64 in AsyncStorage:', err);
+        }
       } else if (asset.uri) {
         onChange(asset.uri);
         setValue('logo_data', asset.uri); // fallback if base64 not available

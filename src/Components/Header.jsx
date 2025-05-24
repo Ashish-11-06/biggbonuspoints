@@ -15,7 +15,7 @@ const Header = ({ user, location = "Location", avatarUrl, onSettingsPress, unrea
   
   const onClickProfile =()=> {
     navigation.navigate('MerchantForm');
-// console.log('pressed')
+// console.log('pressed')`
   }
 
   const onNotificationsPress = () => {
@@ -86,6 +86,13 @@ const onLogoutPress = () => {
       }}>
         <Image
           source={
+            logo ? { uri: logo } : profile
+          }
+          style={{ width: 30, height: 30 }}
+          resizeMode="contain"
+        />
+       {/* <Image
+          source={
             user?.user_category === "customer"
               ? (logo ? { uri: logo } : profile)
               : (merchantLogo
@@ -94,7 +101,7 @@ const onLogoutPress = () => {
           }
           style={{ width: 30, height: 30 }}
           resizeMode="contain"
-        />
+        /> */}
       </TouchableOpacity>
       {/* User Info */}
       <View style={{ flex: 1 }}>
@@ -107,7 +114,11 @@ const onLogoutPress = () => {
 </Text>
         <Text style={{ fontSize: 14, color: 'white' }}>{location}</Text>
       </View>
-      
+      <Image
+    source={logo}
+    style={{ width: 30, height: 30 }}
+    resizeMode="contain"
+  />
       {/* Notification Icon */}
 <TouchableOpacity onPress={onNotificationsPress} style={{ marginHorizontal: 10 }}>
   <View style={{ position: 'relative' }}>
