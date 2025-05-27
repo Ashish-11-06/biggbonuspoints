@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert, StatusBar } from 'react-native';
 import { addHelpQuery } from '../Redux/slices/helpSectionSlice';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -78,8 +78,10 @@ if(user?.user_category === 'terminal') {
       const res = await dispatch(addHelpQuery(data)); // Use unwrap to handle success
       console.log('Response:', res.payload.message);
   
-      Alert.alert('Success', res?.payload.message || 'Query submitted successfully');
-      setQuery(''); // Clear the input field after submission
+      if(res?.payload?.message) {
+        Alert.alert('Success', res?.payload.message || 'Query submitted successfully');
+        setQuery(''); // Clear the input field after submission
+      }
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('Error', error || 'Failed to submit query');
@@ -88,6 +90,8 @@ if(user?.user_category === 'terminal') {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+            <StatusBar barStyle="light-content" backgroundColor="#004BFF" />
+
       <View style={styles.card}>
         <Text style={styles.heading}>Help & Support</Text>
 

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { fetchPaymentDetails } from '../Redux/slices/paymentDetailsSlice';
 import { useDispatch } from 'react-redux';
@@ -68,6 +68,8 @@ const PaymentsHistory = ({ navigation }) => {
   
     return (
       <View style={styles.container}>
+              <StatusBar barStyle="light-content" backgroundColor="#004BFF" />
+
         {loading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <ActivityIndicator size="large" color="#004BFF" />

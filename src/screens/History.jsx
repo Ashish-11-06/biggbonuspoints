@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ScrollView, StatusBar } from 'react-native';
 import { fetchTransactionHistory } from '../Redux/slices/transactionHistorySlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
@@ -73,7 +73,7 @@ const History = () => {
     fetchTransactionHistoryData();
   }, [loggedInUser, dispatch]);
 
-  const renderItem = ({ item, index }) => {
+  const renderItem = ({ item, index, key }) => {
    const pointsStyle = [
   styles.cell,
   styles.colPoints,
@@ -110,7 +110,7 @@ const History = () => {
     const isCustomer = loggedInUser?.user_category === 'customer';
 
     return isCustomer ? (
-      <View style={styles.row}>
+      <View style={styles.row} key={key}>
         <Text style={[styles.cell, styles.colSr]}>{index + 1}</Text>
         {/* <Text style={[styles.cell, styles.colMerchantName]}>{item.merchant_name}</Text> */}
         <Text style={[styles.cell, styles.colMerchant]}>{item.merchant_id}</Text>
@@ -120,7 +120,7 @@ const History = () => {
         </Text>
       </View>
     ) : (
-      <View style={styles.row}>
+      <View style={styles.row} key={key}>
         <Text style={[styles.cell, styles.colSr]}>{index + 1}</Text>
         {/* <Text style={[styles.cell, styles.colMerchantName]}>{item.customer_name}</Text> */}
         <Text style={[styles.cell, styles.colMerchant]}>{item.customer_id}</Text>
@@ -135,6 +135,8 @@ const History = () => {
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
+            <StatusBar barStyle="light-content" backgroundColor="#004BFF" />
+
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#004BFF" />
@@ -180,7 +182,9 @@ const History = () => {
               {/* Data Rows */}
               <ScrollView style={{ flexGrow: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
                 {transactionHistory && transactionHistory.length > 0 ? (
-                  transactionHistory.map((item, index) => renderItem({ item, index }))
+                  transactionHistory.map((item, index) =>
+                    renderItem({ item, index, key: item._id || index }) // Pass key as prop
+                  )
                 ) : (
                   <View style={styles.row}>
                     <Text style={[styles.cell, { flex: 1, textAlign: 'center' }]} colSpan={5}>

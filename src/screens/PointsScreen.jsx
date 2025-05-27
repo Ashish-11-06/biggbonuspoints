@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, BackHandler } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, BackHandler, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -273,10 +273,13 @@ console.log('Logged PIN:', loggedPin, typeof loggedPin);
     }, [status, error]);
 
     return (
+        
         <View style={styles.container}>
+                  <StatusBar barStyle="light-content" backgroundColor="#004BFF" />
+            
 {!fromHomeScreen && (
   <Text style={styles.merchantId}>
-    {userCategory === 'customer' ? 'Merchant ID' : 'Customer ID'}: {userId}
+    {userCategory === 'customer' ? 'Customer ID' : 'Merchant ID'}: {loggedInUserId}
   </Text>
 )}            {/* <Text style={styles.userInfo}>Name: {userName}</Text>
             <Text style={styles.userInfo}>Mobile: {userMobile}</Text>

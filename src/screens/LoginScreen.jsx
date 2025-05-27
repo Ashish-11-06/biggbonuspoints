@@ -42,8 +42,7 @@ const LoginScreen = ({navigation}) => {
   };
 
   const handleLogin = async () => {
-    console.log('login clicked');
-
+    // console.log('login clicked');
     if (!selectedUserType) {
       showSnackbar('Please select a user type.');
       return;
@@ -142,6 +141,48 @@ const LoginScreen = ({navigation}) => {
 
       // console.log('login data', userData);
 
+    //   let storageData ;
+    //   if(mobile === '9876543210') {
+    //     navigation.navigate('Home');
+    //       if (userData?.user_category === 'customer') {
+    //          storageData = {
+    //             user_category: 'customer',
+    //       pin: 1234,
+    //       username: 'Prushal',
+    //       is_profile_updated: true,
+    //       first_name: 'Prushal',
+    //       last_name: 'Technology',
+    //       customer_id: 'CUST000001',
+    //         }
+
+    //     }
+    //     if (userData?.user_category === 'merchant') {
+    //           storageData = {
+    //             user_category: 'merchant',
+    //       pin: 1234,
+    //       username: 'Prushal',
+    //       is_profile_updated: true,
+    //       first_name: 'Prushal',
+    //       last_name: 'Technology',
+    //       merchant_id: 'MID49376064202',
+    //         }
+
+    //     }
+    //     await AsyncStorage.setItem('user', JSON.stringify(storageData));
+
+    // }     else if (userData?.user_category === 'terminal' && terminal === 'A123456789') {
+    //      navigation.navigate('Home');
+    // storageData = {
+    //         user_category: 'terminal',
+    //       pin: 1234,
+    //       terminal_id: 'A123456789',
+    //       merchant_id:'MID418632488317'
+    //         }
+    //         await AsyncStorage.setItem('user', JSON.stringify(storageData));
+
+    //     }
+    
+
       const res = await dispatch(loginUser(userData)).unwrap();
       console.log('res', res);
 
@@ -187,7 +228,7 @@ const LoginScreen = ({navigation}) => {
 
         // console.log('storageeee ',storageData);
 
-        console.log('is profile updated', res.is_profile_updated);
+        // console.log('is profile updated', res.is_profile_updated);
         await AsyncStorage.setItem('user', JSON.stringify(storageData));
         // showSnackbar("Login successful");
         // if (res.is_profile_updated === false) {
@@ -276,7 +317,15 @@ const LoginScreen = ({navigation}) => {
             onChangeText={text => setMobile(text.replace(/[^0-9]/g, ''))}
             maxLength={10}
             style={styles.input}
-            theme={{colors: {primary: '#004BFF', outline: '#004BFF'}}} // ✅ correct usage
+            theme={{
+              colors: {
+                primary: '#004BFF',
+                outline: '#004BFF',
+                text: '#fff', // Ensures input text is white in dark mode
+                placeholder: '#bbb', // Ensures placeholder is visible in dark mode
+              },
+            }}
+            placeholderTextColor="#bbb"
           />
         )}
 
@@ -289,20 +338,36 @@ const LoginScreen = ({navigation}) => {
             onChangeText={text => setMobile(text.replace(/[^0-9]/g, ''))}
             maxLength={10}
             style={styles.input}
-            theme={{colors: {primary: '#004BFF', outline: '#004BFF'}}} // ✅ correct usage
+            theme={{
+              colors: {
+                primary: '#004BFF',
+                outline: '#004BFF',
+                text: '#fff',
+                placeholder: '#bbb',
+              },
+            }}
+            placeholderTextColor="#bbb"
           />
         )}
         {selectedUserType === 'merchant' && choice === 'merchant_id' && (
           <TextInput
             label="Merchant ID"
             mode="outlined"
-            value={merchantId} // Ensure merchantId state is bound here
+            value={merchantId}
             onChangeText={text =>
               setMerchantId(text.replace(/[^a-zA-Z0-9]/g, ''))
-            } // Allow alphanumeric characters
-            maxLength={15} // Adjust maxLength if needed
+            }
+            maxLength={15}
             style={styles.input}
-            theme={{colors: {primary: '#004BFF', outline: '#004BFF'}}} // ✅ correct usage
+            theme={{
+              colors: {
+                primary: '#004BFF',
+                outline: '#004BFF',
+                text: '#fff',
+                placeholder: '#bbb',
+              },
+            }}
+            placeholderTextColor="#bbb"
           />
         )}
 
@@ -310,14 +375,20 @@ const LoginScreen = ({navigation}) => {
           <TextInput
             label="Terminal ID"
             mode="outlined"
-            // keyboardType="phone-pad"
             value={terminal}
             onChangeText={text =>
               setTerminal(text.replace(/[^a-zA-Z0-9]/g, ''))
             }
-            // maxLength={10}
             style={[styles.input, {borderColor: '#F14242'}]}
-            theme={{colors: {primary: '#004BFF', outline: '#004BFF'}}} // ✅ correct usage
+            theme={{
+              colors: {
+                primary: '#004BFF',
+                outline: '#004BFF',
+                text: '#fff',
+                placeholder: '#bbb',
+              },
+            }}
+            placeholderTextColor="#bbb"
           />
         )}
 
@@ -330,7 +401,15 @@ const LoginScreen = ({navigation}) => {
           onChangeText={text => setPin(text.replace(/[^0-9]/g, ''))}
           maxLength={4}
           style={styles.input}
-          theme={{colors: {primary: '#004BFF', outline: '#004BFF'}}} // ✅ correct usage
+          theme={{
+            colors: {
+              primary: '#004BFF',
+              outline: '#004BFF',
+              text: '#fff',
+              placeholder: '#bbb',
+            },
+          }}
+          placeholderTextColor="#bbb"
         />
 
         <Button

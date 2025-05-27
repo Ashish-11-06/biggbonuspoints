@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, Alert, ScrollView, StyleSheet, Image, TouchableOpacity, BackHandler } from 'react-native';
+import { View, Text, TextInput, Button, Alert, ScrollView, StyleSheet, Image, TouchableOpacity, BackHandler, StatusBar } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
@@ -423,6 +423,8 @@ const handleEdit = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+            <StatusBar barStyle="light-content" backgroundColor="#004BFF" />
+
       <Text style={styles.title}>Additional Information</Text>
 {/* <Image
   source={{ uri: imageUrl }}

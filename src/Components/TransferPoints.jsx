@@ -523,7 +523,8 @@ const TransferPoints = ({route, navigation}) => {
           {(fromSelectUser && userCategory === 'customer') ||
           (fromTransferHome && userCategory === 'customer') ? (
             <>
-              <Text style={styles.label}>Select Merchant:</Text>
+            <View>
+              <Text style={styles.label}>Select Merchant:</Text></View>
               <Picker
                 selectedValue={selectedMerchant}
                 onValueChange={(itemValue, itemIndex) =>
@@ -559,9 +560,10 @@ const TransferPoints = ({route, navigation}) => {
           <TouchableOpacity
             style={styles.transferButton}
             onPress={handleTransfer}
-            // disabled={!customerId}
+            disabled={!merchantId || !receiverId}
           >
-            <Text style={styles.transferButtonText}>Transfer Points</Text>
+            <View>
+            <Text style={styles.transferButtonText}>Transfer Points</Text></View>
           </TouchableOpacity>
 
           <TouchableOpacity

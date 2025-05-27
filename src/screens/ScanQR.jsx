@@ -41,11 +41,21 @@ const ScanQR = () => {
 
   useEffect(() => {
     const backAction = () => {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Home' }],
-      });
-      return true;
+      if (isScannerOpen) {
+        setIsScannerOpen(false);
+        // Navigate to Home after closing modal
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
+        return true;
+      } else {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
+        return true;
+      }
     };
 
     const backHandler = BackHandler.addEventListener(
@@ -54,7 +64,7 @@ const ScanQR = () => {
     );
 
     return () => backHandler.remove();
-  }, [navigation]);
+  }, [navigation, isScannerOpen]);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -258,7 +268,7 @@ const handleScanSuccess = async (qrData) => {
   if (isLoading || isFetching) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6A1B9A" />
+        <ActivityIndicator size="large" color="#004BFF" />
         {isFetching && <Text style={styles.loadingText}>Processing QR data...</Text>}
       </View>
     );
@@ -286,7 +296,13 @@ const handleScanSuccess = async (qrData) => {
         animationType="slide" 
         transparent={true} 
         visible={isScannerOpen}
-        onRequestClose={() => setIsScannerOpen(false)}
+        onRequestClose={() => {
+          setIsScannerOpen(false);
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          });
+        }}
       >
         <View style={styles.modalContainer}>
           <View style={styles.cameraContainer}>
@@ -307,7 +323,13 @@ const handleScanSuccess = async (qrData) => {
           
           <TouchableOpacity
             style={styles.cancelButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              setIsScannerOpen(false);
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+              });
+            }}
           >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
@@ -381,22 +403,23 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     marginTop: 30,
-    backgroundColor: "#6A1B9A",
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 25,
+    backgroundColor:"#004BFF"
   },
   cancelButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+    
   },
   scanMessage: {
     marginTop: 20,
     fontSize: 16,
     color: "white",
     textAlign: "center",
-    backgroundColor: 'rgba(106, 27, 154, 0.7)',
+    backgroundColor: '#004BFF',
     padding: 10,
     borderRadius: 20,
   },

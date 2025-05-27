@@ -30,7 +30,7 @@ const HomeScreen = () => {
     const fetchUserDetails = async () => {
       try {
         const userString = await AsyncStorage.getItem('user');
-        // console.log("User data from AsyncStorage:", userString);
+        console.log("User data from AsyncStorage:", userString);
         if (userString) {
           const user = JSON.parse(userString);
           // console.log("Parsed user data:", user);
@@ -156,13 +156,12 @@ const HomeScreen = () => {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             {renderActionButton(
               require('../../assets/scanner.png'), // Updated to red theme
-              'Redeem BBP',
+              userCategory === 'customer' ? 'Redeem BBP' : 'Award BBP',
               () => navigation.navigate('ScanQR', {
                 fromScanQR: 'true'
               }),
               { width: 35, height: 35 }
             )}
-
             {renderActionButton(
               require('../../assets/chooseMerchant.png'), // Updated to blue theme
               userCategory === 'customer' ? 'Choose Merchant' : 'Choose Customer',

@@ -140,6 +140,7 @@ export const merchantToMerchantPoints = createAsyncThunk(
     
     try {
       const response = await transferPointsApi.merchantToMerchant(transferData);
+      console.log('res',response);
       
       console.log("Transfer response merchant to cust:", response);
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
@@ -70,6 +70,7 @@ const onLogoutPress = () => {
 // console.log('merchant logo',merchantLogo);
 
   return (
+    <SafeAreaView style={styles.safeArea}>
     <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: 'rgb(241, 66, 66)' ,  borderBottomLeftRadius: 10,  borderBottomRightRadius: 10,
 
     }}>
@@ -162,12 +163,17 @@ const onLogoutPress = () => {
     onPress={() => console.log('Logout pressed')}
   /> */}
     </View>
+    </SafeAreaView>
   );
 };
 
 export default Header;
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 0,
+    backgroundColor: '#f33', // your header background
+  },
   container: {
     flex: 1,
     justifyContent: 'center',

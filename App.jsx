@@ -243,7 +243,9 @@ function App() {
               setCurrentRoute(route?.name);
             }}
           >
-            {(currentRoute !== 'Login' ) && (
+            {(currentRoute !== 'Login' && currentRoute !== 'Register' && currentRoute !== 'PointsScreen' && currentRoute !== 'ShowPoints'
+              && currentRoute !=='History' && currentRoute !== 'MerchantForm'
+            ) && (
               <StatusBar
                 barStyle={isDarkMode ? 'light-content' : 'dark-content'}
                 backgroundColor="rgb(241, 66, 66)"

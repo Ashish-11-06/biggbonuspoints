@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     Alert,
     BackHandler,
+    StatusBar,
   } from 'react-native';
   import React, { useEffect, useState } from 'react';
   import { Picker } from '@react-native-picker/picker';
@@ -158,6 +159,8 @@ import { RadioButton } from 'react-native-paper';
   
     return (
       <View style={styles.container}>
+              <StatusBar barStyle="light-content" backgroundColor="#004BFF" />
+
         <Text style={styles.heading}>New Payment</Text>
   
         <Text style={styles.label}>Transaction ID:</Text>

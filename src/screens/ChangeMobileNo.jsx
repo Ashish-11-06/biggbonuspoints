@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, StatusBar } from 'react-native';
 import { addNewNumber, verifyNewNumber } from '../Redux/slices/changeMobileNoSlice';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -182,6 +182,8 @@ console.log('user',userDetails);
 
   return (
     <View style={styles.screen}>
+            <StatusBar barStyle="light-content" backgroundColor="#004BFF" />
+
       <View style={styles.card}>
         <Text style={styles.heading}>Change Mobile Number</Text>
 
