@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
+import messaging from '@react-native-firebase/messaging';
+import notifee, { AndroidImportance } from '@notifee/react-native';
 import {
   NavigationContainer
 } from '@react-navigation/native';
@@ -19,7 +21,8 @@ import {
   Dimensions,
   StyleSheet,
   Easing,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -112,6 +115,48 @@ function App() {
   const [notificationMsg, setNotificationMsg] = useState('');
   const [showBanner, setShowBanner] = useState(false);
 
+
+ useEffect(() => {
+    const createChannel = async () => {
+      if (Platform.OS === 'android') {
+        await notifee.createChannel({
+          id: 'default',
+          name: 'Default Channel',
+          importance: AndroidImportance.HIGH,
+        });
+      }
+    };
+
+    const requestPermission = async () => {
+      const authStatus = await messaging().requestPermission();
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+      if (enabled) {
+        console.log('Authorization status:', authStatus);
+      }
+    };
+
+    const getToken = async () => {
+      const fcmToken = await messaging().getToken();
+      console.log('FCM Token:', fcmToken);
+      // Optionally send token to backend
+    };
+
+    const onMessageListener = messaging().onMessage(async remoteMessage => {
+      Alert.alert('New Notification', JSON.stringify(remoteMessage.notification));
+    });
+
+    // Run setup functions
+    createChannel();
+    requestPermission();
+    getToken();
+
+    return () => {
+      onMessageListener();
+    };
+  }, []);
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
